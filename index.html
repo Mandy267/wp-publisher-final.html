@@ -2471,6 +2471,18 @@ async function publishPost(){
     step(55, 'Uploading inline images to WordPress...');
     generatedHTML = await uploadAndReplaceInlineImages(site, generatedHTML, title);
 
+    // Auto-generate and inject schema if client profile exists
+    step(60, 'Generating schema markup...');
+    const profile = clientProfiles[activeProfileIdx];
+    if(profile && profile.url){
+      const schema = autoGenerateSchema(profile, title, kw, generatedHTML);
+      if(schema){
+        // Inject schema at the end of content
+        generatedHTML += `\n\n<script type="application/ld+json">\n${schema}\n</script>`;
+        toast('Schema auto-generated','ok','Article + Organization + FAQPage schema added');
+      }
+    }
+
     // URL slug from keyword
     const kwSlug = kw.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
 
@@ -4537,54 +4549,140 @@ function buildSmartPrompt(brief){
   const profile = clientProfiles[activeProfileIdx];
   
   let contextInfo = '';
+  let authorInfo = '';
+  let ctaInfo = '';
+  
   if(profile){
     contextInfo = `
 BRAND CONTEXT:
 - Business: ${profile.name}${profile.industry ? ' (' + profile.industry + ')' : ''}
 - Website: ${profile.url || 'Not specified'}
+- Location: ${profile.city || ''}${profile.state ? ', ' + profile.state : ''}
+- Business Type: ${profile.bizType || 'Not specified'}
 - Brand Tone: ${profile.tone || 'Professional & Technical'}
-${profile.authorName ? '- Author: ' + profile.authorName + (profile.authorRole ? ', ' + profile.authorRole : '') : ''}
-${profile.city ? '- Location: ' + profile.city + (profile.state ? ', ' + profile.state : '') : ''}
 `;
+
+    if(profile.authorName){
+      authorInfo = `
+AUTHOR DETAILS (MUST use exactly):
+- Author Name: ${profile.authorName}
+${profile.authorRole ? '- Author Role: ' + profile.authorRole : ''}
+${profile.authorUrl ? '- Author URL: ' + profile.authorUrl : ''}
+${profile.authorBio ? '- Author Bio: ' + profile.authorBio : ''}
+`;
+    }
+
+    if(profile.ctaBtn && profile.ctaUrl){
+      ctaInfo = `
+CTA DETAILS (MUST use exactly):
+- CTA Button Text: ${profile.ctaBtn}
+- CTA URL: ${profile.ctaUrl}
+`;
+    }
   }
   
-  return `You are a professional blog writer creating SEO-optimized content with marker formatting.
+  return `You are an expert blog writer creating premium, interactive, SEO-optimized content with advanced marker formatting.
 
-${contextInfo}
+${contextInfo}${authorInfo}${ctaInfo}
 
-TASK: Generate a complete 1200-word blog post based on this brief:
+TASK: Generate a complete 1200-1500 word blog post based on this brief:
 
 ${brief}
 
-REQUIRED FORMAT - Use these exact markers:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CRITICAL SEO REQUIREMENTS (MUST ACHIEVE 80+ RANKMATH SCORE):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-#HERO_TAG = Category · Context (e.g., "Medical Guide · Dermatology")
-#TITLE = Main blog title
+1. Focus keyword MUST appear:
+   - In first paragraph (within first 150 words)
+   - In meta title and meta description
+   - In at least 2-3 H2 headings
+   - 5-8 times throughout content (1-2% density)
+
+2. MUST include 5-8 secondary keywords in #SECONDARY_KW
+   - Use each secondary keyword at least once in content
+   - Spread naturally across different sections
+
+3. Content structure:
+   - 1200-1500 words minimum
+   - 5-7 H2 sections
+   - At least 3 H3 subsections
+   - Include FAQ section (5 questions minimum)
+   - Include at least ONE table or checklist
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+REQUIRED MARKER FORMAT (Use ALL of these):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+#HERO_TAG = Category · Context
+#TITLE = Engaging blog title with focus keyword
 #AUTHOR = ${profile?.authorName || 'Author Name'}
-${profile?.authorUrl ? '#AUTHOR_URL = ' + profile.authorUrl : ''}
+${profile?.authorUrl ? '#AUTHOR_URL = ' + profile.authorUrl : '#AUTHOR_URL = https://yoursite.com/team/author-name'}
 #READ_TIME = 12
-#META_TITLE = SEO-optimized title 50-60 chars (MUST include focus keyword)
-#META_DESC = Compelling meta description 130-160 chars (MUST include focus keyword)
+#META_TITLE = SEO title 50-60 chars (MUST have focus keyword at start)
+#META_DESC = Meta description 140-155 chars (MUST have focus keyword + call to action)
 #FOCUS_KW = primary keyword phrase
-#SECONDARY_KW = related keyword 1, related keyword 2, related keyword 3
+#SECONDARY_KW = keyword1, keyword2, keyword3, keyword4, keyword5, keyword6, keyword7, keyword8
 
 #INTRO
-Write 2-3 paragraphs introducing the topic. Make it engaging and include the focus keyword naturally in the first paragraph.
+Write 2-3 compelling paragraphs. MUST include focus keyword in first paragraph within first 100 words. Hook the reader with a problem or surprising fact.
 
-#H2 = First Major Section Heading
-#PARA = Detailed paragraph content for this section. Include stats, benefits, or actionable insights.
+#IMAGE_1 = Relevant image caption for first visual break
 
-#H3 = Subsection Heading (if needed)
-#PARA = Supporting content for this subsection.
+#H2 = First Major Section (include focus keyword or secondary keyword)
+#PARA = 3-5 sentences with specific details, stats, or benefits.
 
-#H2 = Second Major Section Heading
-#PARA = Content here...
+#H3 = Subsection Detail
+#PARA = Supporting information.
 
-(Continue with 5-7 #H2 sections total)
+#IMAGE_2 = Image caption for second visual break
+
+#H2 = Second Major Section
+#PARA = Content here.
+
+(Include 5-7 H2 sections total with H3 subsections where relevant)
+
+#IMAGE_3 = Image caption for third visual
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+INTERACTIVE ELEMENTS (MUST INCLUDE AT LEAST 2):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Option 1 - CHECKLIST (Great for mobile, breaks up text):
+#CHECK = First Key Point Title
+Explanation of this point in 2-3 sentences.
+
+#CHECK = Second Key Point Title
+Explanation here.
+
+#CHECK = Third Key Point Title
+Explanation.
+
+(Use 3-5 CHECK items when listing important steps or criteria)
+
+Option 2 - TABLE (Great for comparisons):
+#TABLE_START
+Column 1 | Column 2 | Column 3
+Data row 1 col 1 | Data row 1 col 2 | Data row 1 col 3
+Data row 2 col 1 | Data row 2 col 2 | Data row 2 col 3
+#TABLE_END
+
+Option 3 - ACCORDION (Saves space on mobile):
+#ACCORDION_START
+Section Title 1 | Content for this collapsible section
+Section Title 2 | More content that can be expanded
+Section Title 3 | Additional hidden content
+#ACCORDION_END
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+FAQ SECTION (MANDATORY):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+#IMAGE_4 = Final image caption before FAQ
 
 #FAQ_START
-Q: First relevant question?
-A: Detailed answer here.
+Q: First common question that users actually search for?
+A: Detailed 2-3 sentence answer with specific information.
 
 Q: Second question?
 A: Answer here.
@@ -4597,7 +4695,49 @@ A: Answer.
 
 Q: Fifth question?
 A: Answer.
+
+Q: Sixth question?
+A: Answer.
 #FAQ_END
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CTA BLOCK (MANDATORY):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+#CTA_TITLE = ${profile?.ctaBtn ? profile.ctaBtn : 'Get Started Today'}
+#CTA_BODY = Compelling one-line reason to take action now
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+AUTHOR BOX (MANDATORY - Place at very end):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+#AUTHOR_NAME/${profile?.authorRole || 'ROLE'}/BIO
+${profile?.authorBio || 'Professional bio goes here describing expertise and credentials.'}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+WRITING STYLE REQUIREMENTS:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Tone: ${profile?.tone || 'Professional but approachable'}
+2. Target Indian audience (use ₹ for pricing, local context)
+3. Be specific - include numbers, percentages, timeframes
+4. Avoid generic phrases like "in today's world" or "it's important to note"
+5. Each paragraph = 3-5 sentences maximum
+6. Use active voice, not passive
+7. Include concrete examples and case scenarios
+8. Write FAQ questions the way real people search on Google
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+OUTPUT FORMAT:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Output ONLY the marker-formatted content.
+Start directly with #HERO_TAG.
+NO preamble, NO explanations, NO markdown code blocks.
+Just pure marker-formatted blog content ready to paste.
+
+Begin now:`;
+}
 
 #CTA_TITLE = Compelling call-to-action heading
 #CTA_BODY = Supporting line that motivates action
@@ -4679,6 +4819,120 @@ window.addEventListener('DOMContentLoaded', () => {
     updateUsageDisplay();
   }
 });
+
+// ══════════════════════════════════════════
+// AUTO SCHEMA GENERATION
+// ══════════════════════════════════════════
+function autoGenerateSchema(profile, blogTitle, focusKeyword, htmlContent){
+  if(!profile || !profile.url) return null;
+  
+  const site = getActive();
+  const siteUrl = site ? site.url.replace(/\/$/,'') : profile.url.replace(/\/$/,'');
+  const slug = focusKeyword.toLowerCase().replace(/[^a-z0-9]+/g,'-');
+  const postUrl = `${siteUrl}/${slug}/`;
+  
+  // Extract FAQs from HTML content if present
+  const faqMatches = htmlContent.match(/<div class="bsp-faq-item">[\s\S]*?<div class="bsp-faq-q">(.*?)<\/div>[\s\S]*?<div class="bsp-faq-a"[^>]*>(.*?)<\/div>/g) || [];
+  const faqs = faqMatches.map(match => {
+    const qMatch = match.match(/<div class="bsp-faq-q">(.*?)<\/div>/);
+    const aMatch = match.match(/<div class="bsp-faq-a"[^>]*>(.*?)<\/div>/);
+    return {
+      question: qMatch ? qMatch[1].replace(/<[^>]+>/g, '').trim() : '',
+      answer: aMatch ? aMatch[1].replace(/<[^>]+>/g, '').trim() : ''
+    };
+  }).filter(faq => faq.question && faq.answer);
+  
+  // Build schema array
+  const schemas = [];
+  
+  // 1. Article Schema
+  schemas.push({
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": blogTitle,
+    "description": document.getElementById('f-meta')?.value || blogTitle,
+    "image": imgs.hero || `${siteUrl}/default-image.jpg`,
+    "author": {
+      "@type": "Person",
+      "name": profile.authorName || profile.name,
+      "url": profile.authorUrl || siteUrl
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": profile.name,
+      "logo": {
+        "@type": "ImageObject",
+        "url": profile.logo || `${siteUrl}/logo.png`
+      }
+    },
+    "datePublished": new Date().toISOString(),
+    "dateModified": new Date().toISOString(),
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": postUrl
+    }
+  });
+  
+  // 2. Organization Schema
+  const orgSchema = {
+    "@context": "https://schema.org",
+    "@type": profile.bizType || "Organization",
+    "name": profile.name,
+    "url": profile.url || siteUrl
+  };
+  
+  if(profile.logo) orgSchema.logo = profile.logo;
+  if(profile.phone) orgSchema.telephone = profile.phone;
+  if(profile.email) orgSchema.email = profile.email;
+  
+  if(profile.address || profile.city || profile.state){
+    orgSchema.address = {
+      "@type": "PostalAddress"
+    };
+    if(profile.address) orgSchema.address.streetAddress = profile.address;
+    if(profile.city) orgSchema.address.addressLocality = profile.city;
+    if(profile.state) orgSchema.address.addressRegion = profile.state;
+    if(profile.state === 'Karnataka') orgSchema.address.addressCountry = 'IN';
+  }
+  
+  schemas.push(orgSchema);
+  
+  // 3. FAQPage Schema (if FAQs exist)
+  if(faqs.length > 0){
+    schemas.push({
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": faqs.map(faq => ({
+        "@type": "Question",
+        "name": faq.question,
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": faq.answer
+        }
+      }))
+    });
+  }
+  
+  // 4. Person Schema (if author details exist)
+  if(profile.authorName){
+    schemas.push({
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": profile.authorName,
+      "jobTitle": profile.authorRole || "Author",
+      "description": profile.authorBio || "",
+      "url": profile.authorUrl || siteUrl,
+      "image": profile.authorImg || "",
+      "worksFor": {
+        "@type": "Organization",
+        "name": profile.name
+      }
+    });
+  }
+  
+  // Return as JSON-LD string
+  return JSON.stringify(schemas, null, 2);
+}
 
 </script>
 </body>
