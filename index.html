@@ -1874,10 +1874,38 @@ function convertToHTML(raw){
   const title    = gv('f-title') || (raw.match(/^#TITLE\s*=\s*(.+)/im)||['',''])[1].trim() || 'Blog Post';
   const focusKw  = gv('f-kw')   || (raw.match(/^#FOCUS_KW\s*=\s*(.+)/im)||['',''])[1].trim() || '';
   const authorSlug = gv('f-author') || 'author';
-  const authorName = ((raw.match(/^#AUTHOR_NAME\s*=\s*(.+)/im)||['',''])[1].trim()) || authorSlug.split('-').map(w=>w.charAt(0).toUpperCase()+w.slice(1)).join(' ');
+  
+  // Parse #AUTHOR_NAME/ROLE/BIO combined format
+  const authorCombinedMatch = raw.match(/^#AUTHOR_NAME\/([^/]+)\/BIO\s*$/im);
+  let authorRole = '';
+  let authorBio = '';
+  let authorName = '';
+  
+  if(authorCombinedMatch){
+    // Found combined format: #AUTHOR_NAME/Dermatologist/BIO
+    authorRole = authorCombinedMatch[1].trim();
+    // Next line after #AUTHOR_NAME/ROLE/BIO is the bio
+    const lines = raw.split('\n');
+    const markerLineIdx = lines.findIndex(l => /^#AUTHOR_NAME\//i.test(l));
+    if(markerLineIdx >= 0 && lines[markerLineIdx + 1]){
+      authorBio = lines[markerLineIdx + 1].trim();
+    }
+  }
+  
+  // Fallback to separate markers
+  if(!authorRole) authorRole = (raw.match(/^#AUTHOR_ROLE\s*=\s*(.+)/im)||['',''])[1].trim();
+  if(!authorBio) authorBio = (raw.match(/^#AUTHOR_BIO\s*=\s*(.+)/im)||['',''])[1].trim();
+  
+  // Fallback to client profile
+  const activeProf = (typeof clientProfiles !== 'undefined' && clientProfiles[activeProfileIdx]) ? clientProfiles[activeProfileIdx] : {};
+  if(!authorRole && activeProf.authorRole) authorRole = activeProf.authorRole;
+  if(!authorBio && activeProf.authorBio) authorBio = activeProf.authorBio;
+  if(!authorRole) authorRole = 'Author';
+  if(!authorBio) authorBio = 'Professional author and expert in this field.';
+  
+  authorName = ((raw.match(/^#AUTHOR_NAME\s*=\s*(.+)/im)||['',''])[1].trim()) || ((raw.match(/^#AUTHOR\s*=\s*(.+)/im)||['',''])[1].trim()) || activeProf.authorName || authorSlug.split('-').map(w=>w.charAt(0).toUpperCase()+w.slice(1)).join(' ');
   const authorInitials = authorName.split(' ').map(w=>w[0]).join('').substring(0,2);
-  const authorRole = (raw.match(/^#AUTHOR_ROLE\s*=\s*(.+)/im)||['',''])[1].trim() || '[Author Role]';
-  const authorBio  = (raw.match(/^#AUTHOR_BIO\s*=\s*(.+)/im)||['',''])[1].trim()  || '[Author bio]';
+  
   const heroTag    = (raw.match(/^#HERO_TAG\s*=\s*(.+)/im)||['','Research Guide'])[1].trim();
   const readTime   = (raw.match(/^#READ_TIME\s*=\s*(\d+)/im)||['','8'])[1];
   const fallback   = 'https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?w=1200&q=80';
@@ -2084,29 +2112,109 @@ function convertToHTML(raw){
       const rest=parts.length>1?parts[1]:parts[0];
       body+=`<div class="bsp-callout info"><span class="bsp-callout-icon">ℹ️</span><p class="bsp-callout-text"><strong>${fmt(strong)}</strong> ${fmt(rest)}</p></div>\n`;continue}
 
-    const img1m=line.match(/^#IMAGE_1\s*=?\s*(.*)/i);
+    // ── FEATURED IMAGE (new format) ──
+    const featImgMatch = line.match(/^#FEATURED_IMAGE\s*$/i);
+    if(featImgMatch){
+      let altText = '';
+      let caption = '';
+      // Next lines should be Alt: and Caption:
+      const nextLines = lines.slice(i+1, i+4);
+      for(const nl of nextLines){
+        const altMatch = nl.match(/^Alt:\s*(.+)/i);
+        if(altMatch) altText = altMatch[1].trim();
+        const capMatch = nl.match(/^Caption:\s*(.+)/i);
+        if(capMatch) caption = capMatch[1].trim();
+      }
+      // Store for hero image
+      if(!imgs.hero) imgs.hero = fallback;
+      imgAlts.hero = altText || 'Featured image';
+      // Hero image is handled separately, just skip these lines
+      continue;
+    }
+
+    // ── IMAGE_1 (new format with Alt and Caption) ──
+    const img1m=line.match(/^#IMAGE_1\s*$/i);
     if(img1m){
-      const cap=img1m[1].trim()||'Article image';
+      let altText = '';
+      let caption = '';
+      const nextLines = lines.slice(i+1, i+4);
+      for(const nl of nextLines){
+        const altMatch = nl.match(/^Alt:\s*(.+)/i);
+        if(altMatch) altText = altMatch[1].trim();
+        const capMatch = nl.match(/^Caption:\s*(.+)/i);
+        if(capMatch) caption = capMatch[1].trim();
+      }
+      const alt = altText || gv('alt-img1') || imgAlts.img1 || 'Article image';
+      const cap = caption || 'Article image';
+      body+=`<div class="bsp-img-block"><img src="${imgs.img1||fallback}" alt="${fmt(alt)}" loading="lazy"/><div class="bsp-img-caption">${fmt(cap)}</div></div>\n`;
+      continue;
+    }
+    
+    // ── IMAGE_1 (old format fallback) ──
+    const img1old=line.match(/^#IMAGE_1\s*=\s*(.+)/i);
+    if(img1old){
+      const cap=img1old[1].trim()||'Article image';
       const alt=gv('alt-img1')||imgAlts.img1||cap;
-      body+=`<div class="bsp-img-block"><img src="${imgs.img1||fallback}" alt="${fmt(alt)}" loading="lazy"/><div class="bsp-img-caption">${fmt(cap)}</div></div>\n`;continue}
+      body+=`<div class="bsp-img-block"><img src="${imgs.img1||fallback}" alt="${fmt(alt)}" loading="lazy"/><div class="bsp-img-caption">${fmt(cap)}</div></div>\n`;
+      continue;
+    }
 
-    const img2m=line.match(/^#IMAGE_2\s*=?\s*(.*)/i);
+    // ── IMAGE_2 (new format) ──
+    const img2m=line.match(/^#IMAGE_2\s*$/i);
     if(img2m){
-      const cap=img2m[1].trim()||'Article image';
+      let altText = '';
+      let caption = '';
+      const nextLines = lines.slice(i+1, i+4);
+      for(const nl of nextLines){
+        const altMatch = nl.match(/^Alt:\s*(.+)/i);
+        if(altMatch) altText = altMatch[1].trim();
+        const capMatch = nl.match(/^Caption:\s*(.+)/i);
+        if(capMatch) caption = capMatch[1].trim();
+      }
+      const alt = altText || gv('alt-img2') || imgAlts.img2 || 'Article image';
+      const cap = caption || 'Article image';
+      body+=`<div class="bsp-img-block"><img src="${imgs.img2||fallback}" alt="${fmt(alt)}" loading="lazy"/><div class="bsp-img-caption">${fmt(cap)}</div></div>\n`;
+      continue;
+    }
+    
+    // ── IMAGE_2 (old format fallback) ──
+    const img2old=line.match(/^#IMAGE_2\s*=\s*(.+)/i);
+    if(img2old){
+      const cap=img2old[1].trim()||'Article image';
       const alt=gv('alt-img2')||imgAlts.img2||cap;
-      body+=`<div class="bsp-img-block"><img src="${imgs.img2||fallback}" alt="${fmt(alt)}" loading="lazy"/><div class="bsp-img-caption">${fmt(cap)}</div></div>\n`;continue}
+      body+=`<div class="bsp-img-block"><img src="${imgs.img2||fallback}" alt="${fmt(alt)}" loading="lazy"/><div class="bsp-img-caption">${fmt(cap)}</div></div>\n`;
+      continue;
+    }
 
-    const img3m=line.match(/^#IMAGE_3\s*=?\s*(.*)/i);
+    // ── IMAGE_3 (new format) ──
+    const img3m=line.match(/^#IMAGE_3\s*$/i);
     if(img3m){
-      const cap=img3m[1].trim()||'Article image';
+      let altText = '';
+      let caption = '';
+      const nextLines = lines.slice(i+1, i+4);
+      for(const nl of nextLines){
+        const altMatch = nl.match(/^Alt:\s*(.+)/i);
+        if(altMatch) altText = altMatch[1].trim();
+        const capMatch = nl.match(/^Caption:\s*(.+)/i);
+        if(capMatch) caption = capMatch[1].trim();
+      }
+      const alt = altText || gv('alt-img3') || imgAlts.img3 || 'Article image';
+      const cap = caption || 'Article image';
+      body+=`<div class="bsp-img-block"><img src="${imgs.img3||fallback}" alt="${fmt(alt)}" loading="lazy"/><div class="bsp-img-caption">${fmt(cap)}</div></div>\n`;
+      continue;
+    }
+    
+    // ── IMAGE_3 (old format fallback) ──
+    const img3old=line.match(/^#IMAGE_3\s*=\s*(.+)/i);
+    if(img3old){
+      const cap=img3old[1].trim()||'Article image';
       const alt=gv('alt-img3')||imgAlts.img3||cap;
-      body+=`<div class="bsp-img-block"><img src="${imgs.img3||fallback}" alt="${fmt(alt)}" loading="lazy"/><div class="bsp-img-caption">${fmt(cap)}</div></div>\n`;continue}
+      body+=`<div class="bsp-img-block"><img src="${imgs.img3||fallback}" alt="${fmt(alt)}" loading="lazy"/><div class="bsp-img-caption">${fmt(cap)}</div></div>\n`;
+      continue;
+    }
 
-    const img4m=line.match(/^#IMAGE_4\s*=?\s*(.*)/i);
-    if(img4m){
-      const cap=img4m[1].trim()||'Article image';
-      const alt=gv('alt-img4')||imgAlts.img4||cap;
-      body+=`<div class="bsp-img-block"><img src="${imgs.img4||fallback}" alt="${fmt(alt)}" loading="lazy"/><div class="bsp-img-caption">${fmt(cap)}</div></div>\n`;continue}
+    // Skip Alt: and Caption: lines (already processed above)
+    if(/^(Alt|Caption):/i.test(line)) continue;
 
     const ctaTm=line.match(/^#CTA_TITLE\s*=\s*(.+)/i);
     if(ctaTm){
@@ -2137,8 +2245,7 @@ function convertToHTML(raw){
 
   // ── AUTHOR ──
   const authorUrl = gv('f-author-url') || (raw.match(/^#AUTHOR_URL\s*=\s*(.+)/im)||['',''])[1].trim() || '';
-  // Get author image — from Images tab first, then profile
-  const activeProf = (typeof clientProfiles !== 'undefined' && clientProfiles[activeProfileIdx]) ? clientProfiles[activeProfileIdx] : {};
+  // Get author image — from Images tab first, then profile (activeProf already declared above)
   const authorImgSrc = imgs.author || activeProf.authorImg || '';
   const authorAvatarHtml = authorImgSrc
     ? `<img src="${authorImgSrc}" alt="${fmt(authorName)}" style="width:68px;height:68px;border-radius:50%;object-fit:cover;box-shadow:0 4px 12px rgba(0,0,0,.15)"/>`
@@ -4310,11 +4417,26 @@ async function fetchBrandFromSite(){
   status.textContent = '⏳ Fetching brand colors and fonts...';
 
   try {
-    // Use CORS proxy to fetch the website HTML/CSS
-    const proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url);
-    const res = await fetch(proxyUrl);
-    if(!res.ok) throw new Error('Could not fetch site');
-    const html = await res.text();
+    // Try multiple CORS proxies
+    let html = null;
+    const proxies = [
+      'https://corsproxy.io/?' + encodeURIComponent(url),
+      'https://api.allorigins.win/raw?url=' + encodeURIComponent(url)
+    ];
+    
+    for(const proxyUrl of proxies){
+      try {
+        const res = await fetch(proxyUrl, {timeout: 5000});
+        if(res.ok) {
+          html = await res.text();
+          break;
+        }
+      } catch(e) {
+        console.log('Proxy failed, trying next:', e.message);
+      }
+    }
+    
+    if(!html) throw new Error('Could not fetch site. Enter colors manually.');
 
     // Extract colors from inline styles and CSS
     const colors = new Map();
