@@ -431,6 +431,76 @@ input.inp::placeholder,textarea.inp::placeholder{color:var(--ink3)}
       </div>
     </div>
 
+    <!-- AI BLOG GENERATOR -->
+    <div class="card" id="ai-generator-card">
+      <div class="card-hdr">
+        <div class="card-hdr-title">🤖 AI Blog Generator</div>
+        <button onclick="toggleAISettings()" style="background:var(--surf2);border:1px solid var(--bdr);border-radius:6px;padding:4px 10px;font-size:10px;cursor:pointer;font-weight:600;color:var(--ink2)">⚙️ Settings</button>
+      </div>
+      <div class="card-body">
+        
+        <!-- AI SETTINGS (collapsible) -->
+        <div id="ai-settings" style="display:none;background:var(--surf2);border:1px solid var(--bdr);border-radius:8px;padding:12px;margin-bottom:14px">
+          <div class="fg" style="margin-bottom:10px">
+            <label class="lbl">Claude API Key</label>
+            <input type="password" class="inp" id="claude-api-key" placeholder="sk-ant-api03-xxxxxxxxxxxxx..." style="font-family:var(--mono);font-size:11px"/>
+            <div style="font-size:10px;color:var(--ink3);margin-top:3px">Get from console.anthropic.com → Stored locally, never sent anywhere</div>
+          </div>
+          <div class="fg" style="margin-bottom:10px">
+            <label class="lbl">Model</label>
+            <select class="inp" id="ai-model">
+              <option value="claude-haiku-4-20250514">Haiku 4 - Fastest (~$0.012/blog)</option>
+              <option value="claude-sonnet-4-20250514" selected>Sonnet 4 - Best Quality (~$0.045/blog) ✅</option>
+              <option value="claude-opus-4-20250514">Opus 4 - Premium (~$0.225/blog)</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" onclick="saveAISettings()" style="font-size:12px;padding:6px 14px">💾 Save Settings</button>
+        </div>
+
+        <!-- USAGE STATS -->
+        <div id="ai-usage" style="display:none;background:var(--teal-l);border:1px solid var(--teal-b);border-radius:8px;padding:10px 12px;margin-bottom:14px">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
+            <div style="flex:1">
+              <div style="font-size:10px;font-weight:600;color:var(--teal);font-family:var(--mono);text-transform:uppercase;letter-spacing:.5px">Today's Usage</div>
+              <div style="font-size:13px;font-weight:600;color:var(--ink);margin-top:2px"><span id="usage-blogs-today">0</span> blogs · $<span id="usage-cost-today">0.00</span></div>
+            </div>
+            <div style="flex:1;text-align:right">
+              <div style="font-size:10px;color:var(--teal);font-family:var(--mono)">Estimated Remaining</div>
+              <div style="font-size:13px;font-weight:600;color:var(--ink);margin-top:2px">~<span id="usage-remaining">0</span> blogs</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- BLOG BRIEF INPUT -->
+        <div class="fg" style="margin-bottom:12px">
+          <label class="lbl">Blog Brief / Outline</label>
+          <textarea class="inp" id="blog-brief" rows="8" placeholder="Example:
+
+Topic: Best hair spa treatments in Hennur for IT professionals
+Target Audience: Working professionals in Manyata Tech Park area
+Focus Keyword: best hair spa Hennur
+
+Key Points to Cover:
+- GFC treatment benefits and process
+- Hair smoothening vs keratin treatment
+- Why choose Aesthanic over other salons
+- Pricing packages and offers
+- Dr. Ramya's expertise (MBBS certified)
+
+Tone: Professional but approachable, data-driven" style="font-size:12px;line-height:1.6;font-family:var(--sans)"></textarea>
+        </div>
+
+        <div style="display:flex;gap:8px;align-items:center">
+          <button class="btn btn-navy" onclick="generateBlogWithAI()" id="ai-gen-btn" style="flex:1">
+            <div class="spin"></div>
+            <span class="lbl">✨ Generate Blog with AI</span>
+          </button>
+          <button class="btn btn-ghost" onclick="clearBrief()" style="font-size:11px;padding:8px 14px">Clear</button>
+        </div>
+
+      </div>
+    </div>
+
     <!-- BLOG INPUT -->
     <div class="card">
       <div class="card-hdr">
@@ -450,7 +520,7 @@ input.inp::placeholder,textarea.inp::placeholder{color:var(--ink3)}
     <div class="card">
       <div class="card-hdr"><div class="card-hdr-title">🎯 SEO & Post Details</div></div>
       <div class="card-body">
-        <div class="fg"><label class="lbl">Post Title (auto-read from #TITLE if blank)</label><input class="inp" id="f-title" placeholder="Or type manually here" oninput="updateScore()"/></div>
+        <div class="fg"><label class="lbl">Post Title (auto-read from #TITLE if blank)</label><input class="inp" id="f-title" placeholder="Or type manually here" oninput="updateScore();updateSerpPreview()"/></div>
         <div class="fg2">
           <div class="fg"><label class="lbl">Focus Keyword</label><div style="font-size:11px;color:var(--ink3);padding:6px 0">Set in SEO Score tab →</div></div>
           <div class="fg"><label class="lbl">Category</label><input class="inp" id="f-cat" placeholder="e.g. CRO Guides"/></div>
@@ -576,13 +646,23 @@ input.inp::placeholder,textarea.inp::placeholder{color:var(--ink3)}
       <!-- RANKMATH FIELDS — directly editable, auto-sent on publish -->
       <div style="font-size:11px;font-weight:700;color:var(--ink2);margin:10px 0 8px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.5px">📤 RankMath Fields (sent on publish)</div>
 
+      <!-- SERP PREVIEW -->
+      <div id="serp-preview" style="background:var(--surf2);border:1.5px solid var(--bdr);border-radius:8px;padding:12px;margin-bottom:12px">
+        <div style="font-size:9px;font-weight:600;color:var(--ink3);font-family:var(--mono);text-transform:uppercase;letter-spacing:.5px;margin-bottom:7px">Google Search Preview</div>
+        <div style="background:var(--surf);border-radius:6px;padding:10px">
+          <div id="serp-url" style="font-size:11px;color:#006621;font-family:Arial,sans-serif;margin-bottom:2px">yoursite.com › blog › post-slug</div>
+          <div id="serp-title" style="font-size:18px;color:#1A0DAB;font-weight:400;margin-bottom:3px;line-height:1.3;font-family:Arial,sans-serif">Your SEO Title Here</div>
+          <div id="serp-desc" style="font-size:13px;color:#545454;line-height:1.5;font-family:Arial,sans-serif">Your meta description will appear here in Google search results...</div>
+        </div>
+      </div>
+
       <div class="fg" style="margin-bottom:10px">
         <label class="lbl" style="display:flex;justify-content:space-between">
           <span>SEO Title <span style="color:var(--red)">*</span></span>
           <span id="seo-title-ct" style="font-family:var(--mono);font-weight:400;color:var(--ink3)">0 / 60</span>
         </label>
         <input class="inp" id="f-seo-title" placeholder="50–60 chars · include focus keyword"
-          oninput="updateScore();countChars('f-seo-title','seo-title-ct',50,60)"
+          oninput="updateScore();countChars('f-seo-title','seo-title-ct',50,60);updateSerpPreview()"
           style="font-size:12px"/>
         <div style="height:3px;border-radius:2px;background:var(--bdr);margin-top:4px;overflow:hidden">
           <div id="seo-title-bar" style="height:100%;background:var(--teal);width:0;transition:width .3s,background .3s;border-radius:2px"></div>
@@ -595,7 +675,7 @@ input.inp::placeholder,textarea.inp::placeholder{color:var(--ink3)}
           <span id="meta-ct" style="font-family:var(--mono);font-weight:400;color:var(--ink3)">0 / 160</span>
         </label>
         <textarea class="inp" id="f-meta" rows="3" placeholder="130–160 chars · include focus keyword · make it compelling"
-          oninput="updateScore();countChars('f-meta','meta-ct',130,160)"
+          oninput="updateScore();countChars('f-meta','meta-ct',130,160);updateSerpPreview()"
           style="font-size:12px;resize:none"></textarea>
         <div style="height:3px;border-radius:2px;background:var(--bdr);margin-top:4px;overflow:hidden">
           <div id="meta-bar" style="height:100%;background:var(--teal);width:0;transition:width .3s,background .3s;border-radius:2px"></div>
@@ -1184,6 +1264,9 @@ function updateScore(){
   const plain = raw.toLowerCase();
   const wc    = plain.split(/\s+/).filter(Boolean).length;
 
+  // Update SERP preview
+  updateSerpPreview();
+
   // Keyword density
   const kwCount = kw ? (plain.split(kw).length - 1) : 0;
   const kwd = kw && wc > 0 ? (kwCount / wc) * 100 : 0;
@@ -1296,6 +1379,39 @@ function updateScore(){
     });
   });
   document.getElementById('checks-list').innerHTML = html;
+}
+
+// ═══════════════
+// SERP PREVIEW UPDATE
+// ═══════════════
+function updateSerpPreview(){
+  const title = gv('f-seo-title') || gv('f-title') || 'Your SEO Title Here';
+  const meta = gv('f-meta') || 'Your meta description will appear here in Google search results...';
+  const postTitle = gv('f-title') || 'post-title';
+  
+  // Get active site URL
+  const site = getActive();
+  const siteUrl = site ? site.url : 'https://yoursite.com';
+  
+  // Generate slug from title
+  const slug = postTitle.toLowerCase().replace(/[^\w\s-]/g,'').replace(/\s+/g,'-').substring(0,60);
+  
+  // Truncate title to 60 chars (Google's limit)
+  const truncTitle = title.length > 60 ? title.substring(0,57) + '...' : title;
+  
+  // Truncate meta to 160 chars (Google's limit)  
+  const truncMeta = meta.length > 160 ? meta.substring(0,157) + '...' : meta;
+  
+  // Update SERP preview
+  try {
+    const urlHost = new URL(siteUrl).hostname.replace('www.','');
+    document.getElementById('serp-url').textContent = `${urlHost} › blog › ${slug}`;
+  } catch {
+    document.getElementById('serp-url').textContent = `yoursite.com › blog › ${slug}`;
+  }
+  
+  document.getElementById('serp-title').textContent = truncTitle;
+  document.getElementById('serp-desc').textContent = truncMeta;
 }
 
 // ═══════════════
@@ -1644,7 +1760,9 @@ const BSP_CSS=`<style>
 .bsp-img-caption{background:#f8f9fa;border-top:1px solid #e9ecef;padding:10px 16px;font-size:12px;color:#6c757d;font-style:italic}
 /* COMPARISON TABLE — always visible, not accordion */
 .bsp-table-wrap{overflow-x:auto;margin:32px 0;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,.08);-webkit-overflow-scrolling:touch}
-.bsp-table{width:100%;border-collapse:collapse;font-size:14px;min-width:440px}
+.bsp-table{width:100%;border-collapse:collapse;font-size:13px;min-width:100%;table-layout:auto}
+.bsp-table th{white-space:nowrap}
+.bsp-table td{word-wrap:break-word;overflow-wrap:break-word;max-width:200px}
 .bsp-table thead tr{background:linear-gradient(135deg,#0a2540,#0a6b8a)}
 .bsp-table thead th{padding:14px 18px;text-align:left;color:#fff;font-weight:600;font-size:13px;letter-spacing:.3px}
 .bsp-table thead th:first-child{border-radius:12px 0 0 0}
@@ -1758,10 +1876,38 @@ function convertToHTML(raw){
   const title    = gv('f-title') || (raw.match(/^#TITLE\s*=\s*(.+)/im)||['',''])[1].trim() || 'Blog Post';
   const focusKw  = gv('f-kw')   || (raw.match(/^#FOCUS_KW\s*=\s*(.+)/im)||['',''])[1].trim() || '';
   const authorSlug = gv('f-author') || 'author';
-  const authorName = ((raw.match(/^#AUTHOR_NAME\s*=\s*(.+)/im)||['',''])[1].trim()) || authorSlug.split('-').map(w=>w.charAt(0).toUpperCase()+w.slice(1)).join(' ');
+  
+  // Parse #AUTHOR_NAME/ROLE/BIO combined format
+  const authorCombinedMatch = raw.match(/^#AUTHOR_NAME\/([^/]+)\/BIO\s*$/im);
+  let authorRole = '';
+  let authorBio = '';
+  let authorName = '';
+  
+  if(authorCombinedMatch){
+    // Found combined format: #AUTHOR_NAME/Dermatologist/BIO
+    authorRole = authorCombinedMatch[1].trim();
+    // Next line after #AUTHOR_NAME/ROLE/BIO is the bio
+    const lines = raw.split('\n');
+    const markerLineIdx = lines.findIndex(l => /^#AUTHOR_NAME\//i.test(l));
+    if(markerLineIdx >= 0 && lines[markerLineIdx + 1]){
+      authorBio = lines[markerLineIdx + 1].trim();
+    }
+  }
+  
+  // Fallback to separate markers
+  if(!authorRole) authorRole = (raw.match(/^#AUTHOR_ROLE\s*=\s*(.+)/im)||['',''])[1].trim();
+  if(!authorBio) authorBio = (raw.match(/^#AUTHOR_BIO\s*=\s*(.+)/im)||['',''])[1].trim();
+  
+  // Fallback to client profile
+  const activeProf = (typeof clientProfiles !== 'undefined' && clientProfiles[activeProfileIdx]) ? clientProfiles[activeProfileIdx] : {};
+  if(!authorRole && activeProf.authorRole) authorRole = activeProf.authorRole;
+  if(!authorBio && activeProf.authorBio) authorBio = activeProf.authorBio;
+  if(!authorRole) authorRole = 'Author';
+  if(!authorBio) authorBio = 'Professional author and expert in this field.';
+  
+  authorName = ((raw.match(/^#AUTHOR_NAME\s*=\s*(.+)/im)||['',''])[1].trim()) || ((raw.match(/^#AUTHOR\s*=\s*(.+)/im)||['',''])[1].trim()) || activeProf.authorName || authorSlug.split('-').map(w=>w.charAt(0).toUpperCase()+w.slice(1)).join(' ');
   const authorInitials = authorName.split(' ').map(w=>w[0]).join('').substring(0,2);
-  const authorRole = (raw.match(/^#AUTHOR_ROLE\s*=\s*(.+)/im)||['',''])[1].trim() || '[Author Role]';
-  const authorBio  = (raw.match(/^#AUTHOR_BIO\s*=\s*(.+)/im)||['',''])[1].trim()  || '[Author bio]';
+  
   const heroTag    = (raw.match(/^#HERO_TAG\s*=\s*(.+)/im)||['','Research Guide'])[1].trim();
   const readTime   = (raw.match(/^#READ_TIME\s*=\s*(\d+)/im)||['','8'])[1];
   const fallback   = 'https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?w=1200&q=80';
@@ -1968,29 +2114,109 @@ function convertToHTML(raw){
       const rest=parts.length>1?parts[1]:parts[0];
       body+=`<div class="bsp-callout info"><span class="bsp-callout-icon">ℹ️</span><p class="bsp-callout-text"><strong>${fmt(strong)}</strong> ${fmt(rest)}</p></div>\n`;continue}
 
-    const img1m=line.match(/^#IMAGE_1\s*=?\s*(.*)/i);
+    // ── FEATURED IMAGE (new format) ──
+    const featImgMatch = line.match(/^#FEATURED_IMAGE\s*$/i);
+    if(featImgMatch){
+      let altText = '';
+      let caption = '';
+      // Next lines should be Alt: and Caption:
+      const nextLines = lines.slice(i+1, i+4);
+      for(const nl of nextLines){
+        const altMatch = nl.match(/^Alt:\s*(.+)/i);
+        if(altMatch) altText = altMatch[1].trim();
+        const capMatch = nl.match(/^Caption:\s*(.+)/i);
+        if(capMatch) caption = capMatch[1].trim();
+      }
+      // Store for hero image
+      if(!imgs.hero) imgs.hero = fallback;
+      imgAlts.hero = altText || 'Featured image';
+      // Hero image is handled separately, just skip these lines
+      continue;
+    }
+
+    // ── IMAGE_1 (new format with Alt and Caption) ──
+    const img1m=line.match(/^#IMAGE_1\s*$/i);
     if(img1m){
-      const cap=img1m[1].trim()||'Article image';
+      let altText = '';
+      let caption = '';
+      const nextLines = lines.slice(i+1, i+4);
+      for(const nl of nextLines){
+        const altMatch = nl.match(/^Alt:\s*(.+)/i);
+        if(altMatch) altText = altMatch[1].trim();
+        const capMatch = nl.match(/^Caption:\s*(.+)/i);
+        if(capMatch) caption = capMatch[1].trim();
+      }
+      const alt = altText || gv('alt-img1') || imgAlts.img1 || 'Article image';
+      const cap = caption || 'Article image';
+      body+=`<div class="bsp-img-block"><img src="${imgs.img1||fallback}" alt="${fmt(alt)}" loading="lazy"/><div class="bsp-img-caption">${fmt(cap)}</div></div>\n`;
+      continue;
+    }
+    
+    // ── IMAGE_1 (old format fallback) ──
+    const img1old=line.match(/^#IMAGE_1\s*=\s*(.+)/i);
+    if(img1old){
+      const cap=img1old[1].trim()||'Article image';
       const alt=gv('alt-img1')||imgAlts.img1||cap;
-      body+=`<div class="bsp-img-block"><img src="${imgs.img1||fallback}" alt="${fmt(alt)}" loading="lazy"/><div class="bsp-img-caption">${fmt(cap)}</div></div>\n`;continue}
+      body+=`<div class="bsp-img-block"><img src="${imgs.img1||fallback}" alt="${fmt(alt)}" loading="lazy"/><div class="bsp-img-caption">${fmt(cap)}</div></div>\n`;
+      continue;
+    }
 
-    const img2m=line.match(/^#IMAGE_2\s*=?\s*(.*)/i);
+    // ── IMAGE_2 (new format) ──
+    const img2m=line.match(/^#IMAGE_2\s*$/i);
     if(img2m){
-      const cap=img2m[1].trim()||'Article image';
+      let altText = '';
+      let caption = '';
+      const nextLines = lines.slice(i+1, i+4);
+      for(const nl of nextLines){
+        const altMatch = nl.match(/^Alt:\s*(.+)/i);
+        if(altMatch) altText = altMatch[1].trim();
+        const capMatch = nl.match(/^Caption:\s*(.+)/i);
+        if(capMatch) caption = capMatch[1].trim();
+      }
+      const alt = altText || gv('alt-img2') || imgAlts.img2 || 'Article image';
+      const cap = caption || 'Article image';
+      body+=`<div class="bsp-img-block"><img src="${imgs.img2||fallback}" alt="${fmt(alt)}" loading="lazy"/><div class="bsp-img-caption">${fmt(cap)}</div></div>\n`;
+      continue;
+    }
+    
+    // ── IMAGE_2 (old format fallback) ──
+    const img2old=line.match(/^#IMAGE_2\s*=\s*(.+)/i);
+    if(img2old){
+      const cap=img2old[1].trim()||'Article image';
       const alt=gv('alt-img2')||imgAlts.img2||cap;
-      body+=`<div class="bsp-img-block"><img src="${imgs.img2||fallback}" alt="${fmt(alt)}" loading="lazy"/><div class="bsp-img-caption">${fmt(cap)}</div></div>\n`;continue}
+      body+=`<div class="bsp-img-block"><img src="${imgs.img2||fallback}" alt="${fmt(alt)}" loading="lazy"/><div class="bsp-img-caption">${fmt(cap)}</div></div>\n`;
+      continue;
+    }
 
-    const img3m=line.match(/^#IMAGE_3\s*=?\s*(.*)/i);
+    // ── IMAGE_3 (new format) ──
+    const img3m=line.match(/^#IMAGE_3\s*$/i);
     if(img3m){
-      const cap=img3m[1].trim()||'Article image';
+      let altText = '';
+      let caption = '';
+      const nextLines = lines.slice(i+1, i+4);
+      for(const nl of nextLines){
+        const altMatch = nl.match(/^Alt:\s*(.+)/i);
+        if(altMatch) altText = altMatch[1].trim();
+        const capMatch = nl.match(/^Caption:\s*(.+)/i);
+        if(capMatch) caption = capMatch[1].trim();
+      }
+      const alt = altText || gv('alt-img3') || imgAlts.img3 || 'Article image';
+      const cap = caption || 'Article image';
+      body+=`<div class="bsp-img-block"><img src="${imgs.img3||fallback}" alt="${fmt(alt)}" loading="lazy"/><div class="bsp-img-caption">${fmt(cap)}</div></div>\n`;
+      continue;
+    }
+    
+    // ── IMAGE_3 (old format fallback) ──
+    const img3old=line.match(/^#IMAGE_3\s*=\s*(.+)/i);
+    if(img3old){
+      const cap=img3old[1].trim()||'Article image';
       const alt=gv('alt-img3')||imgAlts.img3||cap;
-      body+=`<div class="bsp-img-block"><img src="${imgs.img3||fallback}" alt="${fmt(alt)}" loading="lazy"/><div class="bsp-img-caption">${fmt(cap)}</div></div>\n`;continue}
+      body+=`<div class="bsp-img-block"><img src="${imgs.img3||fallback}" alt="${fmt(alt)}" loading="lazy"/><div class="bsp-img-caption">${fmt(cap)}</div></div>\n`;
+      continue;
+    }
 
-    const img4m=line.match(/^#IMAGE_4\s*=?\s*(.*)/i);
-    if(img4m){
-      const cap=img4m[1].trim()||'Article image';
-      const alt=gv('alt-img4')||imgAlts.img4||cap;
-      body+=`<div class="bsp-img-block"><img src="${imgs.img4||fallback}" alt="${fmt(alt)}" loading="lazy"/><div class="bsp-img-caption">${fmt(cap)}</div></div>\n`;continue}
+    // Skip Alt: and Caption: lines (already processed above)
+    if(/^(Alt|Caption):/i.test(line)) continue;
 
     const ctaTm=line.match(/^#CTA_TITLE\s*=\s*(.+)/i);
     if(ctaTm){
@@ -2021,8 +2247,7 @@ function convertToHTML(raw){
 
   // ── AUTHOR ──
   const authorUrl = gv('f-author-url') || (raw.match(/^#AUTHOR_URL\s*=\s*(.+)/im)||['',''])[1].trim() || '';
-  // Get author image — from Images tab first, then profile
-  const activeProf = (typeof clientProfiles !== 'undefined' && clientProfiles[activeProfileIdx]) ? clientProfiles[activeProfileIdx] : {};
+  // Get author image — from Images tab first, then profile (activeProf already declared above)
   const authorImgSrc = imgs.author || activeProf.authorImg || '';
   const authorAvatarHtml = authorImgSrc
     ? `<img src="${authorImgSrc}" alt="${fmt(authorName)}" style="width:68px;height:68px;border-radius:50%;object-fit:cover;box-shadow:0 4px 12px rgba(0,0,0,.15)"/>`
@@ -2367,7 +2592,7 @@ async function publishPost(){
       tags:    tagIds,
       // Send meta in initial POST too — works if PHP snippet is added
       meta: {
-        rank_math_focus_keyword: kw,
+        rank_math_focus_keyword: kw + (secKw ? ', ' + secKw : ''),
         rank_math_title:         seoT,
         rank_math_description:   meta,
       }
@@ -3753,6 +3978,26 @@ function applyProfileToForm(p){
   if(p.ctaUrl)     document.getElementById('f-cta-url').value = p.ctaUrl;
   // Fill schema fields
   fillSchemaFromProfile();
+  // Fill PAGE creation fields (colors, fonts, author)
+  if(p.colorPrimary){
+    document.getElementById('p-color-primary').value = p.colorPrimary;
+    document.getElementById('p-color-primary-hex').value = p.colorPrimary;
+  }
+  if(p.colorSecondary){
+    document.getElementById('p-color-secondary').value = p.colorSecondary;
+    document.getElementById('p-color-secondary-hex').value = p.colorSecondary;
+  }
+  if(p.fontHeading) document.getElementById('p-font-heading').value = p.fontHeading;
+  if(p.fontBody) document.getElementById('p-font-body').value = p.fontBody;
+  if(p.authorName) document.getElementById('p-author-name').value = p.authorName;
+  if(p.authorRole) document.getElementById('p-author-role').value = p.authorRole;
+  if(p.authorBio) document.getElementById('p-author-bio').value = p.authorBio;
+  if(p.authorImg){
+    const prev = document.getElementById('p-author-img-preview');
+    prev.style.backgroundImage = 'url('+p.authorImg+')';
+    prev.style.display = 'block';
+    prev.dataset.src = p.authorImg;
+  }
   // Update pill
   document.getElementById('profile-pill-name').textContent = p.name;
 }
@@ -4174,11 +4419,26 @@ async function fetchBrandFromSite(){
   status.textContent = '⏳ Fetching brand colors and fonts...';
 
   try {
-    // Use CORS proxy to fetch the website HTML/CSS
-    const proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url);
-    const res = await fetch(proxyUrl);
-    if(!res.ok) throw new Error('Could not fetch site');
-    const html = await res.text();
+    // Try multiple CORS proxies
+    let html = null;
+    const proxies = [
+      'https://corsproxy.io/?' + encodeURIComponent(url),
+      'https://api.allorigins.win/raw?url=' + encodeURIComponent(url)
+    ];
+    
+    for(const proxyUrl of proxies){
+      try {
+        const res = await fetch(proxyUrl, {timeout: 5000});
+        if(res.ok) {
+          html = await res.text();
+          break;
+        }
+      } catch(e) {
+        console.log('Proxy failed, trying next:', e.message);
+      }
+    }
+    
+    if(!html) throw new Error('Could not fetch site. Enter colors manually.');
 
     // Extract colors from inline styles and CSS
     const colors = new Map();
@@ -4258,6 +4518,310 @@ function toast(title,type='info',msg=''){
   wrap.appendChild(el);
   setTimeout(()=>{el.style.opacity='0';el.style.transition='opacity .3s';setTimeout(()=>el.remove(),300)},4500);
 }
+
+// ══════════════════════════════════════════
+// AI BLOG GENERATION
+// ══════════════════════════════════════════
+
+function toggleAISettings(){
+  const el = document.getElementById('ai-settings');
+  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+function saveAISettings(){
+  const key = document.getElementById('claude-api-key').value.trim();
+  if(!key || !key.startsWith('sk-ant-')){
+    toast('Invalid API key','err','Key should start with sk-ant-api03-');
+    return;
+  }
+  localStorage.setItem('claude_api_key', key);
+  localStorage.setItem('claude_model', document.getElementById('ai-model').value);
+  document.getElementById('ai-settings').style.display = 'none';
+  document.getElementById('ai-usage').style.display = 'block';
+  updateUsageDisplay();
+  toast('AI Settings saved!','ok','Ready to generate blogs');
+}
+
+function clearBrief(){
+  document.getElementById('blog-brief').value = '';
+}
+
+async function generateBlogWithAI(){
+  const brief = document.getElementById('blog-brief').value.trim();
+  const apiKey = localStorage.getItem('claude_api_key');
+  const model = localStorage.getItem('claude_model') || 'claude-sonnet-4-20250514';
+  
+  if(!apiKey){
+    toast('API key required','err','Click ⚙️ Settings to add your Claude API key');
+    document.getElementById('ai-settings').style.display = 'block';
+    return;
+  }
+  
+  if(!brief){
+    toast('Brief required','err','Write a blog brief/outline first');
+    return;
+  }
+  
+  const btn = document.getElementById('ai-gen-btn');
+  btn.classList.add('loading');
+  btn.disabled = true;
+  
+  try {
+    const prompt = buildSmartPrompt(brief);
+    
+    // Try direct API call first
+    let response;
+    try {
+      response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true',
+          'content-type': 'application/json'
+        },
+        body: JSON.stringify({
+          model: model,
+          max_tokens: 8000,
+          messages: [{
+            role: 'user',
+            content: prompt
+          }]
+        })
+      });
+    } catch(directError) {
+      // If direct call fails (CORS), try CORS proxy
+      console.log('Direct API call blocked, trying CORS proxy...');
+      
+      // Use a CORS proxy as fallback
+      response = await fetch('https://corsproxy.io/?' + encodeURIComponent('https://api.anthropic.com/v1/messages'), {
+        method: 'POST',
+        headers: {
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true',
+          'content-type': 'application/json'
+        },
+        body: JSON.stringify({
+          model: model,
+          max_tokens: 8000,
+          messages: [{
+            role: 'user',
+            content: prompt
+          }]
+        })
+      });
+    }
+    
+    if(!response.ok){
+      const err = await response.json();
+      throw new Error(err.error?.message || 'API request failed');
+    }
+    
+    const data = await response.json();
+    const generatedBlog = data.content[0].text;
+    
+    // Fill blog textarea
+    document.getElementById('blog-input').value = generatedBlog;
+    
+    // Auto-fill SEO fields from markers
+    updateWC();
+    clearAndRefillSEO();
+    updateScore();
+    
+    // Track usage
+    trackTokenUsage(data.usage.input_tokens, data.usage.output_tokens, model);
+    
+    // Scroll to blog content
+    document.getElementById('blog-input').scrollIntoView({behavior: 'smooth', block: 'start'});
+    
+    toast('Blog generated!','ok','Review content and add images, then publish');
+    
+  } catch(err) {
+    let errorMsg = err.message;
+    let errorDetail = '';
+    
+    // Detect CORS/network errors
+    if(err.message === 'Failed to fetch' || err.name === 'TypeError'){
+      errorMsg = 'Network Error - CORS Issue';
+      errorDetail = 'This usually happens when: (1) Browser is blocking the request, (2) Wrong API key, or (3) Network firewall. Try: Open browser DevTools (F12) → Console tab to see detailed error. If you see CORS error, try a different browser (Chrome works best) or check if your API key is correct.';
+    }
+    
+    toast(errorMsg, 'err', errorDetail);
+    console.error('AI Generation Error:', err);
+    console.log('API Key (first 20 chars):', apiKey?.substring(0, 20));
+    console.log('Model:', model);
+  } finally {
+    btn.classList.remove('loading');
+    btn.disabled = false;
+  }
+}
+
+function buildSmartPrompt(brief){
+  const profile = clientProfiles[activeProfileIdx];
+  
+  let contextInfo = '';
+  if(profile){
+    contextInfo = `
+BRAND CONTEXT:
+- Business: ${profile.name}${profile.industry ? ' (' + profile.industry + ')' : ''}
+- Website: ${profile.url || 'Not specified'}
+- Brand Tone: ${profile.tone || 'Professional & Technical'}
+${profile.authorName ? '- Author: ' + profile.authorName + (profile.authorRole ? ', ' + profile.authorRole : '') : ''}
+${profile.city ? '- Location: ' + profile.city + (profile.state ? ', ' + profile.state : '') : ''}
+`;
+  }
+  
+  return `You are a professional blog writer creating SEO-optimized content with marker formatting.
+
+${contextInfo}
+
+TASK: Generate a complete 1200-word blog post based on this brief:
+
+${brief}
+
+REQUIRED FORMAT - Use these exact markers:
+
+#HERO_TAG = Category · Context (e.g., "Medical Guide · Dermatology")
+#TITLE = Main blog title
+#AUTHOR = ${profile?.authorName || 'Author Name'}
+${profile?.authorUrl ? '#AUTHOR_URL = ' + profile.authorUrl : ''}
+#READ_TIME = 12
+#META_TITLE = SEO-optimized title 50-60 chars (MUST include focus keyword)
+#META_DESC = Compelling meta description 130-160 chars (MUST include focus keyword)
+#FOCUS_KW = primary keyword phrase
+#SECONDARY_KW = related keyword 1, related keyword 2, related keyword 3
+
+#INTRO
+Write 2-3 paragraphs introducing the topic. Make it engaging and include the focus keyword naturally in the first paragraph.
+
+#H2 = First Major Section Heading
+#PARA = Detailed paragraph content for this section. Include stats, benefits, or actionable insights.
+
+#H3 = Subsection Heading (if needed)
+#PARA = Supporting content for this subsection.
+
+#H2 = Second Major Section Heading
+#PARA = Content here...
+
+(Continue with 5-7 #H2 sections total)
+
+#FAQ_START
+Q: First relevant question?
+A: Detailed answer here.
+
+Q: Second question?
+A: Answer here.
+
+Q: Third question?
+A: Answer.
+
+Q: Fourth question?
+A: Answer.
+
+Q: Fifth question?
+A: Answer.
+#FAQ_END
+
+#CTA_TITLE = Compelling call-to-action heading
+#CTA_BODY = Supporting line that motivates action
+
+IMPORTANT REQUIREMENTS:
+1. Output ONLY the marker-formatted content - no preamble, no explanations
+2. Make content specific, factual, and actionable - avoid generic fluff
+3. Use focus keyword naturally 5-8 times throughout (not forced)
+4. Include secondary keywords where relevant
+5. Write in a ${profile?.tone || 'professional but approachable'} tone
+6. Target Indian audience, use ₹ for pricing if mentioned
+7. Make FAQ questions sound natural (what real people ask)
+8. Keep paragraphs 3-5 sentences each
+9. Use concrete examples and specific details
+10. DO NOT include #IMAGE markers - images are added manually
+
+Start directly with #HERO_TAG marker:`;
+}
+
+function trackTokenUsage(inputTokens, outputTokens, model){
+  // Get pricing for model
+  const pricing = {
+    'claude-haiku-4-20250514': { input: 0.80, output: 4 },
+    'claude-sonnet-4-20250514': { input: 3, output: 15 },
+    'claude-opus-4-20250514': { input: 15, output: 75 }
+  };
+  
+  const p = pricing[model] || pricing['claude-sonnet-4-20250514'];
+  const cost = (inputTokens / 1000000 * p.input) + (outputTokens / 1000000 * p.output);
+  
+  // Get today's usage
+  let usage = JSON.parse(localStorage.getItem('token_usage') || '{}');
+  const today = new Date().toISOString().split('T')[0];
+  
+  if(!usage[today]){
+    usage[today] = { blogs: 0, input: 0, output: 0, cost: 0 };
+  }
+  
+  usage[today].blogs += 1;
+  usage[today].input += inputTokens;
+  usage[today].output += outputTokens;
+  usage[today].cost += cost;
+  
+  localStorage.setItem('token_usage', JSON.stringify(usage));
+  updateUsageDisplay();
+}
+
+function updateUsageDisplay(){
+  const usage = JSON.parse(localStorage.getItem('token_usage') || '{}');
+  const today = new Date().toISOString().split('T')[0];
+  const todayUsage = usage[today] || { blogs: 0, cost: 0 };
+  
+  document.getElementById('usage-blogs-today').textContent = todayUsage.blogs;
+  document.getElementById('usage-cost-today').textContent = todayUsage.cost.toFixed(3);
+  
+  // Calculate remaining blogs (assuming $5 budget with current model)
+  const model = localStorage.getItem('claude_model') || 'claude-sonnet-4-20250514';
+  const avgCostPerBlog = {
+    'claude-haiku-4-20250514': 0.012,
+    'claude-sonnet-4-20250514': 0.045,
+    'claude-opus-4-20250514': 0.225
+  }[model];
+  
+  const totalCost = Object.values(usage).reduce((sum, day) => sum + day.cost, 0);
+  const remainingBudget = 5 - totalCost; // Assuming $5 initial budget
+  const remainingBlogs = Math.max(0, Math.floor(remainingBudget / avgCostPerBlog));
+  
+  document.getElementById('usage-remaining').textContent = remainingBlogs;
+  
+  document.getElementById('ai-usage').style.display = 'block';
+}
+
+// Initialize on page load
+window.addEventListener('DOMContentLoaded', () => {
+  const apiKey = localStorage.getItem('claude_api_key');
+  if(apiKey){
+    document.getElementById('claude-api-key').value = apiKey;
+    document.getElementById('ai-model').value = localStorage.getItem('claude_model') || 'claude-sonnet-4-20250514';
+    updateUsageDisplay();
+  }
+  
+  // Confirm script loaded
+  console.log('✓ WP Publisher loaded successfully');
+  console.log('✓ Functions available:', {
+    generateAndPreview: typeof generateAndPreview,
+    publishPost: typeof publishPost,
+    generateBlogWithAI: typeof generateBlogWithAI
+  });
+});
+
+// Test button click immediately
+setTimeout(() => {
+  const testBtn = document.getElementById('gen-btn');
+  if(testBtn) {
+    console.log('✓ Convert button found');
+  } else {
+    console.error('✗ Convert button NOT found!');
+  }
+}, 1000);
+
 </script>
 </body>
 </html>
