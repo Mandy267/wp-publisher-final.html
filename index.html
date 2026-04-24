@@ -4678,7 +4678,25 @@ window.addEventListener('DOMContentLoaded', () => {
     document.getElementById('ai-model').value = localStorage.getItem('claude_model') || 'claude-sonnet-4-20250514';
     updateUsageDisplay();
   }
+  
+  // Confirm script loaded
+  console.log('✓ WP Publisher loaded successfully');
+  console.log('✓ Functions available:', {
+    generateAndPreview: typeof generateAndPreview,
+    publishPost: typeof publishPost,
+    generateBlogWithAI: typeof generateBlogWithAI
+  });
 });
+
+// Test button click immediately
+setTimeout(() => {
+  const testBtn = document.getElementById('gen-btn');
+  if(testBtn) {
+    console.log('✓ Convert button found');
+  } else {
+    console.error('✗ Convert button NOT found!');
+  }
+}, 1000);
 
 </script>
 </body>
