@@ -419,7 +419,8 @@ input.inp::placeholder,textarea.inp::placeholder{color:var(--ink3)}
           <div class="leg-item"><span class="leg-tag" style="background:#E8F4FD;color:#1A4A8B">#INFO</span> Info box</div>
           <div class="leg-item"><span class="leg-tag" style="background:#1A2942;color:#00C8A0">#ASK_START/END</span> Questions box</div>
           <div class="leg-item"><span class="leg-tag" style="background:#F0E8FB;color:#4A1A8B">#FAQ_START/END</span> FAQ accordion ↕</div>
-          <div class="leg-item"><span class="leg-tag" style="background:#FBF0E8;color:#8B4A0A">#IMAGE_1 / _2 / _3</span> Auto image</div>
+          <div class="leg-item"><span class="leg-tag" style="background:#FFF4E6;color:#9B4700">#REVIEWS_START/END</span> Reviews carousel ⭐</div>
+          <div class="leg-item"><span class="leg-tag" style="background:#FBF0E8;color:#8B4A0A">#IMAGE_1 / _2</span> Auto image</div>
           <div class="leg-item"><span class="leg-tag" style="background:#E8EAF0;color:#0A2540">#TABLE_START/END</span> Table accordion ↕</div>
           <div class="leg-item"><span class="leg-tag" style="background:#E8F5F2;color:#0A5040">#ACCORDION_START/END</span> Any content → accordion ↕</div>
           <div class="leg-item"><span class="leg-tag" style="background:linear-gradient(135deg,#E8EEF8,#E8F5EE);color:#0A5040">#CTA_TITLE/_BODY</span> CTA block</div>
@@ -803,21 +804,6 @@ MBBS certified doctor" style="font-size:12px;line-height:1.6"></textarea>
 
       <div style="border-top:1px solid var(--bdr);margin:4px 0 16px"></div>
 
-      <!-- IMAGE 3 SLOT -->
-      <div style="margin-bottom:8px">
-        <div class="img-slot-label">📷 Inline Image 3 (#IMAGE_3) — optional</div>
-        <div id="ig-img3" style="margin:8px 0;min-height:50px;border-radius:8px;overflow:hidden;border:1.5px dashed var(--bdr);display:flex;align-items:center;justify-content:center;background:var(--surf2);font-size:11px;color:var(--ink3)">No image selected</div>
-        <div class="fg" style="margin-bottom:6px">
-          <label class="lbl">Alt text for Image 3</label>
-          <input class="inp" id="alt-img3" placeholder="Auto-read from #IMAGE_3 = caption" style="font-size:11px;padding:6px 9px"/>
-        </div>
-        <div style="display:flex;gap:6px;margin-top:4px">
-          <input type="file" id="file-img3" accept="image/*" onchange="handleSlotUpload('img3')" style="display:none"/>
-          <button class="btn btn-ghost" style="font-size:11px;padding:6px 12px;flex:1" onclick="document.getElementById('file-img3').click()">📁 Upload</button>
-          <input class="inp" id="url-img3" placeholder="Or paste URL..." style="font-size:11px;padding:6px 9px;flex:2"/>
-          <button class="btn btn-ghost" style="font-size:11px;padding:6px 10px" onclick="applySlotUrl('img3')">✓</button>
-        </div>
-      </div>
 
       <div style="border-top:1px solid var(--bdr);margin:4px 0 12px"></div>
 
@@ -1108,9 +1094,9 @@ MBBS certified doctor" style="font-size:12px;line-height:1.6"></textarea>
 let sites=JSON.parse(localStorage.getItem('wpb_sites')||'[]');
 let activeIdx=+localStorage.getItem('wpb_active')||0;
 let generatedHTML='';
-let imgs={hero:'',img1:'',img2:'',img3:'',author:''};
-let imgFiles={hero:null,img1:null,img2:null,img3:null,author:null}; // actual File objects for upload
-let imgAlts={hero:'',img1:'',img2:'',img3:''};
+let imgs={hero:'',img1:'',img2:'',author:''};
+let imgFiles={hero:null,img1:null,img2:null,author:null}; // actual File objects for upload
+let imgAlts={hero:'',img1:'',img2:''};
 let imgSrc='u';
 let histLog=(()=>{try{const h=JSON.parse(localStorage.getItem('wpb_hist')||'[]');return h.map(e=>({...e,time:new Date(e.time)}));}catch{return [];}})();
 const gv = id => (document.getElementById(id)||{}).value||'';
@@ -1250,7 +1236,6 @@ function updateWC(){
   setAlt('alt-hero', get('#TITLE') || '');  // hero alt = blog title
   setAlt('alt-img1', getImg(1));
   setAlt('alt-img2', getImg(2));
-  setAlt('alt-img3', getImg(3));
 
   updateScore();
 }
@@ -1813,6 +1798,33 @@ const BSP_CSS=`<style>
 .bsp-cta p{color:rgba(255,255,255,.8);font-size:15px;max-width:520px;margin:0 auto 28px}
 .bsp-cta-btn{display:inline-block;background:#00ddb4;color:#0a2540;font-size:15px;font-weight:700;padding:14px 36px;border-radius:50px;text-decoration:none;transition:all .2s;box-shadow:0 6px 20px rgba(0,221,180,.35);position:relative;z-index:1}
 .bsp-cta-btn:hover{background:#00c9a4;transform:translateY(-2px);box-shadow:0 10px 28px rgba(0,221,180,.45)}
+/* REVIEWS CAROUSEL */
+.bsp-reviews{margin:40px 0;padding:0}
+.bsp-reviews-title{font-size:22px;font-weight:700;color:#0a2540;margin:0 0 28px;text-align:center;padding-bottom:12px;border-bottom:2px solid #e8f4f8}
+.bsp-reviews-carousel{position:relative;overflow:hidden;padding:0 44px}
+.bsp-reviews-track{display:flex;gap:20px;transition:transform .4s ease;scroll-behavior:smooth}
+.bsp-review-card{min-width:calc(33.333% - 14px);flex:0 0 calc(33.333% - 14px);background:#fff;border:1px solid #e0ecf4;border-radius:12px;padding:24px;box-shadow:0 2px 8px rgba(10,107,138,.06);transition:all .2s}
+.bsp-review-card:hover{box-shadow:0 6px 20px rgba(10,107,138,.12);transform:translateY(-2px)}
+.bsp-review-stars{color:#ffc107;font-size:16px;margin-bottom:12px;letter-spacing:2px}
+.bsp-review-text{font-size:14px;line-height:1.7;color:#2c2c3e;margin:0 0 16px;font-style:italic}
+.bsp-review-author{font-size:13px;font-weight:600;color:#0a6b8a;margin:0}
+.bsp-review-location{font-size:12px;color:#78909c;margin:4px 0 0}
+.bsp-carousel-btn{position:absolute;top:50%;transform:translateY(-50%);width:40px;height:40px;border-radius:50%;background:#fff;border:2px solid #e0ecf4;color:#0a6b8a;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;z-index:2;user-select:none}
+.bsp-carousel-btn:hover{background:#e8f4fb;border-color:#0a6b8a;transform:translateY(-50%) scale(1.1)}
+.bsp-carousel-btn.prev{left:0}
+.bsp-carousel-btn.next{right:0}
+.bsp-carousel-dots{display:flex;gap:8px;justify-content:center;margin-top:24px}
+.bsp-carousel-dot{width:8px;height:8px;border-radius:50%;background:#ddd;cursor:pointer;transition:all .2s}
+.bsp-carousel-dot.active{background:#0a6b8a;width:24px;border-radius:4px}
+@media(max-width:900px){
+.bsp-review-card{min-width:calc(50% - 10px);flex:0 0 calc(50% - 10px)}
+.bsp-reviews-carousel{padding:0 40px}
+}
+@media(max-width:600px){
+.bsp-review-card{min-width:calc(100% - 0px);flex:0 0 calc(100% - 0px)}
+.bsp-reviews-carousel{padding:0 36px}
+.bsp-carousel-btn{width:36px;height:36px;font-size:18px}
+}
 /* AUTHOR */
 .bsp-author{display:flex;gap:20px;align-items:flex-start;background:#f8fbff;border:1px solid #d0e8f4;border-radius:14px;padding:24px 28px;margin:44px 0 20px}
 .bsp-author-avatar{width:68px;height:68px;min-width:68px;border-radius:50%;background:linear-gradient(135deg,#0a6b8a,#0e9977);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;color:#fff;box-shadow:0 4px 12px rgba(10,107,138,.25);flex-shrink:0}
@@ -2006,6 +2018,54 @@ function convertToHTML(raw){
 </details>\n`;
     inAccordion=false;accordionTitle='';accordionItems=[];
   };
+  let inReviews=false,reviewItems=[];
+  const closeReviews=()=>{
+    if(!inReviews||!reviewItems.length)return;
+    const reviewsId = 'reviews-' + Math.random().toString(36).substr(2,9);
+    body+=`<div class="bsp-reviews">
+  <h2 class="bsp-reviews-title">What Our Customers Say</h2>
+  <div class="bsp-reviews-carousel" id="${reviewsId}">
+    <div class="bsp-carousel-btn prev" onclick="slideReviews('${reviewsId}',-1)">‹</div>
+    <div class="bsp-carousel-btn next" onclick="slideReviews('${reviewsId}',1)">›</div>
+    <div class="bsp-reviews-track">
+${reviewItems.map(r=>`      <div class="bsp-review-card">
+        <div class="bsp-review-stars">${'★'.repeat(r.stars||5)}${'☆'.repeat(5-(r.stars||5))}</div>
+        <p class="bsp-review-text">"${fmt(r.text)}"</p>
+        <div class="bsp-review-author">${fmt(r.name)}</div>
+        ${r.location?`<div class="bsp-review-location">${fmt(r.location)}</div>`:''}
+      </div>`).join('\n')}
+    </div>
+  </div>
+  <div class="bsp-carousel-dots" id="${reviewsId}-dots"></div>
+</div>
+<script>
+(function(){
+  const c=document.getElementById('${reviewsId}');
+  const t=c.querySelector('.bsp-reviews-track');
+  const dots=document.getElementById('${reviewsId}-dots');
+  const cards=t.children.length;
+  let idx=0;
+  const perView=window.innerWidth>900?3:window.innerWidth>600?2:1;
+  const pages=Math.ceil(cards/perView);
+  for(let i=0;i<pages;i++){
+    const d=document.createElement('div');
+    d.className='bsp-carousel-dot'+(i===0?' active':'');
+    d.onclick=()=>{idx=i;update()};
+    dots.appendChild(d);
+  }
+  function update(){
+    t.style.transform='translateX(-'+(idx*100)+'%)';
+    Array.from(dots.children).forEach((d,i)=>d.classList.toggle('active',i===idx));
+  }
+  window.slideReviews=function(id,dir){
+    if(id!=='${reviewsId}')return;
+    idx=(idx+dir+pages)%pages;
+    update();
+  };
+})();
+<\/script>\n`;
+    inReviews=false;reviewItems=[];
+  };
 
   const lines=raw.split('\n');
   let i=0;
@@ -2046,12 +2106,27 @@ function convertToHTML(raw){
     const acm=line.match(/^#ACCORDION_START\s*=\s*(.+)/i);
     if(acm){closeAccordion();inAccordion=true;accordionTitle=acm[1].trim();continue}
     if(/^#ACCORDION_END/i.test(line)){closeAccordion();continue}
+    // REVIEWS
+    if(/^#REVIEWS_START/i.test(line)){closeReviews();inReviews=true;continue}
+    if(/^#REVIEWS_END/i.test(line)){closeReviews();continue}
 
     // Collect block items
     if(inList){ listItems.push(line.replace(/^[-*•]\s*/,'')); continue; }
     if(inAsk){  askItems.push(line.replace(/^[-*•]\s*/,'')); continue; }
     if(inTable){ tableLines.push(line); continue; }
     if(inAccordion){ accordionItems.push(line.replace(/^[-*•]\s*/,'')); continue; }
+    if(inReviews){
+      // Parse review format: "Review text" | Name | Location | Stars
+      const parts = line.split('|').map(p=>p.trim());
+      if(parts.length>=2){
+        const text = parts[0].replace(/^["']|["']$/g,'');
+        const name = parts[1] || 'Anonymous';
+        const location = parts[2] || '';
+        const stars = parseInt(parts[3]) || 5;
+        reviewItems.push({text,name,location,stars});
+      }
+      continue;
+    }
     if(inFaq){
       const qm=line.match(/^Q:\s*(.+)/i);
       if(qm){ faqItems.push({q:qm[1].trim(),a:''}); continue; }
@@ -2064,7 +2139,7 @@ function convertToHTML(raw){
     // SINGLE-LINE MARKERS
     const h2m=line.match(/^#H2\s*=\s*(.+)/i);
     if(h2m){
-      closeList();closeAsk();closeFaq();closeTable();closeAccordion();
+      closeList();closeAsk();closeFaq();closeTable();closeAccordion();closeReviews();
       // Track if this H2 is a FAQ heading — so we don't double-print it
       if(/frequently asked|^faq/i.test(h2m[1])){
         lastH2WasFaq=true;
@@ -2083,7 +2158,7 @@ function convertToHTML(raw){
 
     const chm=line.match(/^#CHECK\s*=\s*(.+)/i);
     if(chm){
-      closeList();closeAsk();closeFaq();closeTable();closeAccordion();
+      closeList();closeAsk();closeFaq();closeTable();closeAccordion();closeReviews();
       const fullText = chm[1].trim();
       // Extract number from text e.g. "Check #3: Energy Production" → num=3
       const numMatch = fullText.match(/^(?:check|step|tip|reason|way|point|benefit|sign|type|cause|factor)\s*#?(\d+)/i);
@@ -2194,32 +2269,6 @@ function convertToHTML(raw){
       continue;
     }
 
-    // ── IMAGE_3 (new format) ──
-    const img3m=line.match(/^#IMAGE_3\s*$/i);
-    if(img3m){
-      let altText = '';
-      let caption = '';
-      const nextLines = lines.slice(i+1, i+4);
-      for(const nl of nextLines){
-        const altMatch = nl.match(/^Alt:\s*(.+)/i);
-        if(altMatch) altText = altMatch[1].trim();
-        const capMatch = nl.match(/^Caption:\s*(.+)/i);
-        if(capMatch) caption = capMatch[1].trim();
-      }
-      const alt = altText || gv('alt-img3') || imgAlts.img3 || 'Article image';
-      const cap = caption || 'Article image';
-      body+=`<div class="bsp-img-block"><img src="${imgs.img3||fallback}" alt="${fmt(alt)}" loading="lazy"/><div class="bsp-img-caption">${fmt(cap)}</div></div>\n`;
-      continue;
-    }
-    
-    // ── IMAGE_3 (old format fallback) ──
-    const img3old=line.match(/^#IMAGE_3\s*=\s*(.+)/i);
-    if(img3old){
-      const cap=img3old[1].trim()||'Article image';
-      const alt=gv('alt-img3')||imgAlts.img3||cap;
-      body+=`<div class="bsp-img-block"><img src="${imgs.img3||fallback}" alt="${fmt(alt)}" loading="lazy"/><div class="bsp-img-caption">${fmt(cap)}</div></div>\n`;
-      continue;
-    }
 
     // Skip Alt: and Caption: lines (already processed above)
     if(/^(Alt|Caption):/i.test(line)) continue;
@@ -2249,7 +2298,7 @@ function convertToHTML(raw){
   }
 
   // Close any open blocks
-  closeList(); closeAsk(); closeFaq(); closeTable(); closeAccordion();
+  closeList(); closeAsk(); closeFaq(); closeTable(); closeAccordion(); closeReviews();
 
   // ── AUTHOR ──
   const authorUrl = gv('f-author-url') || (raw.match(/^#AUTHOR_URL\s*=\s*(.+)/im)||['',''])[1].trim() || '';
@@ -2428,7 +2477,7 @@ async function uploadFeatImg(site, url, alt){
 
 async function uploadAndReplaceInlineImages(site, html, title){
   let result = html;
-  const slots = ['img1','img2','img3'];
+  const slots = ['img1','img2'];
   for(const slot of slots){
     if(!imgs[slot] && !imgFiles[slot]) continue;
     const alt = gv('alt-'+slot) || imgAlts[slot] || title + ' ' + slot;
@@ -4728,6 +4777,14 @@ Q: [Fifth question]
 A: [Answer]
 #FAQ_END
 
+#REVIEWS_START
+[Authentic review text mentioning specific benefit] | [Indian name] | [Location] | 5
+[Another review focusing on service quality] | [Indian name] | [Nearby area] | 5
+[Review highlighting results/outcome] | [Indian name] | [Location] | 5
+[Review about staff/experience] | [Indian name] | [Area] | 5
+[Review about value/recommendation] | [Indian name] | [Location] | 5
+#REVIEWS_END
+
 #CTA_TITLE = ${profile?.ctaBtn || 'Ready to Get Started?'}
 #CTA_BODY = [One compelling line motivating action]
 
@@ -4739,6 +4796,8 @@ REQUIREMENTS:
 5. Write in ${profile?.tone || 'professional but approachable'} tone
 6. Target Indian audience, use ₹ for pricing
 7. Make FAQ sound natural (real questions)
+8. Make reviews authentic - mention specific treatments/services, use real Indian names, use nearby locations
+9. Each review 15-25 words, natural language, specific details
 8. Include specific details and examples
 9. 3-5 sentences per paragraph
 10. NO #IMAGE markers (images added manually)
