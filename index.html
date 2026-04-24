@@ -4590,26 +4590,51 @@ async function generateBlogWithAI(){
       });
     } catch(directError) {
       // If direct call fails (CORS), try CORS proxy
-      console.log('Direct API call blocked, trying CORS proxy...');
+      console.log('Direct API call blocked, trying CORS proxy...', directError);
+      toast('Browser blocked direct call, trying proxy...', 'info');
       
-      // Use a CORS proxy as fallback
-      response = await fetch('https://corsproxy.io/?' + encodeURIComponent('https://api.anthropic.com/v1/messages'), {
-        method: 'POST',
-        headers: {
-          'x-api-key': apiKey,
-          'anthropic-version': '2023-06-01',
-          'anthropic-dangerous-direct-browser-access': 'true',
-          'content-type': 'application/json'
-        },
-        body: JSON.stringify({
-          model: model,
-          max_tokens: 8000,
-          messages: [{
-            role: 'user',
-            content: prompt
-          }]
-        })
-      });
+      try {
+        // Use a CORS proxy as fallback
+        response = await fetch('https://corsproxy.io/?' + encodeURIComponent('https://api.anthropic.com/v1/messages'), {
+          method: 'POST',
+          headers: {
+            'x-api-key': apiKey,
+            'anthropic-version': '2023-06-01',
+            'anthropic-dangerous-direct-browser-access': 'true',
+            'content-type': 'application/json'
+          },
+          body: JSON.stringify({
+            model: model,
+            max_tokens: 8000,
+            messages: [{
+              role: 'user',
+              content: prompt
+            }]
+          })
+        });
+      } catch(proxyError) {
+        console.log('CORS proxy also failed, trying alternative proxy...', proxyError);
+        toast('First proxy failed, trying backup...', 'info');
+        
+        // Try alternative proxy
+        response = await fetch('https://api.allorigins.win/raw?url=' + encodeURIComponent('https://api.anthropic.com/v1/messages'), {
+          method: 'POST',
+          headers: {
+            'x-api-key': apiKey,
+            'anthropic-version': '2023-06-01',
+            'anthropic-dangerous-direct-browser-access': 'true',
+            'content-type': 'application/json'
+          },
+          body: JSON.stringify({
+            model: model,
+            max_tokens: 8000,
+            messages: [{
+              role: 'user',
+              content: prompt
+            }]
+          })
+        });
+      }
     }
     
     if(!response.ok){
