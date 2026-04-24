@@ -4659,84 +4659,147 @@ function buildSmartPrompt(brief){
   const profile = clientProfiles[activeProfileIdx];
   
   let contextInfo = '';
+  let authorSection = '';
+  let ctaSection = '';
+  
   if(profile){
-    contextInfo = `
-BRAND CONTEXT:
-- Business: ${profile.name}${profile.industry ? ' (' + profile.industry + ')' : ''}
-- Website: ${profile.url || 'Not specified'}
-- Brand Tone: ${profile.tone || 'Professional & Technical'}
-${profile.authorName ? '- Author: ' + profile.authorName + (profile.authorRole ? ', ' + profile.authorRole : '') : ''}
-${profile.city ? '- Location: ' + profile.city + (profile.state ? ', ' + profile.state : '') : ''}
-`;
+    contextInfo = `BRAND: ${profile.name}${profile.industry ? ' (' + profile.industry + ')' : ''}
+LOCATION: ${profile.city || ''}${profile.state ? ', ' + profile.state : ''}
+TONE: ${profile.tone || 'Professional'}`;
+
+    if(profile.authorName){
+      authorSection = `
+AUTHOR (use exactly):
+#AUTHOR = ${profile.authorName}
+${profile.authorUrl ? '#AUTHOR_URL = ' + profile.authorUrl : ''}
+
+AT END: #AUTHOR_NAME/${profile.authorRole || 'Expert'}/BIO
+${profile.authorBio || 'Professional bio here'}`;
+    }
+
+    if(profile.ctaBtn && profile.ctaUrl){
+      ctaSection = `
+CTA (use exactly):
+#CTA_TITLE = ${profile.ctaBtn}
+#CTA_BODY = One compelling sentence`;
+    }
   }
   
-  return `You are a professional blog writer creating SEO-optimized content with marker formatting.
+  return `SEO blog writer. Generate 1200-1500 words with ALL markers for 80+ RankMath score.
 
-${contextInfo}
+${contextInfo}${authorSection}${ctaSection}
 
-TASK: Generate a complete 1200-word blog post based on this brief:
-
+BRIEF:
 ${brief}
 
-REQUIRED FORMAT - Use these exact markers:
+CRITICAL - MUST INCLUDE 4 IMAGES:
+- #FEATURED_IMAGE (top of blog)
+- #IMAGE_1 (after intro)
+- #IMAGE_2 (mid-content)
+- #IMAGE_3 (before FAQ)
+Each image MUST have Alt: and Caption: lines with keywords + location.
 
-#HERO_TAG = Category · Context (e.g., "Medical Guide · Dermatology")
-#TITLE = Main blog title
-#AUTHOR = ${profile?.authorName || 'Author Name'}
-${profile?.authorUrl ? '#AUTHOR_URL = ' + profile.authorUrl : ''}
+SEO REQUIREMENTS (80+ RankMath):
+- Focus keyword in first 100 words, meta title, meta desc, 2-3 H2 headings, 5-8x total
+- 5-8 secondary keywords in #SECONDARY_KW
+- 1200-1500 words, 5-7 H2 sections, 3+ H3 subsections
+- 6+ FAQ questions
+- ONE of: #CHECK items, #TABLE, or #ACCORDION
+
+FORMAT:
+#HERO_TAG = Category · Context
+#TITLE = Blog title with focus keyword
+#AUTHOR = ${profile?.authorName || 'Author'}
+${profile?.authorUrl ? '#AUTHOR_URL = ' + profile.authorUrl : '#AUTHOR_URL = https://site.com/author'}
 #READ_TIME = 12
-#META_TITLE = SEO-optimized title 50-60 chars (MUST include focus keyword)
-#META_DESC = Compelling meta description 130-160 chars (MUST include focus keyword)
-#FOCUS_KW = primary keyword phrase
-#SECONDARY_KW = related keyword 1, related keyword 2, related keyword 3
+#META_TITLE = 50-60 chars, focus keyword at start
+#META_DESC = 140-155 chars, focus keyword + action
+#FOCUS_KW = primary keyword
+#SECONDARY_KW = kw1, kw2, kw3, kw4, kw5, kw6, kw7, kw8
+
+#FEATURED_IMAGE
+Alt: [Focus keyword + location + clinic name, under 125 chars]
+Caption: [2 sentences describing featured image with keywords and location.]
 
 #INTRO
-Write 2-3 paragraphs introducing the topic. Make it engaging and include the focus keyword naturally in the first paragraph.
+2-3 paragraphs. Focus keyword in first 100 words.
 
-#H2 = First Major Section Heading
-#PARA = Detailed paragraph content for this section. Include stats, benefits, or actionable insights.
+#IMAGE_1
+Alt: [Treatment/procedure + keywords + location, under 125 chars]
+Caption: [2 sentences about what's shown, include keywords and location.]
 
-#H3 = Subsection Heading (if needed)
-#PARA = Supporting content for this subsection.
+#H2 = Section with focus/secondary keyword
+#PARA = 3-5 sentences with specifics.
 
-#H2 = Second Major Section Heading
-#PARA = Content here...
+#H3 = Subsection
+#PARA = Details.
 
-(Continue with 5-7 #H2 sections total)
+(5-7 H2 sections with H3 subsections)
+
+#IMAGE_2
+Alt: [Results/facility + keywords + location, under 125 chars]
+Caption: [2 sentences highlighting benefits or features with location.]
+
+INTERACTIVE (include ONE):
+
+#CHECK = Point Title
+Explanation 2-3 sentences.
+(repeat 3-5 times)
+
+OR
+
+#TABLE_START
+Col1 | Col2 | Col3
+Data | Data | Data
+#TABLE_END
+
+OR
+
+#ACCORDION_START
+Title 1 | Content for section
+Title 2 | More content
+#ACCORDION_END
+
+#IMAGE_3
+Alt: [Clinic/location + keywords, under 125 chars]
+Caption: [2 sentences about accessibility or convenience with location details.]
 
 #FAQ_START
-Q: First relevant question?
-A: Detailed answer here.
-
-Q: Second question?
-A: Answer here.
-
-Q: Third question?
-A: Answer.
-
-Q: Fourth question?
-A: Answer.
-
-Q: Fifth question?
-A: Answer.
+Q: Real search query?
+A: 2-3 sentence answer.
+(6+ questions)
 #FAQ_END
 
-#CTA_TITLE = Compelling call-to-action heading
-#CTA_BODY = Supporting line that motivates action
+#CTA_TITLE = ${profile?.ctaBtn || 'Get Started'}
+#CTA_BODY = Motivating sentence
 
-IMPORTANT REQUIREMENTS:
-1. Output ONLY the marker-formatted content - no preamble, no explanations
-2. Make content specific, factual, and actionable - avoid generic fluff
-3. Use focus keyword naturally 5-8 times throughout (not forced)
-4. Include secondary keywords where relevant
-5. Write in a ${profile?.tone || 'professional but approachable'} tone
-6. Target Indian audience, use ₹ for pricing if mentioned
-7. Make FAQ questions sound natural (what real people ask)
-8. Keep paragraphs 3-5 sentences each
-9. Use concrete examples and specific details
-10. DO NOT include #IMAGE markers - images are added manually
+#AUTHOR_NAME/${profile?.authorRole || 'Expert'}/BIO
+${profile?.authorBio || 'Professional bio with credentials'}
 
-Start directly with #HERO_TAG marker:`;
+IMAGE ALT TEXT RULES:
+- Include focus keyword in every alt text
+- Add location (${profile?.city || 'city'}) in every alt text
+- Include clinic/doctor name when relevant
+- Keep under 125 characters
+- Be descriptive and specific
+
+IMAGE CAPTION RULES:
+- Exactly 2 sentences
+- First sentence: describe what's in image
+- Second sentence: add location/benefit/USP
+- Include keywords naturally
+- Include location keywords
+
+CRITICAL RULES:
+1. Output ONLY markers, no preamble
+2. ${profile?.tone || 'Professional but approachable'} tone
+3. Indian audience
+4. Specific details, no generic fluff
+5. Active voice, 3-5 sentences per paragraph
+6. MUST include all 4 images (FEATURED_IMAGE + IMAGE_1 + IMAGE_2 + IMAGE_3)
+7. Start with #HERO_TAG
+
+Begin:`;
 }
 
 function trackTokenUsage(inputTokens, outputTokens, model){
