@@ -1802,8 +1802,8 @@ const BSP_CSS=`<style>
 .bsp-reviews{margin:40px 0;padding:0}
 .bsp-reviews-title{font-size:22px;font-weight:700;color:#0a2540;margin:0 0 28px;text-align:center;padding-bottom:12px;border-bottom:2px solid #e8f4f8}
 .bsp-reviews-carousel{position:relative;overflow:hidden;padding:0 44px}
-.bsp-reviews-track{display:flex;gap:20px;transition:transform .4s ease;scroll-behavior:smooth}
-.bsp-review-card{min-width:calc(33.333% - 14px);flex:0 0 calc(33.333% - 14px);background:#fff;border:1px solid #e0ecf4;border-radius:12px;padding:24px;box-shadow:0 2px 8px rgba(10,107,138,.06);transition:all .2s}
+.bsp-reviews-track{display:flex;gap:16px;transition:transform .4s ease;scroll-behavior:smooth}
+.bsp-review-card{min-width:calc(33.333% - 11px);flex:0 0 calc(33.333% - 11px);background:#fff;border:1px solid #e0ecf4;border-radius:12px;padding:24px;box-shadow:0 2px 8px rgba(10,107,138,.06);transition:all .2s}
 .bsp-review-card:hover{box-shadow:0 6px 20px rgba(10,107,138,.12);transform:translateY(-2px)}
 .bsp-review-stars{color:#ffc107;font-size:16px;margin-bottom:12px;letter-spacing:2px}
 .bsp-review-text{font-size:14px;line-height:1.7;color:#2c2c3e;margin:0 0 16px;font-style:italic}
@@ -1817,11 +1817,11 @@ const BSP_CSS=`<style>
 .bsp-carousel-dot{width:8px;height:8px;border-radius:50%;background:#ddd;cursor:pointer;transition:all .2s}
 .bsp-carousel-dot.active{background:#0a6b8a;width:24px;border-radius:4px}
 @media(max-width:900px){
-.bsp-review-card{min-width:calc(50% - 10px);flex:0 0 calc(50% - 10px)}
+.bsp-review-card{min-width:calc(50% - 8px);flex:0 0 calc(50% - 8px)}
 .bsp-reviews-carousel{padding:0 40px}
 }
 @media(max-width:600px){
-.bsp-review-card{min-width:calc(100% - 0px);flex:0 0 calc(100% - 0px)}
+.bsp-review-card{min-width:100%;flex:0 0 100%}
 .bsp-reviews-carousel{padding:0 36px}
 .bsp-carousel-btn{width:36px;height:36px;font-size:18px}
 }
@@ -4652,7 +4652,70 @@ async function generateBlogAuto(){
     }
     
     const data = await response.json();
-    const generatedBlog = data.content[0].text;
+    let generatedBlog = data.content[0].text;
+    
+    // AUTO-INSERT IMAGE MARKERS
+    // Find H2 sections and insert images strategically
+    const lines = generatedBlog.split('\n');
+    let newLines = [];
+    let h2Count = 0;
+    let img1Inserted = false;
+    let img2Inserted = false;
+    
+    for(let i = 0; i < lines.length; i++){
+      const line = lines[i];
+      newLines.push(line);
+      
+      // Count H2 sections
+      if(/^#H2\s*=/i.test(line)){
+        h2Count++;
+        
+        // Insert #IMAGE_1 after 2nd H2 section's first paragraph
+        if(h2Count === 2 && !img1Inserted){
+          // Find next PARA
+          for(let j = i+1; j < Math.min(i+5, lines.length); j++){
+            if(/^#PARA\s*=/i.test(lines[j])){
+              newLines.push('');
+              newLines.push('#IMAGE_1');
+              img1Inserted = true;
+              break;
+            }
+          }
+        }
+        
+        // Insert #IMAGE_2 after 4th H2 section's first paragraph
+        if(h2Count === 4 && !img2Inserted){
+          // Find next PARA
+          for(let j = i+1; j < Math.min(i+5, lines.length); j++){
+            if(/^#PARA\s*=/i.test(lines[j])){
+              newLines.push('');
+              newLines.push('#IMAGE_2');
+              img2Inserted = true;
+              break;
+            }
+          }
+        }
+      }
+    }
+    
+    // Fallback: if images not inserted, add them manually
+    if(!img1Inserted){
+      // Insert after first TABLE_END or FAQ_START
+      const tableIdx = newLines.findIndex(l => /^#TABLE_END/i.test(l));
+      if(tableIdx > 0){
+        newLines.splice(tableIdx + 1, 0, '', '#IMAGE_1');
+      }
+    }
+    
+    if(!img2Inserted){
+      // Insert before FAQ_START
+      const faqIdx = newLines.findIndex(l => /^#FAQ_START/i.test(l));
+      if(faqIdx > 0){
+        newLines.splice(faqIdx, 0, '#IMAGE_2', '');
+      }
+    }
+    
+    generatedBlog = newLines.join('\n');
     
     // Fill blog textarea
     document.getElementById('blog-input').value = generatedBlog;
@@ -4796,7 +4859,16 @@ REQUIREMENTS:
 5. Write in ${profile?.tone || 'professional but approachable'} tone
 6. Target Indian audience, use ₹ for pricing
 7. Make FAQ sound natural (real questions)
-8. Make reviews authentic - mention specific treatments/services, use real Indian names, use nearby locations
+8. REVIEWS MUST BE NATURAL & SEO-OPTIMIZED:
+   - Write like real Indian customers (casual, specific, emotional)
+   - Mention exact treatment names ("PRP therapy", "cryolipolysis", etc.)
+   - Include location naturally ("best hair treatment in Hennur", "visited from Whitefield")
+   - Use conversational language ("finally found", "highly recommend", "worth every rupee")
+   - Mention specific results ("lost 2 inches", "hair fall reduced 80%", "visible in 3 weeks")
+   - Use doctor/staff names if available
+   - Include time frames ("after 4 sessions", "within 2 months")
+   - Each review 12-20 words maximum
+   - NO generic phrases like "professional staff" — be SPECIFIC
 9. Each review 15-25 words, natural language, specific details
 8. Include specific details and examples
 9. 3-5 sentences per paragraph
