@@ -1759,7 +1759,7 @@ const BSP_CSS=`<style>
 .bsp-img-caption{background:#f8f9fa;border-top:1px solid #e9ecef;padding:10px 16px;font-size:12px;color:#6c757d;font-style:italic}
 /* COMPARISON TABLE — always visible, not accordion */
 .bsp-table-wrap{overflow-x:auto;margin:32px 0;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,.08);-webkit-overflow-scrolling:touch}
-.bsp-table{width:100%;border-collapse:collapse;font-size:14px;min-width:600px;table-layout:auto}
+.bsp-table{width:100%;border-collapse:collapse;font-size:13px;min-width:100%;table-layout:fixed}
 .bsp-table thead tr{background:linear-gradient(135deg,#0a2540,#0a6b8a)}
 .bsp-table thead th{padding:12px 14px;text-align:left;color:#fff;font-weight:600;font-size:12px;letter-spacing:.3px;white-space:nowrap}
 .bsp-table thead th:first-child{border-radius:12px 0 0 0}
@@ -2591,7 +2591,7 @@ async function publishPost(){
       tags:    tagIds,
       // Send meta in initial POST too — works if PHP snippet is added
       meta: {
-        rank_math_focus_keyword: kw,
+        rank_math_focus_keyword: kw + (secKw ? ', ' + secKw : ''),
         rank_math_title:         seoT,
         rank_math_description:   meta,
       }
@@ -2599,6 +2599,12 @@ async function publishPost(){
     if(catId)    payload.categories     = [catId];
     if(authorId) payload.author         = authorId;
     if(featId)   payload.featured_media = featId;
+    
+    console.log('Publishing with payload:', {
+      title: payload.title,
+      featured_media: payload.featured_media,
+      meta: payload.meta
+    });
 
     const post = await wpReq(site, 'posts', 'POST', payload);
     const postId = post.id;
