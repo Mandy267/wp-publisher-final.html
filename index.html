@@ -1697,9 +1697,9 @@ const BSP_CSS=`<style>
 .bsp-article{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:#1a1a2e;line-height:1.8;max-width:820px;margin:0 auto}
 /* HERO */
 .bsp-hero{margin-bottom:32px}
-.bsp-hero-img-wrap{border-radius:14px;overflow:hidden;margin-bottom:20px;box-shadow:0 8px 32px rgba(0,0,0,.12)}
+.bsp-hero-img-wrap{border-radius:14px;overflow:hidden;margin-bottom:20px;box-shadow:0 8px 32px rgba(0,0,0,.12);position:relative}
 .bsp-hero-img-wrap img{width:100%;height:auto;aspect-ratio:1/1;object-fit:cover;display:block}
-.bsp-hero-img-label{font-size:11px;font-weight:600;color:#666;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;display:block}
+.bsp-hero-img-caption{position:absolute;bottom:10px;right:12px;font-size:11px;color:rgba(255,255,255,.85);font-weight:500;text-shadow:0 1px 3px rgba(0,0,0,.5);background:rgba(0,0,0,.3);padding:4px 10px;border-radius:4px}
 .bsp-hero-tag{display:inline-block;background:var(--bsp-primary,#0A6B5E);color:#fff;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:4px 12px;border-radius:20px;margin-bottom:12px}
 .bsp-hero h1{font-size:clamp(24px,4vw,40px);font-weight:800;color:#1a1a2e;line-height:1.2;margin:0 0 14px;letter-spacing:-0.5px;font-family:var(--bsp-font-heading,inherit)}
 .bsp-hero-meta{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding-bottom:16px;border-bottom:2px solid #f0f0f0}
@@ -1752,9 +1752,9 @@ const BSP_CSS=`<style>
 .bsp-questions li:last-child{margin-bottom:0}
 /* IMAGES */
 .bsp-img-block{margin:36px 0}
-.bsp-img-label{font-size:11px;font-weight:600;color:#666;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;display:block}
-.bsp-img-wrap{border-radius:14px;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,.1)}
+.bsp-img-wrap{border-radius:14px;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,.1);position:relative}
 .bsp-img-wrap img{width:100%;height:auto;aspect-ratio:1/1;object-fit:cover;display:block}
+.bsp-img-caption{position:absolute;bottom:10px;right:12px;font-size:11px;color:rgba(255,255,255,.85);font-weight:500;text-shadow:0 1px 3px rgba(0,0,0,.5);background:rgba(0,0,0,.3);padding:4px 10px;border-radius:4px}
 /* COMPARISON TABLE — always visible, not accordion */
 .bsp-table-wrap{overflow-x:auto;margin:32px 0;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,.08);-webkit-overflow-scrolling:touch}
 .bsp-table{width:100%;border-collapse:collapse;font-size:13px;min-width:100%;table-layout:auto}
@@ -1937,11 +1937,11 @@ function convertToHTML(raw){
   const fallback   = 'https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?w=1200&q=80';
 
   // ── HERO ──
-  const heroLabel = imgAlts.hero || title;
+  const heroCaption = imgAlts.hero || title;
   const hero=`<div class="bsp-hero">
-  <div class="bsp-hero-img-label">${fmt(heroLabel)}</div>
   <div class="bsp-hero-img-wrap">
     <img src="${imgs.hero||fallback}" alt="${fmt(imgAlts.hero||title)}" loading="eager"/>
+    <div class="bsp-hero-img-caption">${fmt(heroCaption)}</div>
   </div>
   <span class="bsp-hero-tag">${fmt(heroTag)}</span>
   <h1>${fmt(title)}</h1>
@@ -2238,8 +2238,8 @@ ${reviewItems.map(r=>`      <div class="bsp-review-card">
         if(capMatch) caption = capMatch[1].trim();
       }
       const alt = altText || gv('alt-img1') || imgAlts.img1 || 'Article image';
-      const label = alt;
-      body+=`<div class="bsp-img-block"><div class="bsp-img-label">${fmt(label)}</div><div class="bsp-img-wrap"><img src="${imgs.img1||fallback}" alt="${fmt(alt)}" loading="lazy"/></div></div>\n`;
+      const cap = caption || alt;
+      body+=`<div class="bsp-img-block"><div class="bsp-img-wrap"><img src="${imgs.img1||fallback}" alt="${fmt(alt)}" loading="lazy"/><div class="bsp-img-caption">${fmt(cap)}</div></div></div>\n`;
       continue;
     }
     
@@ -2248,8 +2248,7 @@ ${reviewItems.map(r=>`      <div class="bsp-review-card">
     if(img1old){
       const cap=img1old[1].trim()||'Article image';
       const alt=gv('alt-img1')||imgAlts.img1||cap;
-      const label = alt;
-      body+=`<div class="bsp-img-block"><div class="bsp-img-label">${fmt(label)}</div><div class="bsp-img-wrap"><img src="${imgs.img1||fallback}" alt="${fmt(alt)}" loading="lazy"/></div></div>\n`;
+      body+=`<div class="bsp-img-block"><div class="bsp-img-wrap"><img src="${imgs.img1||fallback}" alt="${fmt(alt)}" loading="lazy"/><div class="bsp-img-caption">${fmt(cap)}</div></div></div>\n`;
       continue;
     }
 
@@ -2266,8 +2265,8 @@ ${reviewItems.map(r=>`      <div class="bsp-review-card">
         if(capMatch) caption = capMatch[1].trim();
       }
       const alt = altText || gv('alt-img2') || imgAlts.img2 || 'Article image';
-      const label = alt;
-      body+=`<div class="bsp-img-block"><div class="bsp-img-label">${fmt(label)}</div><div class="bsp-img-wrap"><img src="${imgs.img2||fallback}" alt="${fmt(alt)}" loading="lazy"/></div></div>\n`;
+      const cap = caption || alt;
+      body+=`<div class="bsp-img-block"><div class="bsp-img-wrap"><img src="${imgs.img2||fallback}" alt="${fmt(alt)}" loading="lazy"/><div class="bsp-img-caption">${fmt(cap)}</div></div></div>\n`;
       continue;
     }
     
@@ -2276,8 +2275,7 @@ ${reviewItems.map(r=>`      <div class="bsp-review-card">
     if(img2old){
       const cap=img2old[1].trim()||'Article image';
       const alt=gv('alt-img2')||imgAlts.img2||cap;
-      const label = alt;
-      body+=`<div class="bsp-img-block"><div class="bsp-img-label">${fmt(label)}</div><div class="bsp-img-wrap"><img src="${imgs.img2||fallback}" alt="${fmt(alt)}" loading="lazy"/></div></div>\n`;
+      body+=`<div class="bsp-img-block"><div class="bsp-img-wrap"><img src="${imgs.img2||fallback}" alt="${fmt(alt)}" loading="lazy"/><div class="bsp-img-caption">${fmt(cap)}</div></div></div>\n`;
       continue;
     }
 
