@@ -2661,8 +2661,7 @@ async function publishPost(){
       meta: {
         rank_math_focus_keyword: kw + (secKw ? ', ' + secKw : ''),
         rank_math_title:         seoT,
-        rank_math_description:   meta,
-        _elementor_page_settings: JSON.stringify({hide_title: 'yes'})  // Auto-hide Elementor title
+        rank_math_description:   meta
       }
     };
     if(catId)    payload.categories     = [catId];
