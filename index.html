@@ -1227,8 +1227,16 @@ function updateWC(){
 
   // Auto-fill alt text from #IMAGE_N markers
   const getImg = n => {
-    const r = raw.match(new RegExp('^#IMAGE_'+n+'\\s*=?\\s*(.+)','im'));
-    return r ? r[1].trim() : '';
+    const r = raw.match(new RegExp('^#IMAGE_'+n+'\\s*=\\s*(.+)','im'));
+    if(r && r[1]) {
+      const caption = r[1].trim();
+      // Ignore if caption starts with another marker
+      if(/^#(H2|H3|PARA|CHECK|LIST|FAQ|TABLE|REVIEWS|CTA|AUTHOR)/i.test(caption)){
+        return ''; // No valid caption found
+      }
+      return caption;
+    }
+    return '';
   };
   const setAlt = (id, val) => {
     if(val) document.getElementById(id).value = val;
@@ -4668,57 +4676,68 @@ async function generateBlogAuto(){
     let h2Count = 0;
     let img1Inserted = false;
     let img2Inserted = false;
+    let img1InsertAfterIndex = -1;
+    let img2InsertAfterIndex = -1;
+    let lastH2Title = '';
     
     for(let i = 0; i < lines.length; i++){
       const line = lines[i];
       newLines.push(line);
       
-      // Count H2 sections
-      if(/^#H2\s*=/i.test(line)){
+      // Track H2 titles for image captions
+      const h2Match = line.match(/^#H2\s*=\s*(.+)/i);
+      if(h2Match){
         h2Count++;
-        
-        // Insert #IMAGE_1 after 2nd H2 section's first paragraph
-        if(h2Count === 2 && !img1Inserted){
-          // Find next PARA
-          for(let j = i+1; j < Math.min(i+5, lines.length); j++){
-            if(/^#PARA\s*=/i.test(lines[j])){
-              newLines.push('');
-              newLines.push('#IMAGE_1');
-              img1Inserted = true;
-              break;
-            }
-          }
-        }
-        
-        // Insert #IMAGE_2 after 4th H2 section's first paragraph
-        if(h2Count === 4 && !img2Inserted){
-          // Find next PARA
-          for(let j = i+1; j < Math.min(i+5, lines.length); j++){
-            if(/^#PARA\s*=/i.test(lines[j])){
-              newLines.push('');
-              newLines.push('#IMAGE_2');
-              img2Inserted = true;
-              break;
-            }
-          }
+        lastH2Title = h2Match[1].trim();
+      }
+      
+      // Mark where to insert IMAGE_1 (after 2nd H2's first PARA)
+      if(h2Count === 2 && !img1Inserted && /^#PARA\s*=/i.test(line)){
+        img1InsertAfterIndex = newLines.length - 1;
+        img1Inserted = true;
+      }
+      
+      // Mark where to insert IMAGE_2 (after 4th H2's first PARA)
+      if(h2Count === 4 && !img2Inserted && /^#PARA\s*=/i.test(line)){
+        img2InsertAfterIndex = newLines.length - 1;
+        img2Inserted = true;
+      }
+    }
+    
+    // Insert IMAGE markers at marked positions (in reverse to preserve indices)
+    if(img2InsertAfterIndex >= 0){
+      newLines.splice(img2InsertAfterIndex + 1, 0, '', `#IMAGE_2 = ${lastH2Title || 'Article image'}`);
+    }
+    if(img1InsertAfterIndex >= 0){
+      // Need to adjust index if img2 was inserted before img1
+      const adjustedIdx = img2InsertAfterIndex >= 0 && img2InsertAfterIndex < img1InsertAfterIndex 
+        ? img1InsertAfterIndex + 2 
+        : img1InsertAfterIndex;
+      
+      // Get H2 title from context
+      let img1H2Title = 'Article image';
+      for(let k = adjustedIdx; k >= 0; k--){
+        const h2m = newLines[k].match(/^#H2\s*=\s*(.+)/i);
+        if(h2m){
+          img1H2Title = h2m[1].trim();
+          break;
         }
       }
+      newLines.splice(adjustedIdx + 1, 0, '', `#IMAGE_1 = ${img1H2Title}`);
     }
     
     // Fallback: if images not inserted, add them manually
     if(!img1Inserted){
-      // Insert after first TABLE_END or FAQ_START
       const tableIdx = newLines.findIndex(l => /^#TABLE_END/i.test(l));
       if(tableIdx > 0){
-        newLines.splice(tableIdx + 1, 0, '', '#IMAGE_1');
+        newLines.splice(tableIdx + 1, 0, '', '#IMAGE_1 = Article illustration');
       }
     }
     
     if(!img2Inserted){
-      // Insert before FAQ_START
       const faqIdx = newLines.findIndex(l => /^#FAQ_START/i.test(l));
       if(faqIdx > 0){
-        newLines.splice(faqIdx, 0, '#IMAGE_2', '');
+        newLines.splice(faqIdx, 0, '#IMAGE_2 = Article illustration', '');
       }
     }
     
@@ -4876,10 +4895,8 @@ REQUIREMENTS:
    - Include time frames ("after 4 sessions", "within 2 months")
    - Each review 12-20 words maximum
    - NO generic phrases like "professional staff" — be SPECIFIC
-9. Each review 15-25 words, natural language, specific details
-8. Include specific details and examples
-9. 3-5 sentences per paragraph
-10. NO #IMAGE markers (images added manually)
+9. DO NOT include #IMAGE_1 or #IMAGE_2 markers in your output (tool will auto-insert them)
+10. Each review 15-25 words, natural language, specific details
 
 Start with #HERO_TAG:`;
 }
