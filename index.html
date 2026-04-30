@@ -5641,9 +5641,16 @@ async function fetchWordPressTheme(){
   btn.textContent = 'Fetching...';
   
   try {
-    // Use CORS proxy to fetch WordPress site
-    const proxyUrl = 'https://api.allorigins.win/raw?url=';
-    const response = await fetch(proxyUrl + encodeURIComponent(profile.url));
+    // Try primary CORS proxy
+    let proxyUrl = 'https://api.allorigins.win/raw?url=';
+    let response = await fetch(proxyUrl + encodeURIComponent(profile.url), { timeout: 10000 });
+    
+    // If primary fails, try backup proxy
+    if(!response.ok){
+      proxyUrl = 'https://corsproxy.io/?';
+      response = await fetch(proxyUrl + encodeURIComponent(profile.url), { timeout: 10000 });
+    }
+    
     if(!response.ok) throw new Error('Failed to fetch site');
     
     const html = await response.text();
@@ -5700,7 +5707,7 @@ async function fetchWordPressTheme(){
     
   } catch(err) {
     console.error('Fetch error:', err);
-    toast('Auto-fetch failed','err','CORS blocked. Set colors manually.');
+    toast('Auto-fetch failed','err','Set colors and fonts manually. CORS may be blocking.');
     btn.textContent = originalText;
   }
 }
@@ -5751,6 +5758,22 @@ TOPIC: ${topic}
 TARGET KEYWORD: ${keyword}
 WORD COUNT TARGET: ${wordCount}+ words
 STYLE: ${style}
+
+═══════════════════════════════════════
+SEO METADATA - OUTPUT THESE FIRST
+═══════════════════════════════════════
+
+Your output MUST start with these markers (before any other content):
+
+#FOCUS_KW = ${keyword}
+
+#META_TITLE = ${topic} | ${businessName} ${location}
+
+#META_DESC = Expert ${topic.toLowerCase()} services at ${businessName} in ${location}. [Add unique benefit/outcome. Total 140-155 chars]
+
+#SECONDARY_KW = ${topic.toLowerCase()} cost, ${topic.toLowerCase()} ${location.toLowerCase()}, best ${topic.toLowerCase()} clinic, ${topic.toLowerCase()} near me, ${topic.toLowerCase()} treatment
+
+#TAGS = ${topic.split(' ').slice(0, 2).join(', ').toLowerCase()}, ${specialty}
 
 ═══════════════════════════════════════
 CONTENT STRUCTURE (Use EXACT markers)
