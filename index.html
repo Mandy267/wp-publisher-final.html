@@ -5303,8 +5303,9 @@ async function fetchWordPressTheme(){
   btn.textContent = 'Fetching...';
   
   try {
-    // Fetch WordPress site HTML
-    const response = await fetch(profile.url);
+    // Use CORS proxy to fetch WordPress site
+    const proxyUrl = 'https://api.allorigins.win/raw?url=';
+    const response = await fetch(proxyUrl + encodeURIComponent(profile.url));
     if(!response.ok) throw new Error('Failed to fetch site');
     
     const html = await response.text();
@@ -5316,7 +5317,7 @@ async function fetchWordPressTheme(){
     // Try to detect primary color (most used non-black/white)
     const filteredColors = uniqueColors.filter(c => {
       const hex = c.toLowerCase();
-      return hex !== '#ffffff' && hex !== '#000000' && hex !== '#fff' && hex !== '#000';
+      return hex !== '#ffffff' && hex !== '#000000' && hex !== '#fff' && hex !== '#000' && hex !== '#fefefe' && hex !== '#f5f5f5';
     });
     
     if(filteredColors.length > 0){
@@ -5327,29 +5328,41 @@ async function fetchWordPressTheme(){
         document.getElementById('design-color-accent').value = filteredColors[1];
         document.getElementById('design-color-accent-hex').value = filteredColors[1];
       }
+      
+      toast('Colors detected!','ok',`Primary: ${filteredColors[0]}, Accent: ${filteredColors[1] || 'N/A'}`);
+    } else {
+      toast('No colors found','info','Set colors manually');
     }
     
     // Try to detect fonts from CSS
-    const fontMatches = html.match(/font-family:\s*([^;}]+)/gi) || [];
+    const fontMatches = html.match(/font-family:\s*['"]*([^;'"]+)['"]*[;}]/gi) || [];
     if(fontMatches.length > 0){
-      const fontFamily = fontMatches[0].replace(/font-family:\s*/i, '').replace(/['"]/g, '').split(',')[0].trim();
+      const fontFamily = fontMatches[0].replace(/font-family:\s*/i, '').replace(/['"]/g, '').replace(/[;}]/g, '').split(',')[0].trim();
       const bodyFontSelect = document.getElementById('design-font-body');
       const headingFontSelect = document.getElementById('design-font-heading');
       
       // Check if font exists in dropdown
-      const options = Array.from(bodyFontSelect.options).map(opt => opt.value);
-      if(options.some(opt => opt.toLowerCase().includes(fontFamily.toLowerCase()))){
-        bodyFontSelect.value = fontFamily;
-        headingFontSelect.value = fontFamily;
+      const options = Array.from(bodyFontSelect.options).map(opt => opt.value.toLowerCase());
+      const fontLower = fontFamily.toLowerCase();
+      
+      if(options.some(opt => fontLower.includes(opt.toLowerCase()) || opt.toLowerCase().includes(fontLower))){
+        const matchedFont = Array.from(bodyFontSelect.options).find(opt => 
+          fontLower.includes(opt.value.toLowerCase()) || opt.value.toLowerCase().includes(fontLower)
+        );
+        if(matchedFont){
+          bodyFontSelect.value = matchedFont.value;
+          headingFontSelect.value = matchedFont.value;
+          toast('Font detected!','ok',matchedFont.value);
+        }
       }
     }
     
-    toast('Theme colors detected!','ok','Review and adjust if needed');
     btn.textContent = '✓ Fetched';
     setTimeout(() => btn.textContent = originalText, 2000);
     
   } catch(err) {
-    toast('Failed to fetch theme','err','CORS may be blocking. Set colors manually.');
+    console.error('Fetch error:', err);
+    toast('Auto-fetch failed','err','CORS blocked. Set colors manually.');
     btn.textContent = originalText;
   }
 }
