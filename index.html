@@ -3169,18 +3169,22 @@ ${reviewItems.map(r=>`      <div class="bsp-review-card">
       
       // Use profile defaults if not specified
       const profile = clientProfiles[activeProfileIdx] || {};
-      ctaBtn = ctaBtn || profile.ctaBtn || 'Learn More';
-      ctaUrl = ctaUrl || profile.ctaUrl || '#';
+      ctaBtn = ctaBtn || profile.ctaBtn || 'Book Now';
+      ctaUrl = ctaUrl || profile.ctaUrl || profile.url || '#';
+      const whatsappNum = profile.phone || profile.whatsapp || '919876543210';
+      const phoneNum = profile.phone || '919876543210';
       
       body+=`<div class="bsp-cta-float">
-  <a href="${ctaUrl}" class="bsp-cta-float-btn" target="_blank" rel="noopener">
-    <span class="bsp-cta-float-icon">${ctaIcon}</span>
-    <span class="bsp-cta-float-text">
-      ${ctaTitle ? `<span class="bsp-cta-float-title">${fmt(ctaTitle)}</span>` : ''}
-      ${ctaBody ? `<span class="bsp-cta-float-subtitle">${fmt(ctaBody)}</span>` : `<span class="bsp-cta-float-title">${fmt(ctaBtn)}</span>`}
-    </span>
-    <span class="bsp-cta-float-icon">→</span>
-  </a>
+  ${ctaTitle ? `<div class="bsp-cta-float-title">${fmt(ctaTitle)}</div>` : ''}
+  ${ctaBody ? `<div class="bsp-cta-float-body">${fmt(ctaBody)}</div>` : ''}
+  <div class="bsp-cta-buttons">
+    <a href="https://wa.me/${whatsappNum.replace(/[^0-9]/g,'')}" class="bsp-cta-btn whatsapp" target="_blank" rel="noopener">
+      💬 WhatsApp
+    </a>
+    <a href="tel:+${phoneNum.replace(/[^0-9]/g,'')}" class="bsp-cta-btn">
+      📞 Call Now
+    </a>
+  </div>
 </div>\n`;
       continue;
     }
@@ -3388,7 +3392,41 @@ ${reviewItems.map(r=>`      <div class="bsp-review-card">
   // Generate theme CSS with custom colors/fonts/sizes
   const themeCSS = getThemeCSS(activeTheme, finalPrimary, finalAccent, finalHeadingFont, finalBodyFont, finalBodySize, finalHeadingScale);
   
-  return themeCSS+'\n<div class="bsp-article">\n'+hero+'\n'+tocHtml+'\n'+body+'\n'+authorHtml+'\n</div>\n'+accordionScript;
+  // Build tab structure
+  const tabsHtml = `
+<div class="bsp-tabs">
+  <div class="bsp-tab-nav">
+    <button class="bsp-tab-btn active">📖 Overview</button>
+    <button class="bsp-tab-btn">✨ Benefits</button>
+    <button class="bsp-tab-btn">⚙️ Process</button>
+    <button class="bsp-tab-btn">💰 Pricing</button>
+    <button class="bsp-tab-btn">❓ FAQs</button>
+  </div>
+  
+  <div class="bsp-tab-content active">
+    ${body.split(/<h2[^>]*>.*?Benefits.*?<\/h2>/i)[0] || body.split('bsp-check')[0] || ''}
+  </div>
+  
+  <div class="bsp-tab-content">
+    ${body.match(/bsp-check[\s\S]*?(?=<h2|$)/)?.[0] || '<p>No benefits section found</p>'}
+  </div>
+  
+  <div class="bsp-tab-content">
+    <h2>Treatment Process</h2>
+    <p>Consultation, treatment steps, and aftercare information will appear here.</p>
+  </div>
+  
+  <div class="bsp-tab-content">
+    <h2>Pricing Information</h2>
+    ${body.match(/bsp-table[\s\S]*?<\/table>/)?.[0] || '<p>Contact us for pricing details</p>'}
+  </div>
+  
+  <div class="bsp-tab-content">
+    ${body.match(/bsp-faq[\s\S]*?(?=<div class="bsp-author|$)/)?.[0] || '<p>No FAQs found</p>'}
+  </div>
+</div>`;
+  
+  return themeCSS+'\n<div class="bsp-article">\n'+hero+'\n'+tabsHtml+'\n'+authorHtml+'\n</div>\n'+accordionScript;
 }
 
 // ═══════════════
