@@ -270,6 +270,13 @@ input.inp::placeholder,textarea.inp::placeholder{color:var(--ink3)}
   .blog-textarea{min-height:180px}
   .topbar{height:44px}
 }
+/* Theme Selector Cards */
+.theme-card{border:1px solid var(--bdr);border-radius:8px;padding:12px;cursor:pointer;transition:all .2s}
+.theme-card:hover{border-color:var(--teal);box-shadow:0 2px 8px rgba(10,107,94,.1)}
+.theme-card.active{border-color:var(--teal);background:var(--teal-l);box-shadow:0 2px 12px rgba(10,107,94,.15)}
+.theme-preview{height:60px;border-radius:6px;padding:8px;margin-bottom:10px;display:flex;flex-direction:column;justify-content:center}
+.theme-name{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:2px}
+.theme-desc{font-size:11px;color:var(--ink3);line-height:1.4}
 </style>
 </head>
 <body>
@@ -424,6 +431,7 @@ input.inp::placeholder,textarea.inp::placeholder{color:var(--ink3)}
           <div class="leg-item"><span class="leg-tag" style="background:#E8EAF0;color:#0A2540">#TABLE_START/END</span> Table accordion ↕</div>
           <div class="leg-item"><span class="leg-tag" style="background:#E8F5F2;color:#0A5040">#ACCORDION_START/END</span> Any content → accordion ↕</div>
           <div class="leg-item"><span class="leg-tag" style="background:linear-gradient(135deg,#E8EEF8,#E8F5EE);color:#0A5040">#CTA_TITLE/_BODY</span> CTA block</div>
+          <div class="leg-item"><span class="leg-tag" style="background:linear-gradient(135deg,#FFF4E6,#E8F5EE);color:#9B4700">#CTA_INLINE</span> Floating CTA 🎯</div>
           <div class="leg-item"><span class="leg-tag" style="background:#F0E8FB;color:#5A1A8B">#AUTHOR_NAME/ROLE/BIO</span> Author bio</div>
           <div class="leg-item"><span class="leg-tag" style="background:#EEEDEA;color:#9A9890">#INTRO</span> Intro paragraphs</div>
           <div class="leg-item"><span class="leg-tag" style="background:#E8F4FD;color:#1A4A8B">#META_TITLE / #META_DESC / #FOCUS_KW</span> SEO (auto-applied)</div>
@@ -508,6 +516,131 @@ MBBS certified doctor" style="font-size:12px;line-height:1.6"></textarea>
             <span class="lbl">🚀 Auto-Generate Complete Blog</span>
           </button>
           <button class="btn btn-ghost" onclick="clearAIForm()" style="font-size:11px;padding:8px 14px">Clear</button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- DESIGN & THEME SETTINGS -->
+    <div class="card">
+      <div class="card-hdr">
+        <div class="card-hdr-title">🎨 Design & Theme Settings</div>
+        <button class="btn btn-ghost" style="font-size:11px;padding:5px 10px" onclick="fetchWordPressTheme()">
+          <span id="fetch-theme-label">Auto-Fetch from WordPress</span>
+        </button>
+      </div>
+      <div class="card-body">
+        
+        <!-- DESIGN THEME SELECTOR -->
+        <div style="margin-bottom:16px">
+          <label class="lbl">Blog Design Theme</label>
+          <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:8px">
+            
+            <div class="theme-card active" id="theme-professional" onclick="selectTheme('professional')">
+              <div class="theme-preview" style="background:linear-gradient(135deg,#f8f9fa 0%,#e9ecef 100%)">
+                <div style="height:4px;width:60%;background:#0A6B5E;margin-bottom:4px"></div>
+                <div style="height:2px;width:80%;background:#ddd;margin-bottom:2px"></div>
+                <div style="height:2px;width:70%;background:#ddd"></div>
+              </div>
+              <div class="theme-name">Professional</div>
+              <div class="theme-desc">Clean, corporate, trustworthy</div>
+            </div>
+            
+            <div class="theme-card" id="theme-bold" onclick="selectTheme('bold')">
+              <div class="theme-preview" style="background:linear-gradient(135deg,#1a1a1a 0%,#2d2d2d 100%)">
+                <div style="height:6px;width:70%;background:#00D9B4;margin-bottom:4px;font-weight:900"></div>
+                <div style="height:3px;width:85%;background:#666;margin-bottom:2px"></div>
+                <div style="height:3px;width:75%;background:#666"></div>
+              </div>
+              <div class="theme-name">Bold</div>
+              <div class="theme-desc">Large headings, high contrast</div>
+            </div>
+            
+            <div class="theme-card" id="theme-minimal" onclick="selectTheme('minimal')">
+              <div class="theme-preview" style="background:#fff;border:1px solid #e0e0e0">
+                <div style="height:3px;width:50%;background:#333;margin:8px 0 6px"></div>
+                <div style="height:1px;width:90%;background:#ccc;margin-bottom:2px"></div>
+                <div style="height:1px;width:85%;background:#ccc"></div>
+              </div>
+              <div class="theme-name">Minimal</div>
+              <div class="theme-desc">Typography-first, whitespace</div>
+            </div>
+            
+            <div class="theme-card" id="theme-medical" onclick="selectTheme('medical')">
+              <div class="theme-preview" style="background:linear-gradient(135deg,#f0f8ff 0%,#e6f3ff 100%)">
+                <div style="height:4px;width:65%;background:#2563eb;margin-bottom:4px"></div>
+                <div style="height:2px;width:75%;background:#93c5fd;margin-bottom:2px"></div>
+                <div style="display:flex;gap:3px;margin-top:4px">
+                  <div style="height:12px;width:12px;background:#10b981;border-radius:2px"></div>
+                  <div style="height:12px;width:12px;background:#10b981;border-radius:2px"></div>
+                </div>
+              </div>
+              <div class="theme-name">Medical</div>
+              <div class="theme-desc">Clinical, trust badges</div>
+            </div>
+            
+          </div>
+        </div>
+
+        <!-- BRAND COLORS -->
+        <div style="margin-bottom:16px">
+          <label class="lbl">Brand Colors</label>
+          <div class="fg2" style="margin-top:8px">
+            <div class="fg">
+              <label class="lbl" style="font-size:11px;margin-bottom:4px">Primary Color</label>
+              <div style="display:flex;gap:8px;align-items:center">
+                <input type="color" id="design-color-primary" value="#0A6B5E" style="width:44px;height:36px;border:1px solid var(--bdr);border-radius:6px;cursor:pointer" onchange="updateColorHex('primary')"/>
+                <input class="inp" id="design-color-primary-hex" value="#0A6B5E" placeholder="#0A6B5E" style="flex:1;font-family:var(--mono);font-size:12px" oninput="updateColorPicker('primary')"/>
+              </div>
+            </div>
+            <div class="fg">
+              <label class="lbl" style="font-size:11px;margin-bottom:4px">Accent Color</label>
+              <div style="display:flex;gap:8px;align-items:center">
+                <input type="color" id="design-color-accent" value="#00D9B4" style="width:44px;height:36px;border:1px solid var(--bdr);border-radius:6px;cursor:pointer" onchange="updateColorHex('accent')"/>
+                <input class="inp" id="design-color-accent-hex" value="#00D9B4" placeholder="#00D9B4" style="flex:1;font-family:var(--mono);font-size:12px" oninput="updateColorPicker('accent')"/>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TYPOGRAPHY -->
+        <div style="margin-bottom:16px">
+          <label class="lbl">Typography</label>
+          <div class="fg2" style="margin-top:8px">
+            <div class="fg">
+              <label class="lbl" style="font-size:11px;margin-bottom:4px">Body Font</label>
+              <select class="inp" id="design-font-body" style="font-size:12px">
+                <option value="Inter">Inter (Sans-serif)</option>
+                <option value="Poppins">Poppins (Sans-serif)</option>
+                <option value="Roboto">Roboto (Sans-serif)</option>
+                <option value="Open Sans">Open Sans (Sans-serif)</option>
+                <option value="Lato">Lato (Sans-serif)</option>
+                <option value="Georgia">Georgia (Serif)</option>
+                <option value="Merriweather">Merriweather (Serif)</option>
+                <option value="system-ui">System UI (Default)</option>
+              </select>
+            </div>
+            <div class="fg">
+              <label class="lbl" style="font-size:11px;margin-bottom:4px">Heading Font</label>
+              <select class="inp" id="design-font-heading" style="font-size:12px">
+                <option value="Poppins">Poppins (Bold)</option>
+                <option value="Inter">Inter (Bold)</option>
+                <option value="Montserrat">Montserrat (Bold)</option>
+                <option value="Roboto">Roboto (Bold)</option>
+                <option value="Playfair Display">Playfair Display (Serif)</option>
+                <option value="system-ui">System UI (Default)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-ghost" style="font-size:11px;padding:6px 12px;flex:1" onclick="saveDesignToProfile()">
+            💾 Save to Profile
+          </button>
+          <button class="btn btn-ghost" style="font-size:11px;padding:6px 12px;flex:1" onclick="loadDesignFromProfile()">
+            📂 Load from Profile
+          </button>
         </div>
 
       </div>
@@ -1807,6 +1940,20 @@ const BSP_CSS=`<style>
 .bsp-cta p{color:rgba(255,255,255,.8);font-size:15px;max-width:520px;margin:0 auto 28px}
 .bsp-cta-btn{display:inline-block;background:#00ddb4;color:#0a2540;font-size:15px;font-weight:700;padding:14px 36px;border-radius:50px;text-decoration:none;transition:all .2s;box-shadow:0 6px 20px rgba(0,221,180,.35);position:relative;z-index:1}
 .bsp-cta-btn:hover{background:#00c9a4;transform:translateY(-2px);box-shadow:0 10px 28px rgba(0,221,180,.45)}
+/* FLOATING INLINE CTA */
+.bsp-cta-float{display:flex;align-items:center;justify-content:center;margin:40px 0;padding:0 20px}
+.bsp-cta-float-btn{display:inline-flex;align-items:center;gap:12px;background:linear-gradient(135deg,var(--bsp-primary,#0A6B5E) 0%,var(--bsp-accent,#00D9B4) 100%);color:#fff;font-size:16px;font-weight:600;padding:16px 32px;border-radius:50px;text-decoration:none;box-shadow:0 6px 24px rgba(10,107,94,.25);transition:all .3s ease;border:none;cursor:pointer}
+.bsp-cta-float-btn:hover{transform:translateY(-3px) scale(1.02);box-shadow:0 12px 36px rgba(10,107,94,.35)}
+.bsp-cta-float-icon{font-size:20px;line-height:1}
+.bsp-cta-float-text{display:flex;flex-direction:column;align-items:flex-start;gap:2px}
+.bsp-cta-float-title{font-size:16px;font-weight:700;line-height:1.2}
+.bsp-cta-float-subtitle{font-size:12px;font-weight:400;opacity:.9;line-height:1.2}
+@media(max-width:640px){
+.bsp-cta-float-btn{font-size:14px;padding:14px 24px;flex-direction:column;gap:8px;text-align:center}
+.bsp-cta-float-text{align-items:center}
+.bsp-cta-float-title{font-size:15px}
+.bsp-cta-float-subtitle{font-size:11px}
+}
 /* REVIEWS CAROUSEL */
 .bsp-reviews{margin:40px 0;padding:0}
 .bsp-reviews-title{font-size:22px;font-weight:700;color:#0a2540;margin:0 0 28px;text-align:center;padding-bottom:12px;border-bottom:2px solid #e8f4f8}
@@ -2165,6 +2312,44 @@ ${reviewItems.map(r=>`      <div class="bsp-review-card">
 
     const pm=line.match(/^#PARA\s*=\s*(.+)/i);
     if(pm){body+=`<p>${fmt(pm[1])}</p>\n`;continue}
+
+    // ── INLINE CTA ──
+    const ctaInline=line.match(/^#CTA_INLINE/i);
+    if(ctaInline){
+      // Look ahead for CTA details
+      let ctaTitle = '';
+      let ctaBody = '';
+      let ctaBtn = '';
+      let ctaUrl = '';
+      let ctaIcon = '📞';
+      
+      const nextLines = lines.slice(i+1, i+10);
+      for(const nl of nextLines){
+        if(/^#CTA_TITLE\s*=\s*(.+)/i.test(nl)) ctaTitle = nl.match(/^#CTA_TITLE\s*=\s*(.+)/i)[1].trim();
+        if(/^#CTA_BODY\s*=\s*(.+)/i.test(nl)) ctaBody = nl.match(/^#CTA_BODY\s*=\s*(.+)/i)[1].trim();
+        if(/^#CTA_BTN\s*=\s*(.+)/i.test(nl)) ctaBtn = nl.match(/^#CTA_BTN\s*=\s*(.+)/i)[1].trim();
+        if(/^#CTA_URL\s*=\s*(.+)/i.test(nl)) ctaUrl = nl.match(/^#CTA_URL\s*=\s*(.+)/i)[1].trim();
+        if(/^#CTA_ICON\s*=\s*(.+)/i.test(nl)) ctaIcon = nl.match(/^#CTA_ICON\s*=\s*(.+)/i)[1].trim();
+        if(/^#[A-Z]+(?![_])/i.test(nl) && !/^#CTA/i.test(nl)) break; // Stop at next non-CTA marker
+      }
+      
+      // Use profile defaults if not specified
+      const profile = clientProfiles[activeProfileIdx] || {};
+      ctaBtn = ctaBtn || profile.ctaBtn || 'Learn More';
+      ctaUrl = ctaUrl || profile.ctaUrl || '#';
+      
+      body+=`<div class="bsp-cta-float">
+  <a href="${ctaUrl}" class="bsp-cta-float-btn" target="_blank" rel="noopener">
+    <span class="bsp-cta-float-icon">${ctaIcon}</span>
+    <span class="bsp-cta-float-text">
+      ${ctaTitle ? `<span class="bsp-cta-float-title">${fmt(ctaTitle)}</span>` : ''}
+      ${ctaBody ? `<span class="bsp-cta-float-subtitle">${fmt(ctaBody)}</span>` : `<span class="bsp-cta-float-title">${fmt(ctaBtn)}</span>`}
+    </span>
+    <span class="bsp-cta-float-icon">→</span>
+  </a>
+</div>\n`;
+      continue;
+    }
 
     const chm=line.match(/^#CHECK\s*=\s*(.+)/i);
     if(chm){
@@ -4738,6 +4923,57 @@ async function generateBlogAuto(){
       }
     }
     
+    // AUTO-INSERT CTAs (if profile has them and no manual CTAs exist)
+    const profile = clientProfiles[activeProfileIdx] || {};
+    const hasManualCTA = newLines.some(l => /^#CTA_INLINE/i.test(l));
+    
+    if(!hasManualCTA && (profile.ctaMiddle || profile.ctaBeforeFaq)){
+      let ctaMiddleInserted = false;
+      let ctaFaqInserted = false;
+      
+      // Insert CTA after 3rd H2 section (middle of content)
+      if(profile.ctaMiddle){
+        let h2ct = 0;
+        for(let i = 0; i < newLines.length; i++){
+          if(/^#H2\s*=/i.test(newLines[i])) h2ct++;
+          if(h2ct === 3 && /^#PARA\s*=/i.test(newLines[i]) && !ctaMiddleInserted){
+            const ctaLines = [
+              '',
+              '#CTA_INLINE',
+              `#CTA_TITLE = ${profile.ctaMiddle.title || ''}`,
+              `#CTA_BODY = ${profile.ctaMiddle.body || ''}`,
+              `#CTA_BTN = ${profile.ctaMiddle.btn || profile.ctaBtn || 'Learn More'}`,
+              `#CTA_URL = ${profile.ctaMiddle.url || profile.ctaUrl || '#'}`,
+              `#CTA_ICON = ${profile.ctaMiddle.icon || '📞'}`,
+              ''
+            ];
+            newLines.splice(i + 1, 0, ...ctaLines);
+            ctaMiddleInserted = true;
+            break;
+          }
+        }
+      }
+      
+      // Insert CTA before FAQ section
+      if(profile.ctaBeforeFaq){
+        const faqIdx = newLines.findIndex(l => /^#FAQ_START/i.test(l));
+        if(faqIdx > 0){
+          const ctaLines = [
+            '',
+            '#CTA_INLINE',
+            `#CTA_TITLE = ${profile.ctaBeforeFaq.title || ''}`,
+            `#CTA_BODY = ${profile.ctaBeforeFaq.body || ''}`,
+            `#CTA_BTN = ${profile.ctaBeforeFaq.btn || profile.ctaBtn || 'Contact Us'}`,
+            `#CTA_URL = ${profile.ctaBeforeFaq.url || profile.ctaUrl || '#'}`,
+            `#CTA_ICON = ${profile.ctaBeforeFaq.icon || '💬'}`,
+            ''
+          ];
+          newLines.splice(faqIdx, 0, ...ctaLines);
+          ctaFaqInserted = true;
+        }
+      }
+    }
+    
     generatedBlog = newLines.join('\n');
     
     // Fill blog textarea
@@ -4982,6 +5218,146 @@ setTimeout(() => {
     console.error('✗ Convert button NOT found!');
   }
 }, 1000);
+
+
+// ══════════════════════════════════════════
+// DESIGN THEME SYSTEM
+// ══════════════════════════════════════════
+
+let selectedTheme = localStorage.getItem('wpb_selected_theme') || 'professional';
+let designSettings = JSON.parse(localStorage.getItem('wpb_design_settings') || '{}');
+
+function selectTheme(themeName){
+  selectedTheme = themeName;
+  localStorage.setItem('wpb_selected_theme', themeName);
+  
+  // Update UI
+  document.querySelectorAll('.theme-card').forEach(el => el.classList.remove('active'));
+  document.getElementById('theme-' + themeName).classList.add('active');
+  
+  toast('Theme selected: ' + themeName.charAt(0).toUpperCase() + themeName.slice(1), 'ok', 'Will apply to next blog conversion');
+}
+
+function updateColorHex(type){
+  const picker = document.getElementById('design-color-' + type);
+  const hex = document.getElementById('design-color-' + type + '-hex');
+  hex.value = picker.value.toUpperCase();
+}
+
+function updateColorPicker(type){
+  const picker = document.getElementById('design-color-' + type);
+  const hex = document.getElementById('design-color-' + type + '-hex');
+  if(/^#[0-9A-F]{6}$/i.test(hex.value)){
+    picker.value = hex.value;
+  }
+}
+
+function saveDesignToProfile(){
+  const profile = clientProfiles[activeProfileIdx];
+  if(!profile){ 
+    toast('No profile selected','err','Select a client profile first'); 
+    return; 
+  }
+  
+  profile.designTheme = selectedTheme;
+  profile.colorPrimary = document.getElementById('design-color-primary').value;
+  profile.colorAccent = document.getElementById('design-color-accent').value;
+  profile.fontBody = document.getElementById('design-font-body').value;
+  profile.fontHeading = document.getElementById('design-font-heading').value;
+  
+  saveClientProfiles();
+  toast('Design saved to profile','ok',profile.name + ' will use these settings');
+}
+
+function loadDesignFromProfile(){
+  const profile = clientProfiles[activeProfileIdx];
+  if(!profile){ 
+    toast('No profile selected','err','Select a client profile first'); 
+    return; 
+  }
+  
+  if(profile.designTheme) selectTheme(profile.designTheme);
+  if(profile.colorPrimary){
+    document.getElementById('design-color-primary').value = profile.colorPrimary;
+    document.getElementById('design-color-primary-hex').value = profile.colorPrimary;
+  }
+  if(profile.colorAccent){
+    document.getElementById('design-color-accent').value = profile.colorAccent;
+    document.getElementById('design-color-accent-hex').value = profile.colorAccent;
+  }
+  if(profile.fontBody) document.getElementById('design-font-body').value = profile.fontBody;
+  if(profile.fontHeading) document.getElementById('design-font-heading').value = profile.fontHeading;
+  
+  toast('Design loaded from profile','ok',profile.name + ' settings applied');
+}
+
+async function fetchWordPressTheme(){
+  const profile = clientProfiles[activeProfileIdx];
+  if(!profile || !profile.url){ 
+    toast('No WordPress URL','err','Add website URL to profile first'); 
+    return; 
+  }
+  
+  const btn = document.getElementById('fetch-theme-label');
+  const originalText = btn.textContent;
+  btn.textContent = 'Fetching...';
+  
+  try {
+    // Fetch WordPress site HTML
+    const response = await fetch(profile.url);
+    if(!response.ok) throw new Error('Failed to fetch site');
+    
+    const html = await response.text();
+    
+    // Extract colors from inline styles and CSS
+    const colorMatches = html.match(/(#[0-9A-F]{6})/gi) || [];
+    const uniqueColors = [...new Set(colorMatches)].slice(0, 10);
+    
+    // Try to detect primary color (most used non-black/white)
+    const filteredColors = uniqueColors.filter(c => {
+      const hex = c.toLowerCase();
+      return hex !== '#ffffff' && hex !== '#000000' && hex !== '#fff' && hex !== '#000';
+    });
+    
+    if(filteredColors.length > 0){
+      document.getElementById('design-color-primary').value = filteredColors[0];
+      document.getElementById('design-color-primary-hex').value = filteredColors[0];
+      
+      if(filteredColors.length > 1){
+        document.getElementById('design-color-accent').value = filteredColors[1];
+        document.getElementById('design-color-accent-hex').value = filteredColors[1];
+      }
+    }
+    
+    // Try to detect fonts from CSS
+    const fontMatches = html.match(/font-family:\s*([^;}]+)/gi) || [];
+    if(fontMatches.length > 0){
+      const fontFamily = fontMatches[0].replace(/font-family:\s*/i, '').replace(/['"]/g, '').split(',')[0].trim();
+      const bodyFontSelect = document.getElementById('design-font-body');
+      const headingFontSelect = document.getElementById('design-font-heading');
+      
+      // Check if font exists in dropdown
+      const options = Array.from(bodyFontSelect.options).map(opt => opt.value);
+      if(options.some(opt => opt.toLowerCase().includes(fontFamily.toLowerCase()))){
+        bodyFontSelect.value = fontFamily;
+        headingFontSelect.value = fontFamily;
+      }
+    }
+    
+    toast('Theme colors detected!','ok','Review and adjust if needed');
+    btn.textContent = '✓ Fetched';
+    setTimeout(() => btn.textContent = originalText, 2000);
+    
+  } catch(err) {
+    toast('Failed to fetch theme','err','CORS may be blocking. Set colors manually.');
+    btn.textContent = originalText;
+  }
+}
+
+// Initialize theme on page load
+document.addEventListener('DOMContentLoaded', () => {
+  selectTheme(selectedTheme);
+});
 
 </script>
 </body>
