@@ -2683,7 +2683,10 @@ async function publishPost(){
       time: new Date(),
       link: post.link,
       seoSet,
-      kw, seoT
+      kw, seoT,
+      postId: post.id,
+      siteIdx: activeIdx,
+      type: 'post'
     });
     renderHistory();
 
@@ -2714,7 +2717,7 @@ function renderHistory(){
   localStorage.setItem('wpb_hist',JSON.stringify(histLog.slice(0,50)));
   const el=document.getElementById('hist-list');
   if(!histLog.length){el.innerHTML='<div style="font-size:12px;color:var(--ink3)">No posts yet</div>';return}
-  el.innerHTML=histLog.map(h=>`
+  el.innerHTML=histLog.map((h,i)=>`
     <div class="hist-item">
       <div class="hi-title">${h.title}</div>
       <div class="hi-meta">
@@ -2725,6 +2728,10 @@ function renderHistory(){
         ${h.link?`<a href="${h.link}" target="_blank" style="color:var(--teal);font-size:10px">View →</a>`:''}
       </div>
       ${h.kw ? `<div style="font-size:10px;color:var(--ink3);font-family:var(--mono);margin-top:3px">🔑 ${h.kw}</div>` : ''}
+      <div style="display:flex;gap:6px;margin-top:8px">
+        ${h.postId ? `<button class="btn btn-ghost" style="font-size:10px;padding:4px 10px;height:26px" onclick="openEditModal(${i})">✏️ Edit Post</button>` : '<span style="font-size:10px;color:var(--ink3);font-style:italic">Re-publish to enable editing</span>'}
+        ${h.link ? `<a href="${h.link}" target="_blank" class="btn btn-ghost" style="font-size:10px;padding:4px 10px;height:26px;text-decoration:none">👁 View Live</a>` : ''}
+      </div>
     </div>`).join('');
 }
 
@@ -2882,7 +2889,7 @@ async function oneClickPublish(){
 
     step(100, seoSet ? '✓ Published + SEO set!' : '✓ Published!');
 
-    histLog.unshift({title,site:site.name,status:payload.status,time:new Date(),link:post.link,seoSet,kw});
+    histLog.unshift({title,site:site.name,status:payload.status,time:new Date(),link:post.link,seoSet,kw,postId:post.id,siteIdx:activeIdx,type:'post'});
     renderHistory();
 
     toast('🎉 Auto-publish complete!','ok','"'+title.substring(0,40)+'" is '+payload.status);
@@ -3036,7 +3043,7 @@ async function checkSchedule(){
         schedQueue.push({...job, id:Date.now(), status:'pending', schedAt:next.getTime(), publishedAt:undefined, link:undefined});
       }
 
-      histLog.unshift({title:job.title,site:site.name,status:job.postStatus,time:new Date(),link:post.link,seoSet:true,kw:job.kw});
+      histLog.unshift({title:job.title,site:site.name,status:job.postStatus,time:new Date(),link:post.link,seoSet:true,kw:job.kw,postId:post.id,siteIdx:activeIdx,type:'post'});
       renderHistory();
       toast('✅ Scheduled post published!','ok','"'+job.title.substring(0,30)+'"');
 
@@ -4983,6 +4990,356 @@ setTimeout(() => {
   }
 }, 1000);
 
+// ═══════════════════════════════════════
+// EDIT POST FEATURE
+// ═══════════════════════════════════════
+
+let editingHistIdx = null;
+
+async function openEditModal(histIdx) {
+  const h = histLog[histIdx];
+  if (!h || !h.postId) { toast('No post ID found', 'err', 'Re-publish this post to enable editing'); return; }
+
+  const site = sites[h.siteIdx];
+  if (!site) { toast('Site not found', 'err', 'The site this was published to may have been removed'); return; }
+
+  editingHistIdx = histIdx;
+
+  // Show modal with loading state
+  const modal = document.getElementById('edit-modal');
+  modal.classList.add('open');
+  document.getElementById('edit-modal-title').textContent = 'Loading post...';
+  document.getElementById('edit-post-title').value = '';
+  document.getElementById('edit-post-content').value = '';
+  document.getElementById('edit-focus-kw').value = '';
+  document.getElementById('edit-seo-title').value = '';
+  document.getElementById('edit-meta-desc').value = '';
+  document.getElementById('edit-post-status').value = h.status || 'publish';
+  document.getElementById('edit-loading').style.display = 'flex';
+  document.getElementById('edit-form-body').style.display = 'none';
+  document.getElementById('edit-char-count').textContent = '';
+
+  try {
+    // Fetch current post data from WP
+    const post = await wpReq(site, `posts/${h.postId}?context=edit`, 'GET');
+
+    document.getElementById('edit-modal-title').textContent = '✏️ Edit Post';
+    document.getElementById('edit-post-title').value = post.title?.raw || h.title;
+
+    // Convert HTML content to readable text for editing
+    const rawContent = post.content?.raw || '';
+    document.getElementById('edit-post-content').value = rawContent;
+
+    // Try to get RankMath fields
+    document.getElementById('edit-focus-kw').value = post.meta?.rank_math_focus_keyword || h.kw || '';
+    document.getElementById('edit-seo-title').value = post.meta?.rank_math_title || h.seoT || '';
+    document.getElementById('edit-meta-desc').value = post.meta?.rank_math_description || '';
+    document.getElementById('edit-post-status').value = post.status || h.status || 'publish';
+
+    updateEditCharCount();
+    document.getElementById('edit-loading').style.display = 'none';
+    document.getElementById('edit-form-body').style.display = 'flex';
+
+  } catch(err) {
+    toast('Failed to load post', 'err', err.message);
+    closeEditModal();
+  }
+}
+
+function closeEditModal() {
+  document.getElementById('edit-modal').classList.remove('open');
+  editingHistIdx = null;
+}
+
+function updateEditCharCount() {
+  const content = document.getElementById('edit-post-content').value;
+  const words = content.trim() ? content.trim().split(/\s+/).length : 0;
+  document.getElementById('edit-char-count').textContent = `${words.toLocaleString()} words · ${content.length.toLocaleString()} chars`;
+}
+
+async function saveEditedPost() {
+  if (editingHistIdx === null) return;
+  const h = histLog[editingHistIdx];
+  const site = sites[h.siteIdx];
+  if (!site) { toast('Site not found', 'err'); return; }
+
+  const btn = document.getElementById('edit-save-btn');
+  btn.classList.add('loading'); btn.disabled = true;
+
+  const newTitle   = document.getElementById('edit-post-title').value.trim();
+  const newContent = document.getElementById('edit-post-content').value;
+  const newStatus  = document.getElementById('edit-post-status').value;
+  const newKw      = document.getElementById('edit-focus-kw').value.trim();
+  const newSeoT    = document.getElementById('edit-seo-title').value.trim();
+  const newMeta    = document.getElementById('edit-meta-desc').value.trim();
+
+  try {
+    // Update post content + title + status
+    const payload = {
+      title:   newTitle,
+      content: newContent,
+      status:  newStatus
+    };
+
+    await wpReq(site, `posts/${h.postId}`, 'PUT', payload);
+
+    // Update RankMath SEO fields if provided
+    if (newKw || newSeoT || newMeta) {
+      await setRankMathSEO(site, h.postId, newKw, newSeoT, newMeta, '');
+    }
+
+    // Update histLog entry
+    histLog[editingHistIdx] = {
+      ...h,
+      title: newTitle,
+      status: newStatus,
+      kw: newKw,
+      seoT: newSeoT,
+      time: new Date(),
+      seoSet: !!(newKw || newSeoT)
+    };
+    renderHistory();
+
+    toast('✅ Post updated!', 'ok', `"${newTitle.substring(0,40)}" saved to WordPress`);
+    closeEditModal();
+
+  } catch(err) {
+    toast('Update failed', 'err', err.message);
+  } finally {
+    btn.classList.remove('loading'); btn.disabled = false;
+  }
+}
+
+// Format helper — strip HTML tags for cleaner editing view
+function stripHtml(html) {
+  const d = document.createElement('div');
+  d.innerHTML = html;
+  return d.innerText || d.textContent || '';
+}
+
+</script>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- EDIT POST MODAL                         -->
+<!-- ═══════════════════════════════════════ -->
+<style>
+#edit-modal .modal { width: 780px; max-width: 96vw; }
+.edit-tabs { display: flex; gap: 0; border-bottom: 1px solid var(--bdr); padding: 0 18px; background: var(--surf2); }
+.edit-tab { padding: 10px 16px; font-size: 11px; font-weight: 600; cursor: pointer; color: var(--ink3); border-bottom: 2px solid transparent; transition: all .15s; }
+.edit-tab.active { color: var(--teal); border-bottom-color: var(--teal); }
+.edit-tab-pane { display: none; padding: 18px; flex-direction: column; gap: 12px; }
+.edit-tab-pane.active { display: flex; }
+.edit-content-area {
+  width: 100%; min-height: 320px; max-height: 420px;
+  background: var(--surf2); border: 1.5px solid var(--bdr);
+  border-radius: 6px; padding: 12px; color: var(--ink);
+  font-size: 12px; font-family: var(--mono); line-height: 1.75;
+  resize: vertical; outline: none; transition: border-color .15s;
+}
+.edit-content-area:focus { border-color: var(--teal); background: var(--surf); }
+.edit-loading-state {
+  display: flex; align-items: center; justify-content: center;
+  gap: 10px; padding: 60px 20px;
+  font-size: 13px; color: var(--ink3);
+}
+.edit-spinner {
+  width: 18px; height: 18px;
+  border: 2px solid var(--bdr2);
+  border-top-color: var(--teal);
+  border-radius: 50%;
+  animation: sp .7s linear infinite;
+}
+.edit-toolbar {
+  display: flex; gap: 6px; flex-wrap: wrap;
+  padding: 8px 12px; background: var(--surf2);
+  border: 1px solid var(--bdr); border-bottom: none;
+  border-radius: 6px 6px 0 0;
+}
+.edit-toolbar button {
+  padding: 3px 8px; border-radius: 4px; border: 1px solid var(--bdr);
+  background: var(--surf); font-size: 11px; cursor: pointer;
+  color: var(--ink2); font-family: var(--mono); font-weight: 600;
+  transition: all .1s;
+}
+.edit-toolbar button:hover { background: var(--teal-l); border-color: var(--teal-b); color: var(--teal); }
+.edit-content-area-wrapper .edit-content-area { border-radius: 0 0 6px 6px; }
+@media(max-width:900px){
+  #edit-modal .modal { width: calc(100vw - 16px); }
+  .edit-content-area { min-height: 220px; }
+}
+</style>
+
+<div class="overlay" id="edit-modal">
+  <div class="modal">
+    <div class="mh">
+      <span class="mh-title" id="edit-modal-title">✏️ Edit Post</span>
+      <span class="mclose" onclick="closeEditModal()">×</span>
+    </div>
+
+    <!-- Loading state -->
+    <div id="edit-loading" class="edit-loading-state">
+      <div class="edit-spinner"></div>
+      <span>Fetching post from WordPress...</span>
+    </div>
+
+    <!-- Form body -->
+    <div id="edit-form-body" style="display:none;flex-direction:column;gap:0">
+
+      <!-- Tabs -->
+      <div class="edit-tabs">
+        <div class="edit-tab active" onclick="switchEditTab('content',this)">📝 Content</div>
+        <div class="edit-tab" onclick="switchEditTab('seo',this)">🎯 SEO</div>
+        <div class="edit-tab" onclick="switchEditTab('settings',this)">⚙️ Settings</div>
+      </div>
+
+      <!-- Content Tab -->
+      <div class="edit-tab-pane active" id="edit-pane-content">
+        <div class="fg" style="margin-bottom:0">
+          <label class="lbl">Post Title</label>
+          <input class="inp" id="edit-post-title" type="text" placeholder="Post title...">
+        </div>
+        <div class="fg" style="margin-bottom:0">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">
+            <label class="lbl" style="margin-bottom:0">Content (HTML)</label>
+            <span id="edit-char-count" style="font-size:10px;color:var(--ink3);font-family:var(--mono)"></span>
+          </div>
+          <div class="edit-toolbar">
+            <button onclick="wrapEditSelection('<h2>','</h2>')">H2</button>
+            <button onclick="wrapEditSelection('<h3>','</h3>')">H3</button>
+            <button onclick="wrapEditSelection('<strong>','</strong>')"><b>B</b></button>
+            <button onclick="wrapEditSelection('<em>','</em>')"><i>I</i></button>
+            <button onclick="wrapEditSelection('<ul>\n<li>','</li>\n</ul>')">List</button>
+            <button onclick="wrapEditSelection('<a href=\"\">','</a>')">Link</button>
+            <button onclick="wrapEditSelection('<p>','</p>')">Para</button>
+            <button onclick="insertEditSnippet('<!-- wp:more -->\n<!--more-->\n<!-- /wp:more -->')">Read More</button>
+          </div>
+          <div class="edit-content-area-wrapper">
+            <textarea class="edit-content-area inp" id="edit-post-content" oninput="updateEditCharCount()"></textarea>
+          </div>
+        </div>
+        <div style="background:var(--gold-l);border:1px solid var(--gold-b);border-radius:6px;padding:8px 12px;font-size:11px;color:var(--gold)">
+          💡 This is raw HTML content as stored in WordPress. You can edit text, tags, and links directly.
+        </div>
+      </div>
+
+      <!-- SEO Tab -->
+      <div class="edit-tab-pane" id="edit-pane-seo">
+        <div class="fg">
+          <label class="lbl">Focus Keyword</label>
+          <input class="inp" id="edit-focus-kw" type="text" placeholder="e.g. dental implants bangalore">
+        </div>
+        <div class="fg">
+          <label class="lbl">SEO Title</label>
+          <input class="inp" id="edit-seo-title" type="text" placeholder="SEO title for RankMath...">
+          <div id="edit-seo-title-count" style="font-size:10px;color:var(--ink3);margin-top:3px;font-family:var(--mono)"></div>
+        </div>
+        <div class="fg">
+          <label class="lbl">Meta Description</label>
+          <textarea class="inp" id="edit-meta-desc" rows="3" placeholder="Meta description (150-160 chars recommended)..." oninput="updateMetaCount()"></textarea>
+          <div id="edit-meta-count" style="font-size:10px;color:var(--ink3);margin-top:3px;font-family:var(--mono)"></div>
+        </div>
+        <div style="background:var(--teal-l);border:1px solid var(--teal-b);border-radius:6px;padding:8px 12px;font-size:11px;color:var(--teal)">
+          ✅ SEO changes will be pushed to RankMath automatically on save.
+        </div>
+      </div>
+
+      <!-- Settings Tab -->
+      <div class="edit-tab-pane" id="edit-pane-settings">
+        <div class="fg">
+          <label class="lbl">Post Status</label>
+          <select class="inp" id="edit-post-status">
+            <option value="publish">🟢 Published (Live)</option>
+            <option value="draft">🔒 Draft (Hidden)</option>
+            <option value="private">🔐 Private</option>
+          </select>
+        </div>
+        <div style="background:var(--surf2);border:1px solid var(--bdr);border-radius:8px;padding:12px;font-size:12px;color:var(--ink2)">
+          <div style="font-weight:600;margin-bottom:6px;color:var(--ink)">ℹ️ About this post</div>
+          <div id="edit-post-info" style="font-family:var(--mono);font-size:11px;line-height:1.8;color:var(--ink3)"></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Footer -->
+    <div class="mf" style="justify-content:space-between">
+      <button class="btn btn-ghost" onclick="closeEditModal()" style="font-size:12px">Cancel</button>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-ghost" id="edit-preview-btn" onclick="previewEditedPost()" style="font-size:12px">👁 Preview</button>
+        <button class="btn btn-primary" id="edit-save-btn" onclick="saveEditedPost()" style="font-size:12px">
+          <span class="spin"></span><span class="lbl">💾 Save Changes</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function switchEditTab(name, el) {
+  document.querySelectorAll('.edit-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.edit-tab-pane').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('edit-pane-' + name).classList.add('active');
+
+  // Populate post info when settings tab opens
+  if (name === 'settings' && editingHistIdx !== null) {
+    const h = histLog[editingHistIdx];
+    document.getElementById('edit-post-info').innerHTML =
+      `Post ID: ${h.postId}<br>Site: ${h.site}<br>Published: ${h.time.toLocaleDateString()} ${h.time.toLocaleTimeString()}<br>Keyword: ${h.kw || '—'}<br>Link: ${h.link ? `<a href="${h.link}" target="_blank" style="color:var(--teal)">${h.link}</a>` : '—'}`;
+  }
+  if (name === 'seo') {
+    updateSeoTitleCount();
+    updateMetaCount();
+  }
+}
+
+function updateSeoTitleCount() {
+  const v = document.getElementById('edit-seo-title').value;
+  const el = document.getElementById('edit-seo-title-count');
+  const n = v.length;
+  el.textContent = `${n} chars ${n < 50 ? '(too short, aim 50-60)' : n > 60 ? '(too long, aim 50-60)' : '✓ good length'}`;
+  el.style.color = n >= 50 && n <= 60 ? 'var(--teal)' : 'var(--gold)';
+}
+document.addEventListener('DOMContentLoaded', () => {
+  const st = document.getElementById('edit-seo-title');
+  if(st) st.addEventListener('input', updateSeoTitleCount);
+});
+
+function updateMetaCount() {
+  const v = document.getElementById('edit-meta-desc').value;
+  const el = document.getElementById('edit-meta-count');
+  const n = v.length;
+  el.textContent = `${n} chars ${n < 120 ? '(too short, aim 150-160)' : n > 160 ? '(too long!)' : '✓ good length'}`;
+  el.style.color = n >= 120 && n <= 160 ? 'var(--teal)' : 'var(--gold)';
+}
+
+function wrapEditSelection(before, after) {
+  const ta = document.getElementById('edit-post-content');
+  const start = ta.selectionStart, end = ta.selectionEnd;
+  const selected = ta.value.substring(start, end);
+  const replacement = before + (selected || 'text here') + after;
+  ta.value = ta.value.substring(0, start) + replacement + ta.value.substring(end);
+  ta.focus();
+  ta.setSelectionRange(start + before.length, start + before.length + (selected || 'text here').length);
+  updateEditCharCount();
+}
+
+function insertEditSnippet(text) {
+  const ta = document.getElementById('edit-post-content');
+  const pos = ta.selectionStart;
+  ta.value = ta.value.substring(0, pos) + text + ta.value.substring(pos);
+  ta.focus();
+  updateEditCharCount();
+}
+
+function previewEditedPost() {
+  const h = histLog[editingHistIdx];
+  if (h && h.link) {
+    window.open(h.link, '_blank');
+  } else {
+    toast('No live URL', 'info', 'Post needs to be published first');
+  }
+}
 </script>
 </body>
 </html>
