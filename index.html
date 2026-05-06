@@ -5010,7 +5010,6 @@ async function openEditModal(histIdx) {
   modal.classList.add('open');
   document.getElementById('edit-modal-title').textContent = 'Loading post...';
   document.getElementById('edit-post-title').value = '';
-  document.getElementById('edit-post-content').value = '';
   document.getElementById('edit-focus-kw').value = '';
   document.getElementById('edit-seo-title').value = '';
   document.getElementById('edit-meta-desc').value = '';
@@ -5019,6 +5018,18 @@ async function openEditModal(histIdx) {
   document.getElementById('edit-form-body').style.display = 'none';
   document.getElementById('edit-char-count').textContent = '';
 
+  // Init Quill on first open
+  initQuillEditor();
+
+  // Reset to visual mode
+  editorMode = 'visual';
+  const qw = document.getElementById('quill-wrap');
+  const rh = document.getElementById('edit-raw-html');
+  qw.style.display = 'block';
+  rh.style.display = 'none';
+  document.getElementById('btn-visual')?.classList.add('active');
+  document.getElementById('btn-html')?.classList.remove('active');
+
   try {
     // Fetch current post data from WP
     const post = await wpReq(site, `posts/${h.postId}?context=edit`, 'GET');
@@ -5026,17 +5037,27 @@ async function openEditModal(histIdx) {
     document.getElementById('edit-modal-title').textContent = '✏️ Edit Post';
     document.getElementById('edit-post-title').value = post.title?.raw || h.title;
 
-    // Convert HTML content to readable text for editing
     const rawContent = post.content?.raw || '';
-    document.getElementById('edit-post-content').value = rawContent;
 
-    // Try to get RankMath fields
+    // Load into Quill (wait for it to be ready)
+    const loadIntoQuill = () => {
+      if (window.quillEditor) {
+        quillEditor.clipboard.dangerouslyPasteHTML(rawContent);
+        // Also keep raw in textarea as backup
+        document.getElementById('edit-raw-html').value = rawContent;
+        updateEditCharCount();
+      } else {
+        setTimeout(loadIntoQuill, 150);
+      }
+    };
+    loadIntoQuill();
+
+    // SEO fields
     document.getElementById('edit-focus-kw').value = post.meta?.rank_math_focus_keyword || h.kw || '';
     document.getElementById('edit-seo-title').value = post.meta?.rank_math_title || h.seoT || '';
     document.getElementById('edit-meta-desc').value = post.meta?.rank_math_description || '';
     document.getElementById('edit-post-status').value = post.status || h.status || 'publish';
 
-    updateEditCharCount();
     document.getElementById('edit-loading').style.display = 'none';
     document.getElementById('edit-form-body').style.display = 'flex';
 
@@ -5048,13 +5069,8 @@ async function openEditModal(histIdx) {
 
 function closeEditModal() {
   document.getElementById('edit-modal').classList.remove('open');
+  if (window.quillEditor) quillEditor.setText('');
   editingHistIdx = null;
-}
-
-function updateEditCharCount() {
-  const content = document.getElementById('edit-post-content').value;
-  const words = content.trim() ? content.trim().split(/\s+/).length : 0;
-  document.getElementById('edit-char-count').textContent = `${words.toLocaleString()} words · ${content.length.toLocaleString()} chars`;
 }
 
 async function saveEditedPost() {
@@ -5067,7 +5083,7 @@ async function saveEditedPost() {
   btn.classList.add('loading'); btn.disabled = true;
 
   const newTitle   = document.getElementById('edit-post-title').value.trim();
-  const newContent = document.getElementById('edit-post-content').value;
+  const newContent = getEditContent();
   const newStatus  = document.getElementById('edit-post-status').value;
   const newKw      = document.getElementById('edit-focus-kw').value.trim();
   const newSeoT    = document.getElementById('edit-seo-title').value.trim();
@@ -5123,24 +5139,15 @@ function stripHtml(html) {
 <!-- EDIT POST MODAL                         -->
 <!-- ═══════════════════════════════════════ -->
 <style>
-#edit-modal .modal { width: 780px; max-width: 96vw; }
+#edit-modal .modal { width: 860px; max-width: 97vw; }
 .edit-tabs { display: flex; gap: 0; border-bottom: 1px solid var(--bdr); padding: 0 18px; background: var(--surf2); }
 .edit-tab { padding: 10px 16px; font-size: 11px; font-weight: 600; cursor: pointer; color: var(--ink3); border-bottom: 2px solid transparent; transition: all .15s; }
 .edit-tab.active { color: var(--teal); border-bottom-color: var(--teal); }
 .edit-tab-pane { display: none; padding: 18px; flex-direction: column; gap: 12px; }
 .edit-tab-pane.active { display: flex; }
-.edit-content-area {
-  width: 100%; min-height: 320px; max-height: 420px;
-  background: var(--surf2); border: 1.5px solid var(--bdr);
-  border-radius: 6px; padding: 12px; color: var(--ink);
-  font-size: 12px; font-family: var(--mono); line-height: 1.75;
-  resize: vertical; outline: none; transition: border-color .15s;
-}
-.edit-content-area:focus { border-color: var(--teal); background: var(--surf); }
 .edit-loading-state {
   display: flex; align-items: center; justify-content: center;
-  gap: 10px; padding: 60px 20px;
-  font-size: 13px; color: var(--ink3);
+  gap: 10px; padding: 60px 20px; font-size: 13px; color: var(--ink3);
 }
 .edit-spinner {
   width: 18px; height: 18px;
@@ -5149,23 +5156,77 @@ function stripHtml(html) {
   border-radius: 50%;
   animation: sp .7s linear infinite;
 }
-.edit-toolbar {
-  display: flex; gap: 6px; flex-wrap: wrap;
-  padding: 8px 12px; background: var(--surf2);
-  border: 1px solid var(--bdr); border-bottom: none;
-  border-radius: 6px 6px 0 0;
+
+/* Quill editor overrides */
+#quill-editor {
+  min-height: 360px; max-height: 460px;
+  font-size: 14px; font-family: var(--sans);
+  line-height: 1.8; color: var(--ink);
+  background: var(--surf);
+  overflow-y: auto;
 }
-.edit-toolbar button {
-  padding: 3px 8px; border-radius: 4px; border: 1px solid var(--bdr);
-  background: var(--surf); font-size: 11px; cursor: pointer;
-  color: var(--ink2); font-family: var(--mono); font-weight: 600;
-  transition: all .1s;
+.ql-toolbar.ql-snow {
+  background: var(--surf2);
+  border: 1.5px solid var(--bdr) !important;
+  border-bottom: none !important;
+  border-radius: 8px 8px 0 0;
+  padding: 6px 8px;
+  flex-wrap: wrap;
 }
-.edit-toolbar button:hover { background: var(--teal-l); border-color: var(--teal-b); color: var(--teal); }
-.edit-content-area-wrapper .edit-content-area { border-radius: 0 0 6px 6px; }
+.ql-container.ql-snow {
+  border: 1.5px solid var(--bdr) !important;
+  border-radius: 0 0 8px 8px;
+  font-family: var(--sans);
+}
+.ql-editor { min-height: 340px; padding: 16px 18px; }
+.ql-editor h1 { font-size: 22px; font-weight: 700; margin: 14px 0 6px; }
+.ql-editor h2 { font-size: 18px; font-weight: 700; margin: 12px 0 5px; color: var(--navy); }
+.ql-editor h3 { font-size: 15px; font-weight: 600; margin: 10px 0 4px; }
+.ql-editor p  { margin-bottom: 10px; }
+.ql-editor a  { color: var(--teal); }
+.ql-editor blockquote { border-left: 3px solid var(--teal-b); padding-left: 12px; color: var(--ink2); font-style: italic; }
+.ql-snow .ql-stroke { stroke: var(--ink2); }
+.ql-snow .ql-fill  { fill: var(--ink2); }
+.ql-snow.ql-toolbar button:hover .ql-stroke,
+.ql-snow.ql-toolbar button.ql-active .ql-stroke { stroke: var(--teal); }
+.ql-snow.ql-toolbar button:hover .ql-fill,
+.ql-snow.ql-toolbar button.ql-active .ql-fill   { fill: var(--teal); }
+.ql-snow .ql-picker { color: var(--ink2); font-size: 12px; }
+
+/* word count bar */
+.editor-meta-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 5px 10px; background: var(--surf2);
+  border: 1px solid var(--bdr); border-top: none;
+  border-radius: 0 0 8px 8px; font-size: 10px;
+  color: var(--ink3); font-family: var(--mono);
+  margin-top: -1px;
+}
+.editor-view-toggle {
+  display: flex; gap: 4px;
+}
+.evt-btn {
+  padding: 2px 8px; border-radius: 4px; border: 1px solid var(--bdr);
+  font-size: 10px; cursor: pointer; font-weight: 600;
+  background: var(--surf); color: var(--ink3); transition: all .1s;
+}
+.evt-btn.active { background: var(--teal-l); border-color: var(--teal-b); color: var(--teal); }
+
+/* raw HTML fallback textarea */
+#edit-raw-html {
+  display: none;
+  width: 100%; min-height: 360px; max-height: 460px;
+  background: var(--surf2); border: 1.5px solid var(--bdr);
+  border-radius: 8px; padding: 14px; color: var(--ink);
+  font-size: 11px; font-family: var(--mono); line-height: 1.7;
+  resize: vertical; outline: none; transition: border-color .15s;
+}
+#edit-raw-html:focus { border-color: var(--teal); background: var(--surf); }
+
 @media(max-width:900px){
-  #edit-modal .modal { width: calc(100vw - 16px); }
-  .edit-content-area { min-height: 220px; }
+  #edit-modal .modal { width: calc(100vw - 12px); }
+  #quill-editor { min-height: 240px; }
+  .ql-editor { min-height: 220px; }
 }
 </style>
 
@@ -5199,26 +5260,24 @@ function stripHtml(html) {
           <input class="inp" id="edit-post-title" type="text" placeholder="Post title...">
         </div>
         <div class="fg" style="margin-bottom:0">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">
-            <label class="lbl" style="margin-bottom:0">Content (HTML)</label>
-            <span id="edit-char-count" style="font-size:10px;color:var(--ink3);font-family:var(--mono)"></span>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+            <label class="lbl" style="margin-bottom:0">Content</label>
+            <div class="editor-view-toggle">
+              <button class="evt-btn active" id="btn-visual" onclick="setEditorMode('visual')">✏️ Visual</button>
+              <button class="evt-btn" id="btn-html" onclick="setEditorMode('html')">🔤 HTML</button>
+            </div>
           </div>
-          <div class="edit-toolbar">
-            <button onclick="wrapEditSelection('<h2>','</h2>')">H2</button>
-            <button onclick="wrapEditSelection('<h3>','</h3>')">H3</button>
-            <button onclick="wrapEditSelection('<strong>','</strong>')"><b>B</b></button>
-            <button onclick="wrapEditSelection('<em>','</em>')"><i>I</i></button>
-            <button onclick="wrapEditSelection('<ul>\n<li>','</li>\n</ul>')">List</button>
-            <button onclick="wrapEditSelection('<a href=\"\">','</a>')">Link</button>
-            <button onclick="wrapEditSelection('<p>','</p>')">Para</button>
-            <button onclick="insertEditSnippet('<!-- wp:more -->\n<!--more-->\n<!-- /wp:more -->')">Read More</button>
+          <!-- Quill WYSIWYG -->
+          <div id="quill-wrap">
+            <div id="quill-editor"></div>
           </div>
-          <div class="edit-content-area-wrapper">
-            <textarea class="edit-content-area inp" id="edit-post-content" oninput="updateEditCharCount()"></textarea>
+          <!-- Raw HTML fallback -->
+          <textarea id="edit-raw-html" placeholder="Raw HTML content..."></textarea>
+          <!-- Meta bar -->
+          <div class="editor-meta-bar">
+            <span id="edit-char-count">0 words</span>
+            <span style="color:var(--teal)">💡 Edit visually — saves as clean HTML to WordPress</span>
           </div>
-        </div>
-        <div style="background:var(--gold-l);border:1px solid var(--gold-b);border-radius:6px;padding:8px 12px;font-size:11px;color:var(--gold)">
-          💡 This is raw HTML content as stored in WordPress. You can edit text, tags, and links directly.
         </div>
       </div>
 
@@ -5313,33 +5372,112 @@ function updateMetaCount() {
   el.style.color = n >= 120 && n <= 160 ? 'var(--teal)' : 'var(--gold)';
 }
 
-function wrapEditSelection(before, after) {
-  const ta = document.getElementById('edit-post-content');
-  const start = ta.selectionStart, end = ta.selectionEnd;
-  const selected = ta.value.substring(start, end);
-  const replacement = before + (selected || 'text here') + after;
-  ta.value = ta.value.substring(0, start) + replacement + ta.value.substring(end);
-  ta.focus();
-  ta.setSelectionRange(start + before.length, start + before.length + (selected || 'text here').length);
+function wrapEditSelection(before, after) { /* legacy no-op */ }
+function insertEditSnippet(text) { /* legacy no-op */ }
+
+function updateEditCharCount() {
+  let text = '';
+  if (window.quillEditor) {
+    text = quillEditor.getText();
+  } else {
+    const raw = document.getElementById('edit-raw-html');
+    text = raw ? raw.value.replace(/<[^>]+>/g,'') : '';
+  }
+  const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+  const el = document.getElementById('edit-char-count');
+  if(el) el.textContent = `${words.toLocaleString()} words`;
+}
+
+// ── EDITOR MODE TOGGLE ──
+let editorMode = 'visual'; // 'visual' | 'html'
+
+function setEditorMode(mode) {
+  editorMode = mode;
+  const qw = document.getElementById('quill-wrap');
+  const rh = document.getElementById('edit-raw-html');
+  const bv = document.getElementById('btn-visual');
+  const bh = document.getElementById('btn-html');
+
+  if (mode === 'visual') {
+    // Sync raw → quill
+    if (rh && window.quillEditor) {
+      quillEditor.clipboard.dangerouslyPasteHTML(rh.value);
+    }
+    qw.style.display = 'block';
+    rh.style.display = 'none';
+    bv.classList.add('active'); bh.classList.remove('active');
+  } else {
+    // Sync quill → raw HTML
+    if (window.quillEditor) {
+      rh.value = getQuillHTML();
+    }
+    qw.style.display = 'none';
+    rh.style.display = 'block';
+    bv.classList.remove('active'); bh.classList.add('active');
+  }
   updateEditCharCount();
 }
 
-function insertEditSnippet(text) {
-  const ta = document.getElementById('edit-post-content');
-  const pos = ta.selectionStart;
-  ta.value = ta.value.substring(0, pos) + text + ta.value.substring(pos);
-  ta.focus();
-  updateEditCharCount();
+function getQuillHTML() {
+  if (!window.quillEditor) return '';
+  // Get semantic HTML from Quill
+  return document.querySelector('#quill-editor .ql-editor').innerHTML;
+}
+
+function getEditContent() {
+  if (editorMode === 'visual') {
+    return getQuillHTML();
+  } else {
+    return document.getElementById('edit-raw-html').value;
+  }
 }
 
 function previewEditedPost() {
   const h = histLog[editingHistIdx];
-  if (h && h.link) {
-    window.open(h.link, '_blank');
+  if (h && h.link) { window.open(h.link, '_blank'); }
+  else { toast('No live URL', 'info', 'Post needs to be published first'); }
+}
+
+// ── QUILL INIT ──
+function initQuillEditor() {
+  if (window.quillEditor) return; // already inited
+  if (typeof Quill === 'undefined') {
+    // Load Quill dynamically
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.snow.min.css';
+    document.head.appendChild(link);
+
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.min.js';
+    script.onload = () => createQuillInstance();
+    document.head.appendChild(script);
   } else {
-    toast('No live URL', 'info', 'Post needs to be published first');
+    createQuillInstance();
   }
 }
+
+function createQuillInstance() {
+  if (window.quillEditor) return;
+  window.quillEditor = new Quill('#quill-editor', {
+    theme: 'snow',
+    modules: {
+      toolbar: [
+        [{ header: [1, 2, 3, false] }],
+        ['bold', 'italic', 'underline', 'strike'],
+        [{ color: [] }, { background: [] }],
+        [{ list: 'ordered' }, { list: 'bullet' }],
+        ['blockquote', 'link'],
+        [{ align: [] }],
+        ['clean']
+      ]
+    },
+    placeholder: 'Start editing your post...'
+  });
+  quillEditor.on('text-change', updateEditCharCount);
+}
+
+
 </script>
 </body>
 </html>
