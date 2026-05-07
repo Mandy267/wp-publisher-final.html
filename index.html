@@ -1103,15 +1103,14 @@ MBBS certified doctor" style="font-size:12px;line-height:1.6"></textarea>
   <!-- LEFT: Setup & Keywords -->
   <div class="left-panel">
 
-    <!-- API Key -->
+    <!-- API Key — uses same key as AI Blog Generator -->
     <div class="card">
       <div class="card-hdr"><div class="card-hdr-title">🔑 Claude API Key</div></div>
       <div class="card-body" style="gap:8px">
-        <div class="fg" style="margin:0">
-          <label class="lbl">Anthropic API Key</label>
-          <input class="inp" id="ap-apikey" type="password" placeholder="sk-ant-..." oninput="localStorage.setItem('wpb_apkey',this.value)">
-          <div style="font-size:10px;color:var(--ink3);margin-top:4px">Stored locally in your browser only. Never sent anywhere except Anthropic.</div>
+        <div id="ap-key-status" style="font-size:12px;padding:8px 12px;border-radius:6px;background:var(--surf2);border:1px solid var(--bdr)">
+          Checking...
         </div>
+        <div style="font-size:11px;color:var(--ink3)">Uses the same API key from your AI Blog Generator. Set it there if not configured.</div>
       </div>
     </div>
 
@@ -3975,9 +3974,22 @@ let apTimer      = null;
 function apSaveCal(){ localStorage.setItem('wpb_ap_cal', JSON.stringify(apCalendar)); }
 
 function apInit(){
-  // Restore API key
-  const k = localStorage.getItem('wpb_apkey') || '';
-  if(k) document.getElementById('ap-apikey').value = k;
+  // Check API key status
+  const k = localStorage.getItem('claude_api_key') || '';
+  const statusEl = document.getElementById('ap-key-status');
+  if(statusEl){
+    if(k){
+      statusEl.innerHTML = '✅ API key found — Auto-Pilot ready to use';
+      statusEl.style.background = 'var(--teal-l)';
+      statusEl.style.borderColor = 'var(--teal-b)';
+      statusEl.style.color = 'var(--teal)';
+    } else {
+      statusEl.innerHTML = '❌ No API key found — go to AI Blog Generator tab and save your key first';
+      statusEl.style.background = '#FFF1F1';
+      statusEl.style.borderColor = '#FECACA';
+      statusEl.style.color = '#DC2626';
+    }
+  }
   renderApCalendar();
   renderApHistory();
   apCheckTimer();
@@ -4072,7 +4084,7 @@ async function apBuildCalendar(){
   const btn = document.getElementById('ap-cal-btn');
   btn.classList.add('loading'); btn.disabled=true;
 
-  const apiKey = document.getElementById('ap-apikey').value.trim() || localStorage.getItem('wpb_apkey');
+  const apiKey = ( localStorage.getItem('claude_api_key') || '').replace(/[^ -~]/g,'').trim();
   const bizName = document.getElementById('ap-bizname').value.trim() || 'the clinic';
   const location = document.getElementById('ap-location').value.trim();
   const tone = document.getElementById('ap-tone').value;
@@ -4168,7 +4180,7 @@ async function apRunSingle(idx){
   const item = apCalendar[idx];
   if(!item) return;
 
-  const apiKey = document.getElementById('ap-apikey').value.trim() || localStorage.getItem('wpb_apkey');
+  const apiKey = ( localStorage.getItem('claude_api_key') || '').replace(/[^ -~]/g,'').trim();
   const site   = getActive();
   if(!apiKey){ toast('Add your Claude API key first','err'); switchApTab('autopublish',document.querySelectorAll('#mode-autopilot .rtab')[1]); return; }
   if(!site)  { toast('No WordPress site selected','err'); return; }
@@ -4265,7 +4277,7 @@ function apToggleAutopilot(on){
     const pending = apCalendar.filter(i=>i.status==='pending');
     if(!pending.length){ toast('No pending posts in calendar','err'); document.getElementById('ap-toggle').checked=false; return; }
     if(!getActive()){ toast('No WordPress site selected','err'); document.getElementById('ap-toggle').checked=false; return; }
-    if(!(document.getElementById('ap-apikey').value.trim()||localStorage.getItem('wpb_apkey'))){ toast('Add Claude API key first','err'); document.getElementById('ap-toggle').checked=false; return; }
+    if(!(localStorage.getItem('claude_api_key'))){ toast('Add Claude API key in AI Blog Generator tab first','err'); document.getElementById('ap-toggle').checked=false; return; }
     localStorage.setItem('wpb_ap_on','1');
     apCheckTimer();
     document.getElementById('ap-status-icon').textContent  = '▶️';
