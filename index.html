@@ -270,6 +270,35 @@ input.inp::placeholder,textarea.inp::placeholder{color:var(--ink3)}
   .blog-textarea{min-height:180px}
   .topbar{height:44px}
 }
+
+/* ── AUTO-PILOT STYLES ── */
+.toggle-wrap { position:relative; display:inline-block; width:42px; height:24px; flex-shrink:0; }
+.toggle-wrap input { opacity:0; width:0; height:0; }
+.toggle-slider { position:absolute; cursor:pointer; inset:0; background:var(--bdr2); border-radius:24px; transition:.3s; }
+.toggle-slider:before { position:absolute; content:""; height:18px; width:18px; left:3px; bottom:3px; background:#fff; border-radius:50%; transition:.3s; }
+.toggle-wrap input:checked + .toggle-slider { background:var(--teal); }
+.toggle-wrap input:checked + .toggle-slider:before { transform:translateX(18px); }
+
+.ap-kw-item { display:flex; align-items:center; gap:10px; padding:9px 14px; border-bottom:1px solid var(--bdr); cursor:pointer; transition:background .1s; }
+.ap-kw-item:hover { background:var(--surf2); }
+.ap-kw-item input[type=checkbox] { accent-color:var(--teal); width:14px; height:14px; flex-shrink:0; cursor:pointer; }
+.ap-kw-label { flex:1; font-size:12px; color:var(--ink); }
+.ap-kw-intent { font-size:10px; padding:2px 7px; border-radius:10px; font-weight:600; }
+.ap-kw-intent.info  { background:#EFF6FF; color:#2563EB; }
+.ap-kw-intent.trans { background:#F0FDF4; color:#16A34A; }
+.ap-kw-intent.nav   { background:#FFF7ED; color:#C2410C; }
+
+.ap-cal-item { background:var(--surf); border:1.5px solid var(--bdr); border-radius:10px; padding:12px 14px; display:flex; gap:12px; align-items:flex-start; }
+.ap-cal-day { font-size:11px; font-weight:700; color:var(--teal); min-width:52px; font-family:var(--mono); margin-top:2px; }
+.ap-cal-body { flex:1; }
+.ap-cal-title { font-size:13px; font-weight:600; color:var(--ink); margin-bottom:3px; }
+.ap-cal-kw { font-size:10px; color:var(--ink3); font-family:var(--mono); }
+.ap-cal-status { font-size:10px; padding:2px 8px; border-radius:10px; font-weight:600; margin-left:auto; flex-shrink:0; }
+.ap-cal-status.pending  { background:var(--surf2); color:var(--ink3); border:1px solid var(--bdr); }
+.ap-cal-status.queued   { background:#FFF7ED; color:#C2410C; border:1px solid #FED7AA; }
+.ap-cal-status.done     { background:#F0FDF4; color:#16A34A; border:1px solid #BBF7D0; }
+.ap-cal-status.running  { background:var(--teal-l); color:var(--teal); border:1px solid var(--teal-b); }
+.ap-cal-actions { display:flex; gap:6px; margin-top:8px; }
 </style>
 </head>
 <body>
@@ -279,6 +308,7 @@ input.inp::placeholder,textarea.inp::placeholder{color:var(--ink3)}
   <div class="mode-tabs">
     <div class="mode-tab active" id="tab-blog" onclick="switchMode('blog')">✍️ Blog</div>
     <div class="mode-tab" id="tab-pages" onclick="switchMode('pages')">📄 Pages</div>
+    <div class="mode-tab" id="tab-autopilot" onclick="switchMode('autopilot')">🤖 Auto-Pilot</div>
   </div>
   <div class="topbar-r">
     <div class="site-pill" onclick="toggleSites()">
@@ -1065,6 +1095,164 @@ MBBS certified doctor" style="font-size:12px;line-height:1.6"></textarea>
 
 </div>
 </div><!-- end mode-pages -->
+
+<!-- ════ AUTO-PILOT MODE ════ -->
+<div id="mode-autopilot" style="display:none">
+<div class="layout">
+
+  <!-- LEFT: Setup & Keywords -->
+  <div class="left-panel">
+
+    <!-- API Key -->
+    <div class="card">
+      <div class="card-hdr"><div class="card-hdr-title">🔑 Claude API Key</div></div>
+      <div class="card-body" style="gap:8px">
+        <div class="fg" style="margin:0">
+          <label class="lbl">Anthropic API Key</label>
+          <input class="inp" id="ap-apikey" type="password" placeholder="sk-ant-..." oninput="localStorage.setItem('wpb_apkey',this.value)">
+          <div style="font-size:10px;color:var(--ink3);margin-top:4px">Stored locally in your browser only. Never sent anywhere except Anthropic.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Niche Setup -->
+    <div class="card">
+      <div class="card-hdr"><div class="card-hdr-title">🏥 Clinic / Niche Setup</div></div>
+      <div class="card-body" style="gap:10px">
+        <div class="fg" style="margin:0">
+          <label class="lbl">Business Name</label>
+          <input class="inp" id="ap-bizname" placeholder="e.g. Aesthanic Clinic & Salon">
+        </div>
+        <div class="fg" style="margin:0">
+          <label class="lbl">Location</label>
+          <input class="inp" id="ap-location" placeholder="e.g. Hennur, Bangalore">
+        </div>
+        <div class="fg" style="margin:0">
+          <label class="lbl">Niche / Services (comma separated)</label>
+          <input class="inp" id="ap-niche" placeholder="e.g. cryolipolysis, pigmentation treatment, hair loss, laser hair removal">
+        </div>
+        <div class="fg" style="margin:0">
+          <label class="lbl">Target Audience</label>
+          <input class="inp" id="ap-audience" placeholder="e.g. women 25-45 in Bangalore concerned about skin and body">
+        </div>
+        <div class="fg" style="margin:0">
+          <label class="lbl">Writing Tone</label>
+          <select class="inp" id="ap-tone">
+            <option>Professional & Reassuring</option>
+            <option>Friendly & Conversational</option>
+            <option>Clinical & Expert</option>
+            <option>Warm & Empathetic</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" onclick="apFindKeywords()" id="ap-kw-btn" style="width:100%">
+          <span class="spin"></span><span class="lbl">🔍 Find Keywords for This Niche</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Keyword Results -->
+    <div class="card" id="ap-kw-card" style="display:none">
+      <div class="card-hdr">
+        <div class="card-hdr-title">🎯 Keyword Ideas</div>
+        <button class="btn btn-ghost" style="font-size:10px;padding:3px 10px" onclick="apSelectAllKw()">Select All</button>
+      </div>
+      <div class="card-body" style="gap:0;padding:0">
+        <div id="ap-kw-list" style="max-height:320px;overflow-y:auto"></div>
+        <div style="padding:12px;border-top:1px solid var(--bdr)">
+          <button class="btn btn-navy" onclick="apBuildCalendar()" style="width:100%" id="ap-cal-btn">
+            <span class="spin"></span><span class="lbl">📅 Build 30-Day Content Calendar →</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end left -->
+
+  <!-- RIGHT: Calendar & Auto-Publish -->
+  <div class="right-panel">
+    <div class="rtabs">
+      <div class="rtab active" onclick="switchApTab('calendar',this)">📅 Content Calendar</div>
+      <div class="rtab" onclick="switchApTab('autopublish',this)">⚡ Auto-Publish</div>
+      <div class="rtab" onclick="switchApTab('aphistory',this)">📋 History</div>
+    </div>
+
+    <!-- Calendar Pane -->
+    <div class="rpane active" id="ap-pane-calendar">
+      <div id="ap-cal-empty" style="padding:40px 20px;text-align:center;color:var(--ink3);font-size:13px">
+        <div style="font-size:32px;margin-bottom:10px">📅</div>
+        <div style="font-weight:600;margin-bottom:6px">No calendar yet</div>
+        <div style="font-size:12px">Fill in your niche details and find keywords first</div>
+      </div>
+      <div id="ap-cal-list" style="display:none;flex-direction:column;gap:8px;overflow-y:auto;max-height:calc(100vh - 180px)"></div>
+    </div>
+
+    <!-- Auto-Publish Pane -->
+    <div class="rpane" id="ap-pane-autopublish">
+      <div style="display:flex;flex-direction:column;gap:14px;padding:4px 0">
+
+        <!-- Status banner -->
+        <div id="ap-status-banner" style="background:var(--surf2);border:1.5px solid var(--bdr);border-radius:10px;padding:14px 16px;display:flex;align-items:center;gap:12px">
+          <div style="font-size:24px" id="ap-status-icon">⏸️</div>
+          <div style="flex:1">
+            <div style="font-weight:700;font-size:13px;color:var(--ink)" id="ap-status-title">Auto-Pilot is OFF</div>
+            <div style="font-size:11px;color:var(--ink3);margin-top:2px" id="ap-status-sub">Set up your calendar and turn on auto-publish below</div>
+          </div>
+          <label class="toggle-wrap">
+            <input type="checkbox" id="ap-toggle" onchange="apToggleAutopilot(this.checked)">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <!-- Schedule settings -->
+        <div class="card" style="margin:0">
+          <div class="card-hdr"><div class="card-hdr-title">⚙️ Publish Settings</div></div>
+          <div class="card-body" style="gap:10px">
+            <div class="fg" style="margin:0">
+              <label class="lbl">Publish Time (daily)</label>
+              <input class="inp" type="time" id="ap-pub-time" value="09:00">
+            </div>
+            <div class="fg" style="margin:0">
+              <label class="lbl">Post Status</label>
+              <select class="inp" id="ap-pub-status">
+                <option value="draft">Draft (review before going live)</option>
+                <option value="publish">Publish immediately (live)</option>
+              </select>
+            </div>
+            <div class="fg" style="margin:0">
+              <label class="lbl">Blog Length</label>
+              <select class="inp" id="ap-pub-length">
+                <option value="1500">~1,500 words (quick read)</option>
+                <option value="2000" selected>~2,000 words (standard)</option>
+                <option value="2500">~2,500 words (in-depth)</option>
+              </select>
+            </div>
+            <div id="ap-next-run" style="background:var(--teal-l);border:1px solid var(--teal-b);border-radius:6px;padding:8px 12px;font-size:11px;color:var(--teal);display:none">
+              ⏰ Next auto-publish: <strong id="ap-next-time">—</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- Progress -->
+        <div class="card" style="margin:0" id="ap-progress-card" style="display:none">
+          <div class="card-hdr"><div class="card-hdr-title">🔄 Current Job</div></div>
+          <div class="card-body" style="gap:8px" id="ap-progress-body">
+            <div style="font-size:12px;color:var(--ink3)">No job running</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- AP History Pane -->
+    <div class="rpane" id="ap-pane-aphistory">
+      <div id="ap-hist-list" style="display:flex;flex-direction:column;gap:8px;overflow-y:auto;max-height:calc(100vh - 180px)">
+        <div style="font-size:12px;color:var(--ink3);padding:20px;text-align:center">No auto-published posts yet</div>
+      </div>
+    </div>
+
+  </div><!-- end right -->
+</div>
+</div><!-- end mode-autopilot -->
 
 <!-- ADD SITE MODAL -->
 <div class="overlay" id="modal-add">
@@ -3767,11 +3955,379 @@ function buildLocationPage(raw, get, getAll, title){
 
 // ── PAGE MODE UI FUNCTIONS ──
 function switchMode(mode){
-  document.getElementById('mode-blog').style.display = mode==='blog' ? '' : 'none';
-  document.getElementById('mode-pages').style.display = mode==='pages' ? '' : 'none';
-  document.getElementById('tab-blog').classList.toggle('active', mode==='blog');
-  document.getElementById('tab-pages').classList.toggle('active', mode==='pages');
+  document.getElementById('mode-blog').style.display       = mode==='blog'       ? '' : 'none';
+  document.getElementById('mode-pages').style.display      = mode==='pages'      ? '' : 'none';
+  document.getElementById('mode-autopilot').style.display  = mode==='autopilot'  ? '' : 'none';
+  document.getElementById('tab-blog').classList.toggle('active',       mode==='blog');
+  document.getElementById('tab-pages').classList.toggle('active',      mode==='pages');
+  document.getElementById('tab-autopilot').classList.toggle('active',  mode==='autopilot');
+  if(mode==='autopilot') apInit();
 }
+
+// ══════════════════════════════════════════
+// AUTO-PILOT ENGINE
+// ══════════════════════════════════════════
+
+let apCalendar   = JSON.parse(localStorage.getItem('wpb_ap_cal')   || '[]');
+let apRunning    = false;
+let apTimer      = null;
+
+function apSaveCal(){ localStorage.setItem('wpb_ap_cal', JSON.stringify(apCalendar)); }
+
+function apInit(){
+  // Restore API key
+  const k = localStorage.getItem('wpb_apkey') || '';
+  if(k) document.getElementById('ap-apikey').value = k;
+  renderApCalendar();
+  renderApHistory();
+  apCheckTimer();
+}
+
+function switchApTab(id, el){
+  document.querySelectorAll('#mode-autopilot .rtab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('#mode-autopilot .rpane').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('ap-pane-'+id).classList.add('active');
+}
+
+// ── KEYWORD RESEARCH (Google Autocomplete via allorigins proxy) ──
+async function apFindKeywords(){
+  const niche    = document.getElementById('ap-niche').value.trim();
+  const location = document.getElementById('ap-location').value.trim();
+  if(!niche){ toast('Enter a niche first','err'); return; }
+
+  const btn = document.getElementById('ap-kw-btn');
+  btn.classList.add('loading'); btn.disabled=true;
+
+  const seeds = niche.split(',').map(s=>s.trim()).filter(Boolean);
+  const allKws = new Set();
+
+  // Google Autocomplete fetch for each seed
+  for(const seed of seeds.slice(0,5)){
+    const queries = [
+      seed + ' ' + location,
+      seed + ' treatment ' + location,
+      'best ' + seed + ' ' + location,
+      seed + ' cost ' + location,
+      seed + ' clinic ' + location,
+      'how to ' + seed,
+    ];
+    for(const q of queries){
+      try {
+        const url = `https://suggestqueries.google.com/complete/search?client=firefox&q=${encodeURIComponent(q)}`;
+        const proxy = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+        const res = await fetch(proxy);
+        const data = await res.json();
+        const suggestions = JSON.parse(data.contents);
+        (suggestions[1]||[]).forEach(s => allKws.add(s));
+      } catch(e){ /* skip failed */ }
+    }
+  }
+
+  // Also add manual seed combinations
+  seeds.forEach(s=>{
+    allKws.add(`${s} in ${location}`);
+    allKws.add(`best ${s} clinic in ${location}`);
+    allKws.add(`${s} treatment cost in ${location}`);
+    allKws.add(`how does ${s} work`);
+    allKws.add(`${s} before and after`);
+    allKws.add(`is ${s} safe`);
+    allKws.add(`${s} side effects`);
+    allKws.add(`${s} results`);
+  });
+
+  const kwList = [...allKws].slice(0,60).map(kw=>({
+    kw,
+    intent: kw.includes('cost')||kw.includes('price')||kw.includes('near')||kw.includes('clinic') ? 'trans'
+           : kw.startsWith('how')||kw.startsWith('what')||kw.startsWith('why')||kw.startsWith('is') ? 'info'
+           : 'nav',
+    selected: true
+  }));
+
+  // Render
+  const list = document.getElementById('ap-kw-list');
+  list.innerHTML = kwList.map((k,i)=>`
+    <div class="ap-kw-item" onclick="this.querySelector('input').click()">
+      <input type="checkbox" ${k.selected?'checked':''} onchange="apKwData[${i}].selected=this.checked" onclick="event.stopPropagation()">
+      <span class="ap-kw-label">${k.kw}</span>
+      <span class="ap-kw-intent ${k.intent}">${k.intent==='trans'?'💰 Commercial':k.intent==='info'?'📖 Info':'🔗 Nav'}</span>
+    </div>`).join('');
+
+  window.apKwData = kwList;
+  document.getElementById('ap-kw-card').style.display = '';
+  btn.classList.remove('loading'); btn.disabled=false;
+  toast(`Found ${kwList.length} keyword ideas`,'ok','Select the ones you want then build calendar');
+}
+
+function apSelectAllKw(){
+  window.apKwData?.forEach(k=>k.selected=true);
+  document.querySelectorAll('#ap-kw-list input[type=checkbox]').forEach(c=>c.checked=true);
+}
+
+// ── BUILD 30-DAY CONTENT CALENDAR ──
+async function apBuildCalendar(){
+  const selected = (window.apKwData||[]).filter(k=>k.selected);
+  if(!selected.length){ toast('Select at least one keyword','err'); return; }
+
+  const btn = document.getElementById('ap-cal-btn');
+  btn.classList.add('loading'); btn.disabled=true;
+
+  const apiKey = document.getElementById('ap-apikey').value.trim() || localStorage.getItem('wpb_apkey');
+  const bizName = document.getElementById('ap-bizname').value.trim() || 'the clinic';
+  const location = document.getElementById('ap-location').value.trim();
+  const tone = document.getElementById('ap-tone').value;
+
+  // Use Claude to generate smart blog titles from keywords
+  let titles = [];
+  try {
+    const prompt = `You are an SEO content strategist for ${bizName} in ${location}.
+Generate one compelling, SEO-optimized blog post title for each of these keywords.
+Return ONLY a JSON array of strings — one title per keyword, in the same order.
+Keywords: ${selected.map(k=>k.kw).join(', ')}
+Rules: titles should be specific, include location where natural, be 50-65 chars, target ${tone} tone.
+Return only the JSON array, no explanation.`;
+
+    const res = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01'},
+      body:JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:2000,
+        messages:[{role:'user',content:prompt}] })
+    });
+    const data = await res.json();
+    const text = data.content?.[0]?.text || '[]';
+    const clean = text.replace(/```json|```/g,'').trim();
+    titles = JSON.parse(clean);
+  } catch(e){
+    // fallback: use keyword as title
+    titles = selected.map(k => k.kw.charAt(0).toUpperCase() + k.kw.slice(1));
+  }
+
+  // Build calendar entries
+  const today = new Date();
+  apCalendar = selected.map((k,i)=>({
+    id: Date.now()+i,
+    day: i+1,
+    date: new Date(today.getTime() + i*24*60*60*1000).toISOString().split('T')[0],
+    kw: k.kw,
+    title: titles[i] || k.kw,
+    intent: k.intent,
+    status: 'pending', // pending | queued | running | done | failed
+    postId: null,
+    postLink: null,
+    error: null
+  }));
+
+  apSaveCal();
+  renderApCalendar();
+
+  btn.classList.remove('loading'); btn.disabled=false;
+  switchApTab('calendar', document.querySelector('#mode-autopilot .rtab'));
+  toast(`📅 ${apCalendar.length}-day calendar ready!`,'ok','Switch to Auto-Publish tab to start');
+}
+
+// ── RENDER CALENDAR ──
+function renderApCalendar(){
+  const empty = document.getElementById('ap-cal-empty');
+  const list  = document.getElementById('ap-cal-list');
+  if(!apCalendar.length){
+    empty.style.display=''; list.style.display='none'; return;
+  }
+  empty.style.display='none'; list.style.display='flex';
+  list.innerHTML = apCalendar.map((item,i)=>`
+    <div class="ap-cal-item" id="ap-cal-item-${item.id}">
+      <div class="ap-cal-day">Day ${item.day}<br>${item.date}</div>
+      <div class="ap-cal-body">
+        <div class="ap-cal-title" contenteditable="${item.status==='pending'?'true':'false'}"
+          onblur="apCalendar[${i}].title=this.innerText;apSaveCal()">${item.title}</div>
+        <div class="ap-cal-kw">🔑 ${item.kw}</div>
+        ${item.postLink?`<a href="${item.postLink}" target="_blank" style="font-size:10px;color:var(--teal);margin-top:4px;display:block">View post →</a>`:''}
+        ${item.error?`<div style="font-size:10px;color:#dc2626;margin-top:4px">❌ ${item.error}</div>`:''}
+        ${item.status==='pending'?`
+        <div class="ap-cal-actions">
+          <button class="btn btn-ghost" style="font-size:10px;padding:3px 10px;height:24px" onclick="apRunSingle(${i})">▶ Generate & Publish Now</button>
+          <button class="btn btn-ghost" style="font-size:10px;padding:3px 10px;height:24px;color:#dc2626" onclick="apDeleteItem(${i})">✕</button>
+        </div>`:''}
+      </div>
+      <span class="ap-cal-status ${item.status}">${
+        item.status==='pending'  ? '⏳ Pending'  :
+        item.status==='queued'   ? '🔴 Queued'   :
+        item.status==='running'  ? '🔄 Running'  :
+        item.status==='done'     ? '✅ Done'      : '❌ Failed'
+      }</span>
+    </div>`).join('');
+}
+
+function apDeleteItem(i){
+  apCalendar.splice(i,1);
+  apCalendar.forEach((item,idx)=>{ item.day=idx+1; });
+  apSaveCal(); renderApCalendar();
+}
+
+// ── GENERATE + PUBLISH A SINGLE BLOG ──
+async function apRunSingle(idx){
+  const item = apCalendar[idx];
+  if(!item) return;
+
+  const apiKey = document.getElementById('ap-apikey').value.trim() || localStorage.getItem('wpb_apkey');
+  const site   = getActive();
+  if(!apiKey){ toast('Add your Claude API key first','err'); switchApTab('autopublish',document.querySelectorAll('#mode-autopilot .rtab')[1]); return; }
+  if(!site)  { toast('No WordPress site selected','err'); return; }
+
+  const bizName  = document.getElementById('ap-bizname').value.trim();
+  const location = document.getElementById('ap-location').value.trim();
+  const audience = document.getElementById('ap-audience').value.trim();
+  const tone     = document.getElementById('ap-tone').value;
+  const length   = document.getElementById('ap-pub-length')?.value || '2000';
+  const status   = document.getElementById('ap-pub-status')?.value || 'draft';
+
+  apCalendar[idx].status = 'running';
+  apSaveCal(); renderApCalendar();
+  apUpdateProgress(`Generating blog: "${item.title}"...`);
+
+  try {
+    // Step 1: Generate blog with Claude API
+    const blogPrompt = `Write a ${length}-word SEO blog post for ${bizName} in ${location}.
+
+Title: ${item.title}
+Focus Keyword: ${item.kw}
+Target Audience: ${audience}
+Tone: ${tone}
+
+Requirements:
+- Start with a compelling intro paragraph (no heading)
+- Use H2 and H3 headings naturally
+- Include the focus keyword in first 100 words, in one H2, and in conclusion
+- Add 2-3 practical tips or a FAQ section
+- End with a strong CTA mentioning ${bizName}
+- Write in clean HTML using only: <h2>, <h3>, <p>, <ul>, <li>, <strong>, <em>, <a> tags
+- Do NOT include <html>, <head>, <body>, <style> or any wrapper tags
+- Return only the blog HTML content`;
+
+    const res = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01'},
+      body:JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:4000,
+        messages:[{role:'user',content:blogPrompt}] })
+    });
+    const data = await res.json();
+    if(data.error) throw new Error(data.error.message);
+    const blogHTML = data.content?.[0]?.text || '';
+
+    apUpdateProgress(`Publishing to WordPress...`);
+
+    // Step 2: Publish to WordPress
+    const payload = {
+      title:   item.title,
+      content: blogHTML,
+      status:  status,
+      meta: {
+        rank_math_focus_keyword: item.kw,
+        rank_math_title: item.title,
+      }
+    };
+    const post = await wpReq(site, 'posts', 'POST', payload);
+
+    // Step 3: Update calendar
+    apCalendar[idx].status   = 'done';
+    apCalendar[idx].postId   = post.id;
+    apCalendar[idx].postLink = post.link;
+    apSaveCal(); renderApCalendar();
+
+    // Add to main history too
+    histLog.unshift({
+      title: item.title, site: site.name, status,
+      time: new Date(), link: post.link,
+      seoSet: true, kw: item.kw, postId: post.id, siteIdx: activeIdx, type:'auto'
+    });
+    renderHistory();
+    renderApHistory();
+
+    apUpdateProgress(`✅ Done! "${item.title}" published.`);
+    toast('✅ Blog published!','ok',`"${item.title.substring(0,40)}" is ${status}`);
+
+  } catch(err){
+    apCalendar[idx].status = 'failed';
+    apCalendar[idx].error  = err.message;
+    apSaveCal(); renderApCalendar();
+    apUpdateProgress(`❌ Failed: ${err.message}`);
+    toast('Auto-Pilot failed','err', err.message);
+  }
+}
+
+function apUpdateProgress(msg){
+  const el = document.getElementById('ap-progress-body');
+  if(el) el.innerHTML = `<div style="font-size:12px;color:var(--ink2)">${msg}</div>`;
+}
+
+// ── AUTO-PILOT TIMER ──
+function apToggleAutopilot(on){
+  if(on){
+    const pending = apCalendar.filter(i=>i.status==='pending');
+    if(!pending.length){ toast('No pending posts in calendar','err'); document.getElementById('ap-toggle').checked=false; return; }
+    if(!getActive()){ toast('No WordPress site selected','err'); document.getElementById('ap-toggle').checked=false; return; }
+    if(!(document.getElementById('ap-apikey').value.trim()||localStorage.getItem('wpb_apkey'))){ toast('Add Claude API key first','err'); document.getElementById('ap-toggle').checked=false; return; }
+    localStorage.setItem('wpb_ap_on','1');
+    apCheckTimer();
+    document.getElementById('ap-status-icon').textContent  = '▶️';
+    document.getElementById('ap-status-title').textContent = 'Auto-Pilot is ON';
+    document.getElementById('ap-status-sub').textContent   = `Will publish 1 blog/day at ${document.getElementById('ap-pub-time').value}`;
+    document.getElementById('ap-next-run').style.display   = '';
+    toast('🤖 Auto-Pilot ON','ok',`Publishing 1 blog/day at ${document.getElementById('ap-pub-time').value}`);
+  } else {
+    localStorage.removeItem('wpb_ap_on');
+    if(apTimer){ clearTimeout(apTimer); apTimer=null; }
+    document.getElementById('ap-status-icon').textContent  = '⏸️';
+    document.getElementById('ap-status-title').textContent = 'Auto-Pilot is OFF';
+    document.getElementById('ap-status-sub').textContent   = 'Set up your calendar and turn on auto-publish below';
+    document.getElementById('ap-next-run').style.display   = 'none';
+    toast('Auto-Pilot paused','info');
+  }
+}
+
+function apCheckTimer(){
+  if(!localStorage.getItem('wpb_ap_on')) return;
+  const pubTime = document.getElementById('ap-pub-time')?.value || '09:00';
+  const [h,m]   = pubTime.split(':').map(Number);
+  const now     = new Date();
+  const next    = new Date(now);
+  next.setHours(h,m,0,0);
+  if(next <= now) next.setDate(next.getDate()+1);
+  const ms = next - now;
+  const nextEl = document.getElementById('ap-next-time');
+  if(nextEl) nextEl.textContent = next.toLocaleString();
+  if(apTimer) clearTimeout(apTimer);
+  apTimer = setTimeout(async ()=>{
+    const idx = apCalendar.findIndex(i=>i.status==='pending');
+    if(idx > -1){
+      await apRunSingle(idx);
+    }
+    apCheckTimer(); // schedule next
+  }, ms);
+}
+
+// ── AP HISTORY ──
+function renderApHistory(){
+  const el = document.getElementById('ap-hist-list');
+  const apPosts = histLog.filter(h=>h.type==='auto');
+  if(!apPosts.length){
+    el.innerHTML='<div style="font-size:12px;color:var(--ink3);padding:20px;text-align:center">No auto-published posts yet</div>';
+    return;
+  }
+  el.innerHTML = apPosts.map(h=>`
+    <div class="hist-item">
+      <div class="hi-title">${h.title}</div>
+      <div class="hi-meta">
+        <span>${h.site}</span>
+        <span class="hbadge ${h.status==='publish'?'hb-p':'hb-d'}">${h.status}</span>
+        <span class="hbadge" style="background:#EFF6FF;color:#2563EB;border:1px solid #BFDBFE">🤖 Auto</span>
+        <span>${new Date(h.time).toLocaleDateString()}</span>
+        ${h.link?`<a href="${h.link}" target="_blank" style="color:var(--teal);font-size:10px">View →</a>`:''}
+      </div>
+      ${h.kw?`<div style="font-size:10px;color:var(--ink3);font-family:var(--mono);margin-top:3px">🔑 ${h.kw}</div>`:''}
+    </div>`).join('');
+}
+
+
 
 function switchPageTab(id,el){
   document.querySelectorAll('#mode-pages .rtab').forEach(t=>t.classList.remove('active'));
@@ -5018,18 +5574,6 @@ async function openEditModal(histIdx) {
   document.getElementById('edit-form-body').style.display = 'none';
   document.getElementById('edit-char-count').textContent = '';
 
-  // Init Quill on first open
-  initQuillEditor();
-
-  // Reset to visual mode
-  editorMode = 'visual';
-  const qw = document.getElementById('quill-wrap');
-  const rh = document.getElementById('edit-raw-html');
-  qw.style.display = 'block';
-  rh.style.display = 'none';
-  document.getElementById('btn-visual')?.classList.add('active');
-  document.getElementById('btn-html')?.classList.remove('active');
-
   try {
     // Fetch current post data from WP
     const post = await wpReq(site, `posts/${h.postId}?context=edit`, 'GET');
@@ -5039,18 +5583,16 @@ async function openEditModal(histIdx) {
 
     const rawContent = post.content?.raw || '';
 
-    // Load into Quill (wait for it to be ready)
-    const loadIntoQuill = () => {
-      if (window.quillEditor) {
-        quillEditor.clipboard.dangerouslyPasteHTML(rawContent);
-        // Also keep raw in textarea as backup
-        document.getElementById('edit-raw-html').value = rawContent;
-        updateEditCharCount();
-      } else {
-        setTimeout(loadIntoQuill, 150);
-      }
-    };
-    loadIntoQuill();
+    // Store original full HTML — needed to stitch back on save
+    window._editOriginalHTML = rawContent;
+
+    // Extract only readable content for editing
+    const editableHTML = extractEditableContent(rawContent);
+    const editor = document.getElementById('blog-editor');
+    if (editor) {
+      editor.innerHTML = editableHTML;
+      updateEditCharCount();
+    }
 
     // SEO fields
     document.getElementById('edit-focus-kw').value = post.meta?.rank_math_focus_keyword || h.kw || '';
@@ -5069,7 +5611,9 @@ async function openEditModal(histIdx) {
 
 function closeEditModal() {
   document.getElementById('edit-modal').classList.remove('open');
-  if (window.quillEditor) quillEditor.setText('');
+  const ed = document.getElementById('blog-editor');
+  if (ed) ed.innerHTML = '';
+  window._editOriginalHTML = '';
   editingHistIdx = null;
 }
 
@@ -5157,76 +5701,76 @@ function stripHtml(html) {
   animation: sp .7s linear infinite;
 }
 
-/* Quill editor overrides */
-#quill-editor {
-  min-height: 360px; max-height: 460px;
-  font-size: 14px; font-family: var(--sans);
-  line-height: 1.8; color: var(--ink);
-  background: var(--surf);
-  overflow-y: auto;
-}
-.ql-toolbar.ql-snow {
-  background: var(--surf2);
-  border: 1.5px solid var(--bdr) !important;
-  border-bottom: none !important;
-  border-radius: 8px 8px 0 0;
-  padding: 6px 8px;
-  flex-wrap: wrap;
-}
-.ql-container.ql-snow {
-  border: 1.5px solid var(--bdr) !important;
-  border-radius: 0 0 8px 8px;
-  font-family: var(--sans);
-}
-.ql-editor { min-height: 340px; padding: 16px 18px; }
-.ql-editor h1 { font-size: 22px; font-weight: 700; margin: 14px 0 6px; }
-.ql-editor h2 { font-size: 18px; font-weight: 700; margin: 12px 0 5px; color: var(--navy); }
-.ql-editor h3 { font-size: 15px; font-weight: 600; margin: 10px 0 4px; }
-.ql-editor p  { margin-bottom: 10px; }
-.ql-editor a  { color: var(--teal); }
-.ql-editor blockquote { border-left: 3px solid var(--teal-b); padding-left: 12px; color: var(--ink2); font-style: italic; }
-.ql-snow .ql-stroke { stroke: var(--ink2); }
-.ql-snow .ql-fill  { fill: var(--ink2); }
-.ql-snow.ql-toolbar button:hover .ql-stroke,
-.ql-snow.ql-toolbar button.ql-active .ql-stroke { stroke: var(--teal); }
-.ql-snow.ql-toolbar button:hover .ql-fill,
-.ql-snow.ql-toolbar button.ql-active .ql-fill   { fill: var(--teal); }
-.ql-snow .ql-picker { color: var(--ink2); font-size: 12px; }
+/* ── SIMPLE VISUAL EDITOR ── */
+#edit-modal .modal { width: 860px; max-width: 97vw; }
+.edit-tabs { display:flex; border-bottom:1px solid var(--bdr); padding:0 18px; background:var(--surf2); }
+.edit-tab { padding:10px 16px; font-size:11px; font-weight:600; cursor:pointer; color:var(--ink3); border-bottom:2px solid transparent; transition:all .15s; }
+.edit-tab.active { color:var(--teal); border-bottom-color:var(--teal); }
+.edit-tab-pane { display:none; padding:18px; flex-direction:column; gap:12px; }
+.edit-tab-pane.active { display:flex; }
+.edit-loading-state { display:flex; align-items:center; justify-content:center; gap:10px; padding:60px 20px; font-size:13px; color:var(--ink3); }
+.edit-spinner { width:18px; height:18px; border:2px solid var(--bdr2); border-top-color:var(--teal); border-radius:50%; animation:sp .7s linear infinite; }
 
-/* word count bar */
-.editor-meta-bar {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 5px 10px; background: var(--surf2);
-  border: 1px solid var(--bdr); border-top: none;
-  border-radius: 0 0 8px 8px; font-size: 10px;
-  color: var(--ink3); font-family: var(--mono);
-  margin-top: -1px;
+/* Format toolbar */
+.fmt-bar {
+  display:flex; gap:3px; flex-wrap:wrap; align-items:center;
+  padding:6px 10px; background:var(--surf2);
+  border:1.5px solid var(--bdr); border-bottom:none;
+  border-radius:8px 8px 0 0;
 }
-.editor-view-toggle {
-  display: flex; gap: 4px;
+.fmt-btn {
+  padding:4px 9px; border-radius:5px; border:1px solid transparent;
+  font-size:12px; cursor:pointer; font-weight:600; color:var(--ink2);
+  background:transparent; transition:all .12s; line-height:1;
+  font-family:var(--sans);
 }
-.evt-btn {
-  padding: 2px 8px; border-radius: 4px; border: 1px solid var(--bdr);
-  font-size: 10px; cursor: pointer; font-weight: 600;
-  background: var(--surf); color: var(--ink3); transition: all .1s;
+.fmt-btn:hover { background:var(--teal-l); color:var(--teal); border-color:var(--teal-b); }
+.fmt-btn.active { background:var(--teal-l); color:var(--teal); border-color:var(--teal-b); }
+.fmt-sep { width:1px; height:18px; background:var(--bdr2); margin:0 3px; }
+.fmt-select {
+  padding:3px 7px; border-radius:5px; border:1px solid var(--bdr);
+  font-size:11px; background:var(--surf); color:var(--ink2);
+  cursor:pointer; font-family:var(--sans); outline:none;
 }
-.evt-btn.active { background: var(--teal-l); border-color: var(--teal-b); color: var(--teal); }
+.fmt-select:hover { border-color:var(--teal-b); }
 
-/* raw HTML fallback textarea */
-#edit-raw-html {
-  display: none;
-  width: 100%; min-height: 360px; max-height: 460px;
-  background: var(--surf2); border: 1.5px solid var(--bdr);
-  border-radius: 8px; padding: 14px; color: var(--ink);
-  font-size: 11px; font-family: var(--mono); line-height: 1.7;
-  resize: vertical; outline: none; transition: border-color .15s;
+/* The actual editor */
+#blog-editor {
+  min-height:380px; max-height:480px; overflow-y:auto;
+  padding:20px 22px;
+  background:var(--surf);
+  border:1.5px solid var(--bdr);
+  border-radius:0 0 8px 8px;
+  font-size:14px; font-family:var(--sans);
+  line-height:1.85; color:var(--ink);
+  outline:none;
 }
-#edit-raw-html:focus { border-color: var(--teal); background: var(--surf); }
+#blog-editor:focus { border-color:var(--teal); }
+#blog-editor h1 { font-size:22px; font-weight:700; margin:14px 0 6px; color:var(--ink); }
+#blog-editor h2 { font-size:18px; font-weight:700; margin:16px 0 6px; color:var(--navy); border-bottom:1px solid var(--bdr); padding-bottom:4px; }
+#blog-editor h3 { font-size:15px; font-weight:600; margin:12px 0 5px; color:var(--ink); }
+#blog-editor p  { margin-bottom:10px; }
+#blog-editor a  { color:var(--teal); text-decoration:underline; }
+#blog-editor ul,#blog-editor ol { padding-left:22px; margin-bottom:10px; }
+#blog-editor li { margin-bottom:4px; }
+#blog-editor blockquote { border-left:3px solid var(--teal-b); padding:6px 14px; color:var(--ink2); font-style:italic; margin:10px 0; background:var(--surf2); border-radius:0 6px 6px 0; }
+#blog-editor strong { font-weight:700; }
+#blog-editor em { font-style:italic; }
+#blog-editor img { max-width:100%; border-radius:6px; margin:8px 0; }
+#blog-editor [contenteditable]:empty:before { content:attr(placeholder); color:var(--ink3); }
+
+/* word count */
+.editor-footer {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:5px 10px; background:var(--surf2);
+  border:1px solid var(--bdr); border-top:none;
+  border-radius:0 0 8px 8px; font-size:10px;
+  color:var(--ink3); font-family:var(--mono); margin-top:-1px;
+}
 
 @media(max-width:900px){
-  #edit-modal .modal { width: calc(100vw - 12px); }
-  #quill-editor { min-height: 240px; }
-  .ql-editor { min-height: 220px; }
+  #edit-modal .modal { width:calc(100vw - 12px); }
+  #blog-editor { min-height:240px; max-height:340px; padding:14px; }
 }
 </style>
 
@@ -5257,26 +5801,37 @@ function stripHtml(html) {
       <div class="edit-tab-pane active" id="edit-pane-content">
         <div class="fg" style="margin-bottom:0">
           <label class="lbl">Post Title</label>
-          <input class="inp" id="edit-post-title" type="text" placeholder="Post title...">
+          <input class="inp" id="edit-post-title" type="text" placeholder="Post title..." style="font-size:15px;font-weight:600;padding:10px 14px;">
         </div>
         <div class="fg" style="margin-bottom:0">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
             <label class="lbl" style="margin-bottom:0">Content</label>
-            <div class="editor-view-toggle">
-              <button class="evt-btn active" id="btn-visual" onclick="setEditorMode('visual')">✏️ Visual</button>
-              <button class="evt-btn" id="btn-html" onclick="setEditorMode('html')">🔤 HTML</button>
-            </div>
+            <span id="edit-char-count" style="font-size:10px;color:var(--ink3);font-family:var(--mono)">0 words</span>
           </div>
-          <!-- Quill WYSIWYG -->
-          <div id="quill-wrap">
-            <div id="quill-editor"></div>
+          <!-- Format toolbar -->
+          <div class="fmt-bar">
+            <select class="fmt-select" onchange="fmtBlock(this.value);this.value='p'" title="Text style">
+              <option value="p">Paragraph</option>
+              <option value="h2">Heading 2</option>
+              <option value="h3">Heading 3</option>
+              <option value="h4">Heading 4</option>
+            </select>
+            <div class="fmt-sep"></div>
+            <button class="fmt-btn" onclick="fmtExec('bold')" title="Bold"><b>B</b></button>
+            <button class="fmt-btn" onclick="fmtExec('italic')" title="Italic"><i>I</i></button>
+            <button class="fmt-btn" onclick="fmtExec('underline')" title="Underline"><u>U</u></button>
+            <div class="fmt-sep"></div>
+            <button class="fmt-btn" onclick="fmtExec('insertUnorderedList')" title="Bullet list">• List</button>
+            <button class="fmt-btn" onclick="fmtExec('insertOrderedList')" title="Numbered list">1. List</button>
+            <div class="fmt-sep"></div>
+            <button class="fmt-btn" onclick="fmtLink()" title="Insert link">🔗 Link</button>
+            <button class="fmt-btn" onclick="fmtExec('removeFormat')" title="Clear formatting">✕ Clear</button>
           </div>
-          <!-- Raw HTML fallback -->
-          <textarea id="edit-raw-html" placeholder="Raw HTML content..."></textarea>
-          <!-- Meta bar -->
-          <div class="editor-meta-bar">
-            <span id="edit-char-count">0 words</span>
-            <span style="color:var(--teal)">💡 Edit visually — saves as clean HTML to WordPress</span>
+          <!-- Contenteditable editor -->
+          <div id="blog-editor" contenteditable="true" spellcheck="true" oninput="updateEditCharCount()"></div>
+          <div class="editor-footer">
+            <span id="edit-word-count">0 words</span>
+            <span>Click anywhere to edit · Select text for formatting</span>
           </div>
         </div>
       </div>
@@ -5372,64 +5927,159 @@ function updateMetaCount() {
   el.style.color = n >= 120 && n <= 160 ? 'var(--teal)' : 'var(--gold)';
 }
 
-function wrapEditSelection(before, after) { /* legacy no-op */ }
-function insertEditSnippet(text) { /* legacy no-op */ }
+// ══════════════════════════════════════════
+// SIMPLE VISUAL EDITOR
+// ══════════════════════════════════════════
+
+// Extract only clean readable content from styled WP HTML
+function extractEditableContent(html) {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, 'text/html');
+
+  // Remove style tags, script tags, link tags
+  doc.querySelectorAll('style, script, link').forEach(el => el.remove());
+
+  // Remove wrapper/hero/design divs but keep their text children
+  // Our blogs use .bsp-* classes for design — strip those wrappers
+  const designSelectors = [
+    '.bsp-hero', '.bsp-hero-img-wrap', '.bsp-hero-tag',
+    '.bsp-hero-caption', '.bsp-article-meta', '.bsp-author-row',
+    '.bsp-toc', '.bsp-cta', '.bsp-faq-schema',
+    '.bsp-related', '.bsp-footer-cta', '.bsp-breadcrumb',
+    '[class*="bsp-hero"]', '[class*="bsp-cta"]',
+    'figure.wp-block-image', '.wp-block-cover'
+  ];
+  designSelectors.forEach(sel => {
+    doc.querySelectorAll(sel).forEach(el => el.remove());
+  });
+
+  // Find the main article/content area
+  // Try common WP content wrappers first
+  let contentEl =
+    doc.querySelector('.bsp-article') ||
+    doc.querySelector('.entry-content') ||
+    doc.querySelector('article') ||
+    doc.querySelector('.post-content') ||
+    doc.body;
+
+  // Get only meaningful content tags
+  const allowed = ['H1','H2','H3','H4','P','UL','OL','LI','BLOCKQUOTE','STRONG','EM','A','TABLE','THEAD','TBODY','TR','TH','TD'];
+  const result = [];
+
+  contentEl.childNodes.forEach(node => {
+    if (node.nodeType === 1) { // element
+      if (allowed.includes(node.tagName)) {
+        // Clean inline styles from these elements
+        node.removeAttribute('style');
+        node.removeAttribute('class');
+        node.querySelectorAll('*').forEach(child => {
+          child.removeAttribute('style');
+          child.removeAttribute('class');
+        });
+        const txt = node.innerText || node.textContent || '';
+        if (txt.trim()) result.push(node.outerHTML);
+      } else if (node.tagName === 'DIV' || node.tagName === 'SECTION') {
+        // Recurse into divs — extract allowed children
+        node.querySelectorAll(allowed.map(t=>t.toLowerCase()).join(',')).forEach(child => {
+          if (!child.closest('.bsp-hero, .bsp-cta, .bsp-toc')) {
+            child.removeAttribute('style');
+            child.removeAttribute('class');
+            child.querySelectorAll('*').forEach(c => { c.removeAttribute('style'); c.removeAttribute('class'); });
+            const txt = child.innerText || child.textContent || '';
+            if (txt.trim()) result.push(child.outerHTML);
+          }
+        });
+      }
+    }
+  });
+
+  return result.join('\n') || html; // fallback to raw if extraction yields nothing
+}
+
+// Stitch edited content back into original HTML
+function stitchEditedContent(originalHTML, editedHTML) {
+  if (!originalHTML) return editedHTML;
+
+  const parser = new DOMParser();
+  const orig = parser.parseFromString(originalHTML, 'text/html');
+
+  // Find the content container in original
+  const contentEl =
+    orig.querySelector('.bsp-article') ||
+    orig.querySelector('.entry-content') ||
+    orig.querySelector('article') ||
+    orig.querySelector('.post-content');
+
+  if (!contentEl) {
+    // Can't find container — just append edited content after styles
+    // Find end of style block and insert after
+    const styleEnd = originalHTML.lastIndexOf('</style>');
+    if (styleEnd > -1) {
+      return originalHTML.substring(0, styleEnd + 8) + '\n' + editedHTML;
+    }
+    return editedHTML;
+  }
+
+  // Replace content inside the container with edited HTML
+  // Keep non-text elements (hero image, author row etc.) at top
+  const heroEl = contentEl.querySelector('.bsp-hero');
+  const authorEl = contentEl.querySelector('.bsp-author-row, .bsp-article-meta');
+
+  let prefix = '';
+  if (heroEl) prefix += heroEl.outerHTML;
+  if (authorEl) prefix += authorEl.outerHTML;
+
+  contentEl.innerHTML = prefix + editedHTML;
+
+  // Serialize back — get full html
+  return orig.body.innerHTML;
+}
 
 function updateEditCharCount() {
-  let text = '';
-  if (window.quillEditor) {
-    text = quillEditor.getText();
-  } else {
-    const raw = document.getElementById('edit-raw-html');
-    text = raw ? raw.value.replace(/<[^>]+>/g,'') : '';
-  }
+  const editor = document.getElementById('blog-editor');
+  if (!editor) return;
+  const text = editor.innerText || '';
   const words = text.trim() ? text.trim().split(/\s+/).length : 0;
-  const el = document.getElementById('edit-char-count');
-  if(el) el.textContent = `${words.toLocaleString()} words`;
-}
-
-// ── EDITOR MODE TOGGLE ──
-let editorMode = 'visual'; // 'visual' | 'html'
-
-function setEditorMode(mode) {
-  editorMode = mode;
-  const qw = document.getElementById('quill-wrap');
-  const rh = document.getElementById('edit-raw-html');
-  const bv = document.getElementById('btn-visual');
-  const bh = document.getElementById('btn-html');
-
-  if (mode === 'visual') {
-    // Sync raw → quill
-    if (rh && window.quillEditor) {
-      quillEditor.clipboard.dangerouslyPasteHTML(rh.value);
-    }
-    qw.style.display = 'block';
-    rh.style.display = 'none';
-    bv.classList.add('active'); bh.classList.remove('active');
-  } else {
-    // Sync quill → raw HTML
-    if (window.quillEditor) {
-      rh.value = getQuillHTML();
-    }
-    qw.style.display = 'none';
-    rh.style.display = 'block';
-    bv.classList.remove('active'); bh.classList.add('active');
-  }
-  updateEditCharCount();
-}
-
-function getQuillHTML() {
-  if (!window.quillEditor) return '';
-  // Get semantic HTML from Quill
-  return document.querySelector('#quill-editor .ql-editor').innerHTML;
+  const wc  = document.getElementById('edit-char-count');
+  const wc2 = document.getElementById('edit-word-count');
+  if (wc)  wc.textContent  = `${words.toLocaleString()} words`;
+  if (wc2) wc2.textContent = `${words.toLocaleString()} words`;
 }
 
 function getEditContent() {
-  if (editorMode === 'visual') {
-    return getQuillHTML();
+  const editor = document.getElementById('blog-editor');
+  const editedHTML = editor ? editor.innerHTML : '';
+  // Stitch back into original design HTML
+  return stitchEditedContent(window._editOriginalHTML || '', editedHTML);
+}
+
+function fmtExec(cmd) {
+  document.getElementById('blog-editor').focus();
+  document.execCommand(cmd, false, null);
+  updateEditCharCount();
+}
+function fmtBlock(tag) {
+  document.getElementById('blog-editor').focus();
+  document.execCommand('formatBlock', false, tag);
+}
+function fmtLink() {
+  const sel = window.getSelection().toString();
+  const url = prompt('Enter link URL:', 'https://');
+  if (!url) return;
+  document.getElementById('blog-editor').focus();
+  if (sel) {
+    document.execCommand('createLink', false, url);
   } else {
-    return document.getElementById('edit-raw-html').value;
+    document.execCommand('insertHTML', false, `<a href="${url}">${url}</a>`);
   }
+}
+
+function closeEditModal() {
+  document.getElementById('edit-modal').classList.remove('open');
+  const editor = document.getElementById('blog-editor');
+  if (editor) editor.innerHTML = '';
+  window._editOriginalHTML = '';
+  editingHistIdx = null;
 }
 
 function previewEditedPost() {
@@ -5438,44 +6088,11 @@ function previewEditedPost() {
   else { toast('No live URL', 'info', 'Post needs to be published first'); }
 }
 
-// ── QUILL INIT ──
-function initQuillEditor() {
-  if (window.quillEditor) return; // already inited
-  if (typeof Quill === 'undefined') {
-    // Load Quill dynamically
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = 'https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.snow.min.css';
-    document.head.appendChild(link);
-
-    const script = document.createElement('script');
-    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.min.js';
-    script.onload = () => createQuillInstance();
-    document.head.appendChild(script);
-  } else {
-    createQuillInstance();
-  }
-}
-
-function createQuillInstance() {
-  if (window.quillEditor) return;
-  window.quillEditor = new Quill('#quill-editor', {
-    theme: 'snow',
-    modules: {
-      toolbar: [
-        [{ header: [1, 2, 3, false] }],
-        ['bold', 'italic', 'underline', 'strike'],
-        [{ color: [] }, { background: [] }],
-        [{ list: 'ordered' }, { list: 'bullet' }],
-        ['blockquote', 'link'],
-        [{ align: [] }],
-        ['clean']
-      ]
-    },
-    placeholder: 'Start editing your post...'
-  });
-  quillEditor.on('text-change', updateEditCharCount);
-}
+// no-ops for any legacy calls
+function wrapEditSelection() {}
+function insertEditSnippet() {}
+function setEditorMode() {}
+function initQuillEditor() {}
 
 
 </script>
