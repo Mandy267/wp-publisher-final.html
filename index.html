@@ -6282,59 +6282,55 @@ const GSC_EXPIRY_KEY = 'wpb_gsc_expiry';
 
 let gscKwData = [];
 
-function gscBase64url(arr){ return btoa(String.fromCharCode(...arr)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,''); }
-async function gscCodeVerifier(){ const a=new Uint8Array(64); crypto.getRandomValues(a); return gscBase64url(a); }
-async function gscCodeChallenge(v){ const e=new TextEncoder().encode(v); const h=await crypto.subtle.digest('SHA-256',e); return gscBase64url(new Uint8Array(h)); }
-
-async function gscConnect(){
+// ── Implicit token flow via popup — no client secret or redirect URI setup needed ──
+function gscConnect(){
   const btn = document.getElementById('gsc-connect-btn');
   btn.classList.add('loading'); btn.disabled=true;
-  const verifier  = await gscCodeVerifier();
-  const challenge = await gscCodeChallenge(verifier);
-  const state     = gscBase64url(crypto.getRandomValues(new Uint8Array(16)));
-  sessionStorage.setItem('gsc_verifier', verifier);
-  sessionStorage.setItem('gsc_state',    state);
-  const p = new URLSearchParams({
-    client_id: GSC_CLIENT_ID, redirect_uri: GSC_REDIRECT,
-    response_type:'code', scope: GSC_SCOPE,
-    code_challenge: challenge, code_challenge_method:'S256',
-    state, access_type:'offline', prompt:'consent'
-  });
-  window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?${p}`;
-}
 
-async function gscHandleCallback(){
-  const p     = new URLSearchParams(window.location.search);
-  const code  = p.get('code');
-  const state = p.get('state');
-  if(p.get('error')){ toast('GSC auth cancelled','info'); gscCleanUrl(); return; }
-  if(!code) return;
-  if(state !== sessionStorage.getItem('gsc_state')){ toast('GSC state mismatch','err'); gscCleanUrl(); return; }
-  try {
-    const res = await fetch('https://oauth2.googleapis.com/token',{
-      method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'},
-      body: new URLSearchParams({
-        client_id: GSC_CLIENT_ID, code,
-        code_verifier: sessionStorage.getItem('gsc_verifier'),
-        grant_type:'authorization_code', redirect_uri: GSC_REDIRECT
-      })
-    });
-    const data = await res.json();
-    if(data.error) throw new Error(data.error_description||data.error);
-    localStorage.setItem(GSC_TOKEN_KEY,  data.access_token);
-    localStorage.setItem(GSC_EXPIRY_KEY, Date.now()+(data.expires_in*1000));
-    if(data.refresh_token) localStorage.setItem('wpb_gsc_refresh', data.refresh_token);
-    gscCleanUrl();
-    gscUpdateStatus(true);
-    await gscLoadSites();
-    toast('✅ GSC Connected!','ok','Keyword opportunities ready to fetch');
-  } catch(err){ toast('GSC failed: '+err.message,'err'); gscCleanUrl(); }
+  const params = new URLSearchParams({
+    client_id:     GSC_CLIENT_ID,
+    redirect_uri:  'https://mandy267.github.io/wp-publisher-final.html',
+    response_type: 'token',
+    scope:         GSC_SCOPE,
+    prompt:        'consent'
+  });
+
+  const popup = window.open(
+    `https://accounts.google.com/o/oauth2/v2/auth?${params}`,
+    'gsc_auth', 'width=500,height=650,scrollbars=yes,resizable=yes'
+  );
+
+  const timer = setInterval(()=>{
+    try {
+      if(!popup || popup.closed){
+        clearInterval(timer);
+        btn.classList.remove('loading'); btn.disabled=false;
+        return;
+      }
+      const hash = popup.location.hash;
+      if(hash && hash.includes('access_token')){
+        clearInterval(timer);
+        popup.close();
+        const p     = new URLSearchParams(hash.substring(1));
+        const token = p.get('access_token');
+        const exp   = parseInt(p.get('expires_in')||'3600');
+        if(token){
+          localStorage.setItem(GSC_TOKEN_KEY,  token);
+          localStorage.setItem(GSC_EXPIRY_KEY, Date.now()+(exp*1000));
+          btn.classList.remove('loading'); btn.disabled=false;
+          gscUpdateStatus(true);
+          gscLoadSites();
+          toast('✅ GSC Connected!','ok','Now fetch your keyword opportunities');
+        }
+      }
+    } catch(e){ /* still on google domain — keep waiting */ }
+  }, 500);
+
+  setTimeout(()=>{ clearInterval(timer); try{ if(!popup.closed) popup.close(); }catch(e){} btn.classList.remove('loading'); btn.disabled=false; }, 180000);
 }
 
 function gscCleanUrl(){
   window.history.replaceState({}, document.title, window.location.pathname);
-  sessionStorage.removeItem('gsc_verifier');
-  sessionStorage.removeItem('gsc_state');
 }
 
 function gscGetToken(){
@@ -6491,10 +6487,7 @@ function gscInit(){
   if(token) gscLoadSites();
 }
 
-// ── Check for OAuth callback on page load ──
-window.addEventListener('DOMContentLoaded', ()=>{
-  if(window.location.search.includes('code=')) gscHandleCallback();
-});
+// ── Check GSC on tab open only ──
 
 // no-ops for any legacy calls
 function wrapEditSelection() {}
