@@ -662,6 +662,7 @@ MBBS certified doctor" style="font-size:12px;line-height:1.6"></textarea>
       <div class="rtab" onclick="switchTab('queue',this)">📅 Queue</div>
       <div class="rtab" onclick="switchTab('schema',this)">🧬 Schema</div>
       <div class="rtab" onclick="switchTab('links',this)">🔗 Links</div>
+      <div class="rtab" onclick="switchTab('gscdata',this)">📊 GSC Data</div>
     </div>
 
     <!-- SEO PANE -->
@@ -958,6 +959,40 @@ MBBS certified doctor" style="font-size:12px;line-height:1.6"></textarea>
       </div>
     </div>
 
+    <!-- GSC DATA PANE -->
+    <div class="rpane" id="pane-gscdata" style="overflow-y:auto;gap:10px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+        <div style="font-size:13px;font-weight:600;color:var(--ink)">📊 GSC Keyword Data</div>
+        <button class="btn btn-primary" style="font-size:11px;padding:6px 12px" id="blog-gsc-fetch-btn" onclick="blogGscFetch()">⚡ Fetch</button>
+      </div>
+      <!-- Auth status -->
+      <div id="blog-gsc-status" style="background:var(--surf2);border:1px solid var(--bdr);border-radius:6px;padding:8px 12px;font-size:11px;color:var(--ink3)">
+        🔒 Not connected — <a href="#" onclick="gscConnect();return false;" style="color:var(--teal)">Connect GSC</a> first
+      </div>
+      <!-- Filters -->
+      <div id="blog-gsc-filters" style="display:none;flex-direction:column;gap:6px">
+        <select class="inp" id="blog-gsc-site" style="font-size:11px"></select>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+          <select class="inp" id="blog-gsc-days" style="font-size:11px">
+            <option value="28">Last 28 days</option>
+            <option value="90" selected>Last 90 days</option>
+            <option value="180">Last 6 months</option>
+          </select>
+          <select class="inp" id="blog-gsc-filter" style="font-size:11px">
+            <option value="all">All Keywords</option>
+            <option value="quick-wins">Quick Wins (4-20)</option>
+            <option value="low-ctr">Low CTR</option>
+            <option value="untapped">Untapped</option>
+          </select>
+        </div>
+      </div>
+      <!-- Results -->
+      <div id="blog-gsc-results" style="display:none;flex-direction:column;gap:6px">
+        <div style="font-size:10px;color:var(--ink3);font-family:var(--mono)">Click any keyword to auto-fill SEO fields →</div>
+        <div id="blog-gsc-list" style="display:flex;flex-direction:column;gap:4px;max-height:420px;overflow-y:auto"></div>
+      </div>
+    </div>
+
     </div>
   </div>
 </div>
@@ -1077,6 +1112,36 @@ MBBS certified doctor" style="font-size:12px;line-height:1.6"></textarea>
     <div class="rtabs">
       <div class="rtab active" onclick="switchPageTab('preview',this)">Preview</div>
       <div class="rtab" onclick="switchPageTab('history',this)">History</div>
+      <div class="rtab" onclick="switchPageTab('gscdata',this)">📊 GSC Data</div>
+    </div>
+    <div class="rpane" id="page-pane-gscdata" style="overflow-y:auto;gap:10px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+        <div style="font-size:13px;font-weight:600;color:var(--ink)">📊 GSC Keyword Data</div>
+        <button class="btn btn-primary" style="font-size:11px;padding:6px 12px" onclick="blogGscFetch('page')">⚡ Fetch</button>
+      </div>
+      <div id="page-gsc-status" style="background:var(--surf2);border:1px solid var(--bdr);border-radius:6px;padding:8px 12px;font-size:11px;color:var(--ink3)">
+        🔒 Not connected — <a href="#" onclick="gscConnect();return false;" style="color:var(--teal)">Connect GSC</a> first
+      </div>
+      <div id="page-gsc-filters" style="display:none;flex-direction:column;gap:6px">
+        <select class="inp" id="page-gsc-site" style="font-size:11px"></select>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+          <select class="inp" id="page-gsc-days" style="font-size:11px">
+            <option value="28">Last 28 days</option>
+            <option value="90" selected>Last 90 days</option>
+            <option value="180">Last 6 months</option>
+          </select>
+          <select class="inp" id="page-gsc-filter" style="font-size:11px">
+            <option value="all">All Keywords</option>
+            <option value="quick-wins">Quick Wins (4-20)</option>
+            <option value="low-ctr">Low CTR</option>
+            <option value="untapped">Untapped</option>
+          </select>
+        </div>
+      </div>
+      <div id="page-gsc-results" style="display:none;flex-direction:column;gap:6px">
+        <div style="font-size:10px;color:var(--ink3);font-family:var(--mono)">Click any keyword to auto-fill page title and target keyword →</div>
+        <div id="page-gsc-list" style="display:flex;flex-direction:column;gap:4px;max-height:420px;overflow-y:auto"></div>
+      </div>
     </div>
     <div class="rpane active" id="page-pane-preview">
       <div style="font-size:12px;font-weight:600;color:var(--ink2);margin-bottom:8px">Page Preview</div>
@@ -1183,7 +1248,7 @@ MBBS certified doctor" style="font-size:12px;line-height:1.6"></textarea>
         <div style="font-weight:600;margin-bottom:6px">No calendar yet</div>
         <div style="font-size:12px">Fill in your niche details and find keywords first</div>
       </div>
-      <div id="ap-cal-toolbar" style="display:none;padding:8px 12px;border-bottom:1px solid var(--bdr);background:var(--surf2);display:flex;gap:6px;flex-wrap:wrap">
+      <div id="ap-cal-toolbar" style="padding:8px 12px;border-bottom:1px solid var(--bdr);background:var(--surf2);display:none;gap:6px;flex-wrap:wrap;align-items:center">
         <button class="btn btn-ghost" style="font-size:10px;padding:3px 10px;height:26px;color:#dc2626;border-color:#FECACA" onclick="apClearFailed()">🗑 Clear Failed</button>
         <button class="btn btn-ghost" style="font-size:10px;padding:3px 10px;height:26px;color:#dc2626;border-color:#FECACA" onclick="apClearDone()">🗑 Clear Done</button>
         <button class="btn btn-ghost" style="font-size:10px;padding:3px 10px;height:26px;color:#dc2626;border-color:#FECACA" onclick="apClearAll()">🗑 Clear All</button>
@@ -1438,6 +1503,7 @@ function switchTab(id,el){
   document.querySelectorAll('.rpane').forEach(p=>p.classList.remove('active'));
   el.classList.add('active');
   document.getElementById('pane-'+id).classList.add('active');
+  if(id==='gscdata') blogGscInit('blog');
 }
 
 // ═══════════════
@@ -4259,7 +4325,7 @@ function renderApCalendar(){
     return;
   }
   empty.style.display='none'; list.style.display='flex';
-  if(toolbar) toolbar.style.display='flex';
+  if(toolbar){ toolbar.style.display='flex'; }
   if(count){
     const pending = apCalendar.filter(i=>i.status==='pending').length;
     const done    = apCalendar.filter(i=>i.status==='done').length;
@@ -4456,10 +4522,14 @@ Requirements:
 
   } catch(err){
     apCalendar[idx].status = 'failed';
-    apCalendar[idx].error  = err.message;
+    let errMsg = err.message;
+    if(errMsg.includes('not allowed to create posts') || errMsg.includes('not allowed')){
+      errMsg = 'WordPress permissions error. Go to WordPress → Users → Your Profile → Application Passwords → create one and use it as your password in WP Publisher site settings.';
+    }
+    apCalendar[idx].error  = errMsg;
     apSaveCal(); renderApCalendar();
-    apUpdateProgress(`❌ Failed: ${err.message}`);
-    toast('Auto-Pilot failed','err', err.message);
+    apUpdateProgress(`❌ Failed: ${errMsg}`);
+    toast('Auto-Pilot failed','err', errMsg);
   }
 }
 
@@ -4711,6 +4781,7 @@ function switchPageTab(id,el){
   document.querySelectorAll('#mode-pages .rpane').forEach(p=>p.classList.remove('active'));
   el.classList.add('active');
   document.getElementById('page-pane-'+id).classList.add('active');
+  if(id==='gscdata') blogGscInit('page');
 }
 
 function selectPageType(type){
@@ -6682,7 +6753,166 @@ function gscInit(){
   if(token) gscLoadSites();
 }
 
-// ── Check GSC on tab open only ──
+// ── GSC Data in Blog + Pages tabs ──
+async function blogGscFetch(mode='blog'){
+  const prefix  = mode==='blog' ? 'blog' : 'page';
+  const token   = gscGetToken();
+  const statusEl  = document.getElementById(`${prefix}-gsc-status`);
+  const filtersEl = document.getElementById(`${prefix}-gsc-filters`);
+  const resultsEl = document.getElementById(`${prefix}-gsc-results`);
+
+  if(!token){
+    statusEl.innerHTML = '🔒 Not connected — <a href="#" onclick="gscConnect();return false;" style="color:var(--teal)">Connect GSC</a> first';
+    statusEl.style.display='';
+    if(filtersEl) filtersEl.style.display='none';
+    return;
+  }
+
+  // Show connected status + load sites if needed
+  statusEl.innerHTML = '✅ Connected';
+  statusEl.style.background='var(--teal-l)';
+  statusEl.style.borderColor='var(--teal-b)';
+  statusEl.style.color='var(--teal)';
+  if(filtersEl) filtersEl.style.display='flex';
+
+  // Load sites into dropdown
+  const siteSelect = document.getElementById(`${prefix}-gsc-site`);
+  if(siteSelect && !siteSelect.options.length){
+    try {
+      const res  = await fetch('https://www.googleapis.com/webmasters/v3/sites',{ headers:{'Authorization':`Bearer ${token}`} });
+      const data = await res.json();
+      const list = data.siteEntry||[];
+      siteSelect.innerHTML = list.map(s=>`<option value="${s.siteUrl}">${s.siteUrl}</option>`).join('');
+      // Auto-select active site
+      const active = getActive();
+      if(active){ const m=list.find(s=>s.siteUrl.includes(active.url.replace(/https?:\/\//,''))); if(m) siteSelect.value=m.siteUrl; }
+    } catch(e){}
+  }
+
+  const siteUrl    = siteSelect?.value;
+  if(!siteUrl) return;
+
+  const days       = parseInt(document.getElementById(`${prefix}-gsc-days`)?.value||'90');
+  const filterType = document.getElementById(`${prefix}-gsc-filter`)?.value||'all';
+  const btn        = mode==='blog' ? document.getElementById('blog-gsc-fetch-btn') : null;
+  if(btn){ btn.classList.add('loading'); btn.disabled=true; }
+
+  const end   = new Date();
+  const start = new Date(end - days*864e5);
+  const fmt   = d => d.toISOString().split('T')[0];
+
+  try {
+    const res = await fetch(
+      `https://www.googleapis.com/webmasters/v3/sites/${encodeURIComponent(siteUrl)}/searchAnalytics/query`,{
+      method:'POST',
+      headers:{'Authorization':`Bearer ${token}`,'Content-Type':'application/json'},
+      body: JSON.stringify({ startDate:fmt(start), endDate:fmt(end), dimensions:['query'], rowLimit:500, dataState:'final' })
+    });
+    const data = await res.json();
+    if(data.error) throw new Error(data.error.message);
+
+    let rows = data.rows||[];
+
+    // Apply filter
+    if(filterType==='quick-wins') rows=rows.filter(r=>r.position>=4&&r.position<=20&&r.impressions>10);
+    else if(filterType==='low-ctr') rows=rows.filter(r=>r.impressions>50&&r.ctr<0.03);
+    else if(filterType==='untapped') rows=rows.filter(r=>r.impressions>20&&r.clicks===0);
+    else rows=rows.filter(r=>r.impressions>5);
+
+    // Sort by opportunity score
+    rows.sort((a,b)=>(b.impressions*(1-b.ctr)/Math.max(b.position,1))-(a.impressions*(1-a.ctr)/Math.max(a.position,1)));
+    rows = rows.slice(0,80);
+
+    // Render
+    blogGscRender(rows, mode);
+    if(resultsEl) resultsEl.style.display='flex';
+    toast(`📊 ${rows.length} GSC keywords loaded`,'ok');
+
+  } catch(err){
+    toast('GSC fetch failed','err',err.message);
+  } finally {
+    if(btn){ btn.classList.remove('loading'); btn.disabled=false; }
+  }
+}
+
+function blogGscRender(rows, mode){
+  const listId = mode==='blog' ? 'blog-gsc-list' : 'page-gsc-list';
+  const el = document.getElementById(listId);
+  if(!el) return;
+
+  el.innerHTML = rows.map(r=>{
+    const opp = r.position>=4&&r.position<=20 ? '⚡' : r.ctr<0.03&&r.impressions>50 ? '👁' : '🌱';
+    const kw  = r.keys[0];
+    const pos = r.position.toFixed(1);
+    const imp = Number(r.impressions).toLocaleString();
+    const ctr = (r.ctr*100).toFixed(1);
+
+    return `<div onclick="blogGscApply('${kw.replace(/'/g,"\\'")}','${mode}')"
+      style="padding:8px 10px;border:1px solid var(--bdr);border-radius:6px;cursor:pointer;transition:all .12s;background:var(--surf)"
+      onmouseover="this.style.background='var(--teal-l)';this.style.borderColor='var(--teal-b)'"
+      onmouseout="this.style.background='var(--surf)';this.style.borderColor='var(--bdr)'">
+      <div style="font-size:12px;font-weight:600;color:var(--ink);margin-bottom:4px">${opp} ${kw}</div>
+      <div style="display:flex;gap:10px;font-size:10px;color:var(--ink3);font-family:var(--mono)">
+        <span>📍 ${pos}</span>
+        <span>👁 ${imp}</span>
+        <span>CTR ${ctr}%</span>
+        <span>🖱 ${r.clicks}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function blogGscApply(kw, mode){
+  if(mode==='blog'){
+    // Auto-fill blog SEO fields
+    const kwEl   = document.getElementById('f-kw');
+    const titleEl = document.getElementById('f-title');
+    const seoTEl  = document.getElementById('f-seo-title');
+    const metaEl  = document.getElementById('f-meta');
+
+    if(kwEl)   { kwEl.value = kw; kwEl.dispatchEvent(new Event('input')); }
+    if(!titleEl?.value && titleEl) titleEl.value = kw.charAt(0).toUpperCase()+kw.slice(1);
+    if(seoTEl && !seoTEl.value) seoTEl.value = kw.charAt(0).toUpperCase()+kw.slice(1);
+    if(metaEl && !metaEl.value) metaEl.value = `Learn about ${kw} — expert guide with tips, costs, and what to expect.`;
+
+    toast(`✅ Applied "${kw}" to SEO fields`,'ok','Adjust title and meta as needed');
+    // Switch to SEO tab to show filled fields
+    switchTab('seo', document.querySelector('.rtab'));
+
+  } else {
+    // Auto-fill page title/keyword
+    const pgTitle = document.getElementById('pg-title');
+    const pgKw    = document.getElementById('pg-kw') || document.getElementById('f-kw');
+    if(pgTitle && !pgTitle.value) pgTitle.value = kw.charAt(0).toUpperCase()+kw.slice(1);
+    if(pgKw) pgKw.value = kw;
+    toast(`✅ Applied "${kw}" to page`,'ok');
+  }
+}
+
+// Auto-init GSC status when GSC tabs are opened in blog/pages
+function blogGscInit(mode){
+  const prefix   = mode==='blog' ? 'blog' : 'page';
+  const token    = gscGetToken();
+  const statusEl = document.getElementById(`${prefix}-gsc-status`);
+  const filtersEl = document.getElementById(`${prefix}-gsc-filters`);
+  if(!statusEl) return;
+  if(token){
+    statusEl.innerHTML='✅ Connected — click Fetch to load keywords';
+    statusEl.style.background='var(--teal-l)';
+    statusEl.style.borderColor='var(--teal-b)';
+    statusEl.style.color='var(--teal)';
+    if(filtersEl) filtersEl.style.display='flex';
+    // Auto-load sites into dropdown
+    blogGscFetch(mode);
+  } else {
+    statusEl.innerHTML='🔒 Not connected — <a href="#" onclick="gscConnect();return false;" style="color:var(--teal)">Connect GSC</a> in Auto-Pilot tab first';
+    statusEl.style.background='var(--surf2)';
+    statusEl.style.borderColor='var(--bdr)';
+    statusEl.style.color='var(--ink3)';
+  }
+}
+
+
 
 // no-ops for any legacy calls
 function wrapEditSelection() {}
