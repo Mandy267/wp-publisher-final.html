@@ -1172,6 +1172,7 @@ MBBS certified doctor" style="font-size:12px;line-height:1.6"></textarea>
     <div class="rtabs">
       <div class="rtab active" onclick="switchApTab('calendar',this)">📅 Content Calendar</div>
       <div class="rtab" onclick="switchApTab('autopublish',this)">⚡ Auto-Publish</div>
+      <div class="rtab" onclick="switchApTab('gsc',this)">🔍 GSC Keywords</div>
       <div class="rtab" onclick="switchApTab('aphistory',this)">📋 History</div>
     </div>
 
@@ -1247,6 +1248,84 @@ MBBS certified doctor" style="font-size:12px;line-height:1.6"></textarea>
           <div class="card-hdr"><div class="card-hdr-title">🔄 Current Job</div></div>
           <div class="card-body" style="gap:8px" id="ap-progress-body">
             <div style="font-size:12px;color:var(--ink3)">No job running</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- GSC Keywords Pane -->
+    <div class="rpane" id="ap-pane-gsc">
+      <div style="display:flex;flex-direction:column;gap:14px;padding:4px 0">
+
+        <!-- Connect Card -->
+        <div class="card" style="margin:0" id="gsc-connect-card">
+          <div class="card-hdr"><div class="card-hdr-title">🔍 Google Search Console</div></div>
+          <div class="card-body" style="gap:10px">
+            <div style="font-size:12px;color:var(--ink2);line-height:1.7">
+              Connect your GSC to find <strong>real keyword opportunities</strong> — keywords you're already ranking for but not in top 3, high impression / low CTR terms, and untapped queries.
+            </div>
+            <div id="gsc-auth-status" style="background:var(--surf2);border:1.5px solid var(--bdr);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--ink3);display:flex;align-items:center;gap:8px">
+              <span style="font-size:16px">🔒</span>
+              <span>Not connected — click below to connect with Google</span>
+            </div>
+            <button class="btn btn-primary" id="gsc-connect-btn" onclick="gscConnect()" style="width:100%">
+              <span class="spin"></span><span class="lbl">🔗 Connect Google Search Console</span>
+            </button>
+            <button class="btn btn-ghost" id="gsc-disconnect-btn" onclick="gscDisconnect()" style="width:100%;display:none;color:#dc2626;border-color:#FECACA">
+              Disconnect GSC
+            </button>
+          </div>
+        </div>
+
+        <!-- Site + Date filters -->
+        <div class="card" style="margin:0" id="gsc-filters-card" style="display:none">
+          <div class="card-hdr"><div class="card-hdr-title">⚙️ Filter Keywords</div></div>
+          <div class="card-body" style="gap:10px">
+            <div class="fg" style="margin:0">
+              <label class="lbl">GSC Property (your site)</label>
+              <select class="inp" id="gsc-site-select">
+                <option value="">— Loading your sites... —</option>
+              </select>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+              <div class="fg" style="margin:0">
+                <label class="lbl">Date Range</label>
+                <select class="inp" id="gsc-date-range">
+                  <option value="28">Last 28 days</option>
+                  <option value="90" selected>Last 90 days</option>
+                  <option value="180">Last 6 months</option>
+                </select>
+              </div>
+              <div class="fg" style="margin:0">
+                <label class="lbl">Opportunity Type</label>
+                <select class="inp" id="gsc-filter-type">
+                  <option value="all">All Opportunities</option>
+                  <option value="quick-wins">Quick Wins (Pos 4-20)</option>
+                  <option value="low-ctr">Low CTR (High Impressions)</option>
+                  <option value="untapped">Untapped (0 clicks)</option>
+                </select>
+              </div>
+            </div>
+            <button class="btn btn-navy" onclick="gscFetchKeywords()" id="gsc-fetch-btn" style="width:100%">
+              <span class="spin"></span><span class="lbl">📊 Fetch Keyword Opportunities</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Results -->
+        <div class="card" style="margin:0" id="gsc-results-card" style="display:none">
+          <div class="card-hdr">
+            <div class="card-hdr-title">🎯 Keyword Opportunities</div>
+            <button class="btn btn-ghost" style="font-size:10px;padding:3px 10px" onclick="gscSelectAll()">Select All</button>
+          </div>
+          <div class="card-body" style="gap:0;padding:0">
+            <div id="gsc-kw-list" style="max-height:340px;overflow-y:auto"></div>
+            <div style="padding:12px;border-top:1px solid var(--bdr)">
+              <button class="btn btn-primary" onclick="gscAddToCalendar()" style="width:100%">
+                <span class="spin"></span><span class="lbl">📅 Add Selected to Content Calendar →</span>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -4015,6 +4094,7 @@ function switchApTab(id, el){
   document.querySelectorAll('#mode-autopilot .rpane').forEach(p=>p.classList.remove('active'));
   el.classList.add('active');
   document.getElementById('ap-pane-'+id).classList.add('active');
+  if(id==='gsc') gscInit();
 }
 
 // ── KEYWORD RESEARCH (Google Autocomplete via allorigins proxy) ──
@@ -6189,6 +6269,232 @@ function previewEditedPost() {
   if (h && h.link) { window.open(h.link, '_blank'); }
   else { toast('No live URL', 'info', 'Post needs to be published first'); }
 }
+
+// ══════════════════════════════════════════
+// GOOGLE SEARCH CONSOLE INTEGRATION
+// ══════════════════════════════════════════
+
+const GSC_CLIENT_ID  = '761734820860-1nogbqmm3l6t66qigohkh4o4c5bsrk1f.apps.googleusercontent.com';
+const GSC_REDIRECT   = window.location.href.split('?')[0].split('#')[0];
+const GSC_SCOPE      = 'https://www.googleapis.com/auth/webmasters.readonly';
+const GSC_TOKEN_KEY  = 'wpb_gsc_token';
+const GSC_EXPIRY_KEY = 'wpb_gsc_expiry';
+
+let gscKwData = [];
+
+function gscBase64url(arr){ return btoa(String.fromCharCode(...arr)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,''); }
+async function gscCodeVerifier(){ const a=new Uint8Array(64); crypto.getRandomValues(a); return gscBase64url(a); }
+async function gscCodeChallenge(v){ const e=new TextEncoder().encode(v); const h=await crypto.subtle.digest('SHA-256',e); return gscBase64url(new Uint8Array(h)); }
+
+async function gscConnect(){
+  const btn = document.getElementById('gsc-connect-btn');
+  btn.classList.add('loading'); btn.disabled=true;
+  const verifier  = await gscCodeVerifier();
+  const challenge = await gscCodeChallenge(verifier);
+  const state     = gscBase64url(crypto.getRandomValues(new Uint8Array(16)));
+  sessionStorage.setItem('gsc_verifier', verifier);
+  sessionStorage.setItem('gsc_state',    state);
+  const p = new URLSearchParams({
+    client_id: GSC_CLIENT_ID, redirect_uri: GSC_REDIRECT,
+    response_type:'code', scope: GSC_SCOPE,
+    code_challenge: challenge, code_challenge_method:'S256',
+    state, access_type:'offline', prompt:'consent'
+  });
+  window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?${p}`;
+}
+
+async function gscHandleCallback(){
+  const p     = new URLSearchParams(window.location.search);
+  const code  = p.get('code');
+  const state = p.get('state');
+  if(p.get('error')){ toast('GSC auth cancelled','info'); gscCleanUrl(); return; }
+  if(!code) return;
+  if(state !== sessionStorage.getItem('gsc_state')){ toast('GSC state mismatch','err'); gscCleanUrl(); return; }
+  try {
+    const res = await fetch('https://oauth2.googleapis.com/token',{
+      method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'},
+      body: new URLSearchParams({
+        client_id: GSC_CLIENT_ID, code,
+        code_verifier: sessionStorage.getItem('gsc_verifier'),
+        grant_type:'authorization_code', redirect_uri: GSC_REDIRECT
+      })
+    });
+    const data = await res.json();
+    if(data.error) throw new Error(data.error_description||data.error);
+    localStorage.setItem(GSC_TOKEN_KEY,  data.access_token);
+    localStorage.setItem(GSC_EXPIRY_KEY, Date.now()+(data.expires_in*1000));
+    if(data.refresh_token) localStorage.setItem('wpb_gsc_refresh', data.refresh_token);
+    gscCleanUrl();
+    gscUpdateStatus(true);
+    await gscLoadSites();
+    toast('✅ GSC Connected!','ok','Keyword opportunities ready to fetch');
+  } catch(err){ toast('GSC failed: '+err.message,'err'); gscCleanUrl(); }
+}
+
+function gscCleanUrl(){
+  window.history.replaceState({}, document.title, window.location.pathname);
+  sessionStorage.removeItem('gsc_verifier');
+  sessionStorage.removeItem('gsc_state');
+}
+
+function gscGetToken(){
+  const t = localStorage.getItem(GSC_TOKEN_KEY);
+  const e = parseInt(localStorage.getItem(GSC_EXPIRY_KEY)||'0');
+  return (!t || Date.now() > e) ? null : t;
+}
+
+function gscDisconnect(){
+  [GSC_TOKEN_KEY, GSC_EXPIRY_KEY,'wpb_gsc_refresh'].forEach(k=>localStorage.removeItem(k));
+  gscUpdateStatus(false);
+  toast('GSC disconnected','info');
+}
+
+function gscUpdateStatus(connected){
+  const s  = document.getElementById('gsc-auth-status');
+  const cb = document.getElementById('gsc-connect-btn');
+  const db = document.getElementById('gsc-disconnect-btn');
+  const fc = document.getElementById('gsc-filters-card');
+  if(!s) return;
+  if(connected){
+    s.innerHTML = '<span style="font-size:16px">✅</span><span style="color:var(--teal);font-weight:600">Connected to Google Search Console</span>';
+    s.style.background='var(--teal-l)'; s.style.borderColor='var(--teal-b)';
+    cb.style.display='none'; db.style.display='';
+    if(fc) fc.style.display='';
+  } else {
+    s.innerHTML = '<span style="font-size:16px">🔒</span><span>Not connected — click below to connect with Google</span>';
+    s.style.background='var(--surf2)'; s.style.borderColor='var(--bdr)';
+    cb.style.display=''; db.style.display='none';
+    if(fc) fc.style.display='none';
+  }
+}
+
+async function gscLoadSites(){
+  const token = gscGetToken(); if(!token) return;
+  try {
+    const res  = await fetch('https://www.googleapis.com/webmasters/v3/sites',{ headers:{'Authorization':`Bearer ${token}`} });
+    const data = await res.json();
+    const list = data.siteEntry||[];
+    const sel  = document.getElementById('gsc-site-select');
+    if(!sel) return;
+    sel.innerHTML = list.map(s=>`<option value="${s.siteUrl}">${s.siteUrl}</option>`).join('');
+    const active = getActive();
+    if(active){ const m = list.find(s=>s.siteUrl.includes(active.url.replace(/https?:\/\//,''))); if(m) sel.value=m.siteUrl; }
+    const fc = document.getElementById('gsc-filters-card');
+    if(fc) fc.style.display='';
+  } catch(e){ toast('Failed to load GSC sites','err',e.message); }
+}
+
+async function gscFetchKeywords(){
+  const token = gscGetToken(); if(!token){ toast('GSC not connected','err'); return; }
+  const siteUrl    = document.getElementById('gsc-site-select').value;
+  const days       = parseInt(document.getElementById('gsc-date-range').value);
+  const filterType = document.getElementById('gsc-filter-type').value;
+  if(!siteUrl){ toast('Select a GSC property','err'); return; }
+
+  const btn = document.getElementById('gsc-fetch-btn');
+  btn.classList.add('loading'); btn.disabled=true;
+
+  const end   = new Date();
+  const start = new Date(end - days*864e5);
+  const fmt   = d => d.toISOString().split('T')[0];
+
+  try {
+    const res = await fetch(`https://www.googleapis.com/webmasters/v3/sites/${encodeURIComponent(siteUrl)}/searchAnalytics/query`,{
+      method:'POST',
+      headers:{'Authorization':`Bearer ${token}`,'Content-Type':'application/json'},
+      body: JSON.stringify({ startDate:fmt(start), endDate:fmt(end), dimensions:['query'], rowLimit:200, dataState:'final' })
+    });
+    const data = await res.json();
+    if(data.error) throw new Error(data.error.message);
+
+    let rows = data.rows||[];
+    if(filterType==='quick-wins')  rows = rows.filter(r=>r.position>=4&&r.position<=20&&r.impressions>10);
+    else if(filterType==='low-ctr') rows = rows.filter(r=>r.impressions>50&&r.ctr<0.03);
+    else if(filterType==='untapped') rows = rows.filter(r=>r.impressions>20&&r.clicks===0);
+    else rows = rows.filter(r=>r.impressions>10);
+
+    rows.sort((a,b)=>((b.impressions*(1-b.ctr))/Math.max(b.position,1))-((a.impressions*(1-a.ctr))/Math.max(a.position,1)));
+    rows = rows.slice(0,60);
+
+    gscKwData = rows.map(r=>({
+      kw: r.keys[0], clicks:r.clicks, impressions:r.impressions,
+      ctr:(r.ctr*100).toFixed(1), position:r.position.toFixed(1), selected:true,
+      opportunity: r.position>=4&&r.position<=20?'quick-win':r.ctr<0.03&&r.impressions>50?'low-ctr':'untapped'
+    }));
+
+    renderGscKeywords();
+    document.getElementById('gsc-results-card').style.display='';
+    toast(`Found ${gscKwData.length} opportunities`,'ok');
+  } catch(err){ toast('GSC fetch failed','err',err.message); }
+  finally { btn.classList.remove('loading'); btn.disabled=false; }
+}
+
+function renderGscKeywords(){
+  document.getElementById('gsc-kw-list').innerHTML = gscKwData.map((k,i)=>`
+    <div class="ap-kw-item" onclick="this.querySelector('input').click()">
+      <input type="checkbox" ${k.selected?'checked':''} onchange="gscKwData[${i}].selected=this.checked" onclick="event.stopPropagation()">
+      <div style="flex:1;min-width:0">
+        <div class="ap-kw-label" style="margin-bottom:3px">${k.kw}</div>
+        <div style="display:flex;gap:8px;font-size:10px;color:var(--ink3);font-family:var(--mono)">
+          <span>📍 Pos ${k.position}</span>
+          <span>👁 ${Number(k.impressions).toLocaleString()}</span>
+          <span>🖱 ${k.clicks} clicks</span>
+          <span>CTR ${k.ctr}%</span>
+        </div>
+      </div>
+      <span class="ap-kw-intent ${k.opportunity==='quick-win'?'trans':k.opportunity==='low-ctr'?'info':'nav'}" style="flex-shrink:0">
+        ${k.opportunity==='quick-win'?'⚡ Quick Win':k.opportunity==='low-ctr'?'👁 Low CTR':'🌱 Untapped'}
+      </span>
+    </div>`).join('');
+}
+
+function gscSelectAll(){ gscKwData.forEach(k=>k.selected=true); document.querySelectorAll('#gsc-kw-list input').forEach(c=>c.checked=true); }
+
+async function gscAddToCalendar(){
+  const selected = gscKwData.filter(k=>k.selected);
+  if(!selected.length){ toast('Select at least one keyword','err'); return; }
+  const apiKey  = (localStorage.getItem('claude_api_key')||'').replace(/[^ -~]/g,'').trim();
+  const bizName = document.getElementById('ap-bizname').value.trim()||'the clinic';
+  const location= document.getElementById('ap-location').value.trim();
+  const tone    = document.getElementById('ap-tone').value;
+
+  let titles = [];
+  if(apiKey){
+    try {
+      const res = await fetch('https://api.anthropic.com/v1/messages',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+        body:JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:2000,
+          messages:[{role:'user',content:`Generate one SEO blog title per keyword for ${bizName} in ${location}. Return ONLY a JSON array. Keywords: ${selected.map(k=>k.kw).join(', ')}`}] })
+      });
+      const d = await res.json();
+      titles = JSON.parse((d.content?.[0]?.text||'[]').replace(/```json|```/g,'').trim());
+    } catch(e){ titles = selected.map(k=>k.kw); }
+  } else { titles = selected.map(k=>k.kw.charAt(0).toUpperCase()+k.kw.slice(1)); }
+
+  const startDay = apCalendar.length+1;
+  const today    = new Date();
+  apCalendar.push(...selected.map((k,i)=>({
+    id:Date.now()+i, day:startDay+i,
+    date:new Date(today.getTime()+(startDay-1+i)*864e5).toISOString().split('T')[0],
+    kw:k.kw, title:titles[i]||k.kw, intent:k.opportunity, source:'gsc',
+    status:'pending', postId:null, postLink:null, error:null
+  })));
+  apSaveCal(); renderApCalendar();
+  switchApTab('calendar', document.querySelector('#mode-autopilot .rtab'));
+  toast(`✅ Added ${selected.length} GSC keywords to calendar!`,'ok');
+}
+
+function gscInit(){
+  const token = gscGetToken();
+  gscUpdateStatus(!!token);
+  if(token) gscLoadSites();
+}
+
+// ── Check for OAuth callback on page load ──
+window.addEventListener('DOMContentLoaded', ()=>{
+  if(window.location.search.includes('code=')) gscHandleCallback();
+});
 
 // no-ops for any legacy calls
 function wrapEditSelection() {}
