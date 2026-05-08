@@ -1226,6 +1226,15 @@ MBBS certified doctor" style="font-size:12px;line-height:1.6"></textarea>
                 <option value="2500">~2,500 words (in-depth)</option>
               </select>
             </div>
+            <div class="fg" style="margin:0">
+              <label class="lbl">WordPress Category</label>
+              <input class="inp" id="ap-pub-category" placeholder="e.g. Skin Treatments, Hair Care, Blog">
+              <div style="font-size:10px;color:var(--ink3);margin-top:3px">Must match an existing category in WordPress exactly</div>
+            </div>
+            <div class="fg" style="margin:0">
+              <label class="lbl">Author Slug</label>
+              <input class="inp" id="ap-pub-author" placeholder="e.g. dr-ramya (WordPress username)">
+            </div>
             <div style="border-top:1px solid var(--bdr);padding-top:10px;margin-top:2px">
               <label class="lbl">🖼️ Image Settings</label>
               <div style="background:var(--teal-l);border:1px solid var(--teal-b);border-radius:6px;padding:8px 12px;font-size:11px;color:var(--teal);margin-bottom:8px">
@@ -4324,21 +4333,54 @@ Requirements:
     apUpdateProgress(`🔍 Searching your WordPress media library for "${item.kw}"...`);
     const featuredMediaId = await apFindImage(site, item.kw, item.title);
 
+    apUpdateProgress(`Wrapping in blog template...`);
+
+    // Step 3: Wrap in BSP styled template (same as manual blog tab)
+    const styledHTML = apWrapInTemplate({
+      title:     item.title,
+      content:   blogHTML,
+      kw:        item.kw,
+      bizName,
+      location,
+      heroImgId: featuredMediaId,
+      tone
+    });
+
     apUpdateProgress(`Publishing to WordPress...`);
 
-    // Step 3: Publish to WordPress
+    // Step 4: Build slug from keyword
+    const slug = item.kw.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+
+    // Step 5: Resolve category + author
+    const catName    = document.getElementById('ap-pub-category')?.value.trim();
+    const authorSlug = document.getElementById('ap-pub-author')?.value.trim();
+    const catId      = catName ? await getOrCreate(site,'categories',catName) : null;
+    const authorId   = authorSlug ? await getAuthorId(site, authorSlug) : null;
+
+    // Step 6: Publish to WordPress
     const payload = {
-      title:   item.title,
-      content: blogHTML,
-      status:  status,
+      title:          item.title,
+      slug,
+      content:        styledHTML,
+      status,
+      comment_status: 'closed',
+      ping_status:    'closed',
       meta: {
         rank_math_focus_keyword: item.kw,
-        rank_math_title: item.title,
+        rank_math_title:         item.title,
+        rank_math_description:   `Learn about ${item.kw} at ${bizName} in ${location}. Expert care, proven results.`
       }
     };
+    if(catId)           payload.categories     = [catId];
+    if(authorId)        payload.author         = authorId;
     if(featuredMediaId) payload.featured_media = featuredMediaId;
 
     const post = await wpReq(site, 'posts', 'POST', payload);
+
+    // Step 7: Set RankMath SEO
+    apUpdateProgress(`Setting RankMath SEO...`);
+    await setRankMathSEO(site, post.id, item.kw, item.title,
+      `Learn about ${item.kw} at ${bizName} in ${location}. Expert care, proven results.`, '');
 
     // Step 4: Update calendar
     apCalendar[idx].status   = 'done';
@@ -4372,7 +4414,73 @@ function apUpdateProgress(msg){
   if(el) el.innerHTML = `<div style="font-size:12px;color:var(--ink2)">${msg}</div>`;
 }
 
-// ── IMAGE FINDER: WP Media Library → Pexels fallback ──
+// ── Wrap Auto-Pilot blog content in BSP styled template ──
+function apWrapInTemplate({ title, content, kw, bizName, location, tone }){
+  // Get active client profile for branding colors/fonts
+  const prof = (typeof clientProfiles !== 'undefined' && clientProfiles[activeProfileIdx]) ? clientProfiles[activeProfileIdx] : {};
+  const primary   = prof.colorPrimary   || '#0A6B5E';
+  const secondary = prof.colorSecondary || '#0A1F3C';
+  const fontHead  = prof.fontHeading    || 'Poppins';
+  const fontBody  = prof.fontBody       || 'Inter';
+  const authorName = prof.authorName    || bizName;
+  const authorRole = prof.authorRole    || 'Expert';
+
+  // Word count estimate
+  const words = content.replace(/<[^>]+>/g,'').split(/\s+/).length;
+  const readTime = Math.max(1, Math.round(words / 200));
+  const today = new Date().toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+
+  // Category tag from keyword
+  const tag = kw.split(' ').slice(0,2).map(w=>w.charAt(0).toUpperCase()+w.slice(1)).join(' ');
+
+  return `<style>:root{--bsp-primary:${primary};--bsp-secondary:${secondary};--bsp-font-heading:${fontHead};--bsp-font-body:${fontBody}}</style>
+<link href="https://fonts.googleapis.com/css2?family=${fontHead.replace(' ','+')}:wght@400;600;700&family=${fontBody.replace(' ','+')}:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+/* ARTICLE BASE */
+.bsp-article{font-family:'${fontBody}',system-ui,sans-serif;color:#1a1a2e;line-height:1.8;max-width:820px;margin:0 auto}
+/* HERO */
+.bsp-hero{margin-bottom:32px}
+.bsp-hero-tag{display:inline-block;background:var(--bsp-primary,${primary});color:#fff;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:4px 12px;border-radius:20px;margin-bottom:12px}
+.bsp-hero h1{font-size:clamp(24px,4vw,40px);font-weight:800;color:#1a1a2e;line-height:1.2;margin:0 0 14px;letter-spacing:-0.5px;font-family:'${fontHead}',sans-serif}
+.bsp-hero-meta{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding-bottom:16px;border-bottom:2px solid #f0f0f0}
+.bsp-hero-meta span{color:#666;font-size:13px;display:flex;align-items:center;gap:5px}
+.bsp-hero-meta strong{color:#1a1a2e;font-weight:600}
+/* BODY */
+.bsp-article p{font-size:16px;color:#2c2c3e;margin:0 0 20px;line-height:1.85}
+.bsp-article h2{font-size:clamp(20px,2.5vw,26px);font-weight:700;color:#0a2540;margin:44px 0 16px;padding-bottom:10px;border-bottom:2px solid #e8f4f8;font-family:'${fontHead}',sans-serif}
+.bsp-article h3{font-size:18px;font-weight:600;color:#0a3d62;margin:28px 0 10px;font-family:'${fontHead}',sans-serif}
+.bsp-article ul,.bsp-article ol{padding-left:24px;margin:0 0 20px}
+.bsp-article li{margin-bottom:8px;font-size:15px;color:#2c2c3e}
+.bsp-article strong{color:#1a1a2e;font-weight:600}
+.bsp-article a{color:var(--bsp-primary,${primary});text-decoration:none;border-bottom:1px solid}
+/* CTA */
+.bsp-cta{background:linear-gradient(135deg,var(--bsp-primary,${primary}),var(--bsp-secondary,${secondary}));border-radius:16px;padding:32px;text-align:center;margin:40px 0;color:#fff}
+.bsp-cta h3{font-size:22px;font-weight:700;margin:0 0 10px;color:#fff}
+.bsp-cta p{margin:0 0 20px;opacity:.9;font-size:15px}
+.bsp-cta a{display:inline-block;background:#fff;color:var(--bsp-primary,${primary});font-weight:700;padding:12px 28px;border-radius:8px;text-decoration:none;font-size:15px}
+</style>
+<div class="bsp-article">
+  <div class="bsp-hero">
+    <span class="bsp-hero-tag">${tag}</span>
+    <h1>${title}</h1>
+    <div class="bsp-hero-meta">
+      <span>✍️ By <strong>${authorName}</strong></span>
+      <span>⏱ ${readTime} min read</span>
+      <span>📅 ${today}</span>
+    </div>
+  </div>
+  <div class="bsp-body">
+    ${content}
+  </div>
+  <div class="bsp-cta">
+    <h3>Ready to Get Started?</h3>
+    <p>Visit ${bizName} in ${location} for expert care and personalised treatment plans.</p>
+    <a href="#">Book a Free Consultation →</a>
+  </div>
+</div>`;
+}
+
+
 async function apFindImage(site, keyword, title) {
   // Extract core search terms from keyword
   const searchTerms = keyword.replace(/\bin\b|\bat\b|\bthe\b|\ba\b|\bfor\b|\bof\b/gi,'').trim().split(' ').slice(0,3).join(' ');
