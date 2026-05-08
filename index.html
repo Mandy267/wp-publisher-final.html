@@ -4329,21 +4329,34 @@ Requirements:
     if(data.error) throw new Error(data.error.message);
     const blogHTML = data.content?.[0]?.text || '';
 
-    // Step 2: Find image — WP Media Library first, Pexels fallback
-    apUpdateProgress(`🔍 Searching your WordPress media library for "${item.kw}"...`);
-    const featuredMediaId = await apFindImage(site, item.kw, item.title);
+    // Step 2: Fetch 4 images — hero, inline1, inline2, author
+    apUpdateProgress(`🖼️ Finding images...`);
+
+    // Fetch image URL from WP media by ID
+    async function getImgUrl(id){ try{ const m=await wpReq(site,`media/${id}`,'GET'); return m.source_url||m.guid?.rendered||null; }catch(e){ return null; } }
+
+    // Search variations for each image
+    const heroId    = await apFindImage(site, item.kw, item.title);
+    const inline1Id = await apFindImage(site, item.kw.split(' ').slice(0,2).join(' ') + ' treatment', item.title);
+    const inline2Id = await apFindImage(site, bizName + ' clinic', item.title);
+
+    // Author image — search by author name
+    const prof       = (typeof clientProfiles!=='undefined'&&clientProfiles[activeProfileIdx])||{};
+    const authorName = prof.authorName || '';
+    const authorImgId = authorName ? await apFindImage(site, authorName.split(' ')[0], authorName) : null;
+
+    // Get actual URLs for inline injection
+    const heroUrl    = heroId     ? await getImgUrl(heroId)     : null;
+    const inline1Url = inline1Id  ? await getImgUrl(inline1Id)  : null;
+    const inline2Url = inline2Id  ? await getImgUrl(inline2Id)  : null;
+    const authorUrl  = authorImgId ? await getImgUrl(authorImgId) : null;
 
     apUpdateProgress(`Wrapping in blog template...`);
 
-    // Step 3: Wrap in BSP styled template (same as manual blog tab)
+    // Step 3: Wrap in BSP styled template
     const styledHTML = apWrapInTemplate({
-      title:     item.title,
-      content:   blogHTML,
-      kw:        item.kw,
-      bizName,
-      location,
-      heroImgId: featuredMediaId,
-      tone
+      title, content: blogHTML, kw, bizName, location, tone,
+      images: { hero: heroUrl, inline1: inline1Url, inline2: inline2Url, author: authorUrl }
     });
 
     apUpdateProgress(`Publishing to WordPress...`);
@@ -4371,9 +4384,9 @@ Requirements:
         rank_math_description:   `Learn about ${item.kw} at ${bizName} in ${location}. Expert care, proven results.`
       }
     };
-    if(catId)           payload.categories     = [catId];
-    if(authorId)        payload.author         = authorId;
-    if(featuredMediaId) payload.featured_media = featuredMediaId;
+    if(catId)    payload.categories     = [catId];
+    if(authorId) payload.author         = authorId;
+    if(heroId)   payload.featured_media = heroId;
 
     const post = await wpReq(site, 'posts', 'POST', payload);
 
@@ -4415,37 +4428,67 @@ function apUpdateProgress(msg){
 }
 
 // ── Wrap Auto-Pilot blog content in BSP styled template ──
-function apWrapInTemplate({ title, content, kw, bizName, location, tone }){
-  // Get active client profile for branding colors/fonts
+function apWrapInTemplate({ title, content, kw, bizName, location, tone, images={} }){
   const prof = (typeof clientProfiles !== 'undefined' && clientProfiles[activeProfileIdx]) ? clientProfiles[activeProfileIdx] : {};
-  const primary   = prof.colorPrimary   || '#0A6B5E';
-  const secondary = prof.colorSecondary || '#0A1F3C';
-  const fontHead  = prof.fontHeading    || 'Poppins';
-  const fontBody  = prof.fontBody       || 'Inter';
-  const authorName = prof.authorName    || bizName;
-  const authorRole = prof.authorRole    || 'Expert';
+  const primary    = prof.colorPrimary   || '#0A6B5E';
+  const secondary  = prof.colorSecondary || '#0A1F3C';
+  const fontHead   = prof.fontHeading    || 'Poppins';
+  const fontBody   = prof.fontBody       || 'Inter';
+  const authorName = prof.authorName     || bizName;
+  const authorRole = prof.authorRole     || 'Expert';
+  const authorBio  = prof.authorBio      || `${authorName} is a certified expert at ${bizName} in ${location}, specialising in advanced aesthetic treatments.`;
 
-  // Word count estimate
-  const words = content.replace(/<[^>]+>/g,'').split(/\s+/).length;
+  const words    = content.replace(/<[^>]+>/g,'').split(/\s+/).length;
   const readTime = Math.max(1, Math.round(words / 200));
-  const today = new Date().toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+  const today    = new Date().toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+  const tag      = kw.split(' ').slice(0,2).map(w=>w.charAt(0).toUpperCase()+w.slice(1)).join(' ');
 
-  // Category tag from keyword
-  const tag = kw.split(' ').slice(0,2).map(w=>w.charAt(0).toUpperCase()+w.slice(1)).join(' ');
+  // Split content into 3 parts to inject inline images between sections
+  function injectInlineImages(html, img1Url, img2Url){
+    // Split on H2 tags — inject image after 2nd H2 and 4th H2
+    const parts = html.split(/(?=<h2)/i);
+    if(parts.length < 3) return html; // not enough sections
+
+    let result = parts[0];
+    parts.forEach((part, i) => {
+      if(i === 0) return;
+      result += part;
+      // Inject inline image 1 after 2nd section
+      if(i === 2 && img1Url){
+        result += `<figure class="bsp-inline-img"><img src="${img1Url}" alt="${kw}" loading="lazy"><figcaption>${tag} at ${bizName}, ${location}</figcaption></figure>`;
+      }
+      // Inject inline image 2 after 4th section
+      if(i === 4 && img2Url){
+        result += `<figure class="bsp-inline-img"><img src="${img2Url}" alt="${title}" loading="lazy"><figcaption>Expert treatment at ${bizName}</figcaption></figure>`;
+      }
+    });
+    return result;
+  }
+
+  const bodyHTML = injectInlineImages(content, images.inline1, images.inline2);
+
+  // Hero image block
+  const heroImgBlock = images.hero
+    ? `<div class="bsp-hero-img-wrap"><img src="${images.hero}" alt="${title}" loading="eager"></div>`
+    : '';
+
+  // Author image
+  const authorImgBlock = images.author
+    ? `<img src="${images.author}" alt="${authorName}" class="bsp-author-avatar">`
+    : `<div class="bsp-author-initials">${authorName.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase()}</div>`;
 
   return `<style>:root{--bsp-primary:${primary};--bsp-secondary:${secondary};--bsp-font-heading:${fontHead};--bsp-font-body:${fontBody}}</style>
-<link href="https://fonts.googleapis.com/css2?family=${fontHead.replace(' ','+')}:wght@400;600;700&family=${fontBody.replace(' ','+')}:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=${fontHead.replace(/ /g,'+')}:wght@400;600;700&family=${fontBody.replace(/ /g,'+')}:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-/* ARTICLE BASE */
 .bsp-article{font-family:'${fontBody}',system-ui,sans-serif;color:#1a1a2e;line-height:1.8;max-width:820px;margin:0 auto}
-/* HERO */
 .bsp-hero{margin-bottom:32px}
+.bsp-hero-img-wrap{border-radius:14px;overflow:hidden;margin-bottom:20px;box-shadow:0 8px 32px rgba(0,0,0,.12)}
+.bsp-hero-img-wrap img{width:100%;height:420px;object-fit:cover;display:block}
 .bsp-hero-tag{display:inline-block;background:var(--bsp-primary,${primary});color:#fff;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:4px 12px;border-radius:20px;margin-bottom:12px}
 .bsp-hero h1{font-size:clamp(24px,4vw,40px);font-weight:800;color:#1a1a2e;line-height:1.2;margin:0 0 14px;letter-spacing:-0.5px;font-family:'${fontHead}',sans-serif}
 .bsp-hero-meta{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding-bottom:16px;border-bottom:2px solid #f0f0f0}
 .bsp-hero-meta span{color:#666;font-size:13px;display:flex;align-items:center;gap:5px}
 .bsp-hero-meta strong{color:#1a1a2e;font-weight:600}
-/* BODY */
 .bsp-article p{font-size:16px;color:#2c2c3e;margin:0 0 20px;line-height:1.85}
 .bsp-article h2{font-size:clamp(20px,2.5vw,26px);font-weight:700;color:#0a2540;margin:44px 0 16px;padding-bottom:10px;border-bottom:2px solid #e8f4f8;font-family:'${fontHead}',sans-serif}
 .bsp-article h3{font-size:18px;font-weight:600;color:#0a3d62;margin:28px 0 10px;font-family:'${fontHead}',sans-serif}
@@ -4453,14 +4496,25 @@ function apWrapInTemplate({ title, content, kw, bizName, location, tone }){
 .bsp-article li{margin-bottom:8px;font-size:15px;color:#2c2c3e}
 .bsp-article strong{color:#1a1a2e;font-weight:600}
 .bsp-article a{color:var(--bsp-primary,${primary});text-decoration:none;border-bottom:1px solid}
-/* CTA */
+.bsp-inline-img{margin:28px 0;border-radius:12px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.1)}
+.bsp-inline-img img{width:100%;height:300px;object-fit:cover;display:block}
+.bsp-inline-img figcaption{font-size:12px;color:#888;padding:8px 12px;background:#f9f9f9;text-align:center;font-style:italic}
+.bsp-author{display:flex;align-items:flex-start;gap:16px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:20px 24px;margin:40px 0}
+.bsp-author-avatar{width:64px;height:64px;border-radius:50%;object-fit:cover;flex-shrink:0;border:3px solid var(--bsp-primary,${primary})}
+.bsp-author-initials{width:64px;height:64px;border-radius:50%;background:var(--bsp-primary,${primary});color:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;flex-shrink:0;font-family:'${fontHead}',sans-serif}
+.bsp-author-info{}
+.bsp-author-name{font-size:16px;font-weight:700;color:#1a1a2e;margin:0 0 2px;font-family:'${fontHead}',sans-serif}
+.bsp-author-role{font-size:12px;color:var(--bsp-primary,${primary});font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin:0 0 8px}
+.bsp-author-bio{font-size:13px;color:#555;margin:0;line-height:1.6}
 .bsp-cta{background:linear-gradient(135deg,var(--bsp-primary,${primary}),var(--bsp-secondary,${secondary}));border-radius:16px;padding:32px;text-align:center;margin:40px 0;color:#fff}
 .bsp-cta h3{font-size:22px;font-weight:700;margin:0 0 10px;color:#fff}
 .bsp-cta p{margin:0 0 20px;opacity:.9;font-size:15px}
 .bsp-cta a{display:inline-block;background:#fff;color:var(--bsp-primary,${primary});font-weight:700;padding:12px 28px;border-radius:8px;text-decoration:none;font-size:15px}
+@media(max-width:600px){.bsp-hero-img-wrap img{height:220px}.bsp-inline-img img{height:200px}.bsp-author{flex-direction:column}}
 </style>
 <div class="bsp-article">
   <div class="bsp-hero">
+    ${heroImgBlock}
     <span class="bsp-hero-tag">${tag}</span>
     <h1>${title}</h1>
     <div class="bsp-hero-meta">
@@ -4470,80 +4524,72 @@ function apWrapInTemplate({ title, content, kw, bizName, location, tone }){
     </div>
   </div>
   <div class="bsp-body">
-    ${content}
+    ${bodyHTML}
   </div>
   <div class="bsp-cta">
     <h3>Ready to Get Started?</h3>
     <p>Visit ${bizName} in ${location} for expert care and personalised treatment plans.</p>
     <a href="#">Book a Free Consultation →</a>
   </div>
+  <div class="bsp-author">
+    ${authorImgBlock}
+    <div class="bsp-author-info">
+      <p class="bsp-author-name">${authorName}</p>
+      <p class="bsp-author-role">${authorRole}</p>
+      <p class="bsp-author-bio">${authorBio}</p>
+    </div>
+  </div>
 </div>`;
 }
 
 
 async function apFindImage(site, keyword, title) {
-  // Extract core search terms from keyword
-  const searchTerms = keyword.replace(/\bin\b|\bat\b|\bthe\b|\ba\b|\bfor\b|\bof\b/gi,'').trim().split(' ').slice(0,3).join(' ');
+  const searchTerms = keyword.replace(/\bin\b|\bat\b|\bthe\b|\ba\b|\bfor\b|\bof\b|\band\b|\bto\b/gi,'').trim().replace(/\s+/g,' ').split(' ').slice(0,3).join(' ');
+  const firstWord   = searchTerms.split(' ')[0];
+  const searches    = [...new Set([searchTerms, firstWord, keyword.split(' ')[0]])];
 
-  // Step 1: Search WordPress Media Library
-  try {
-    apUpdateProgress(`🖼️ Searching your WordPress media library for "${searchTerms}"...`);
-    const mediaResults = await wpReq(site, `media?search=${encodeURIComponent(searchTerms)}&per_page=5&media_type=image`, 'GET');
-    if(mediaResults && mediaResults.length > 0){
-      // Found image in WP media library — use it
-      const img = mediaResults[0];
-      apUpdateProgress(`✅ Found your image: "${img.title?.rendered || img.slug}" from WordPress media library`);
-      return img.id;
-    }
-
-    // Try broader search with just first word
-    const firstWord = searchTerms.split(' ')[0];
-    const broadResults = await wpReq(site, `media?search=${encodeURIComponent(firstWord)}&per_page=5&media_type=image`, 'GET');
-    if(broadResults && broadResults.length > 0){
-      const img = broadResults[0];
-      apUpdateProgress(`✅ Found related image: "${img.title?.rendered || img.slug}" from WordPress media library`);
-      return img.id;
-    }
-  } catch(e){ /* WP media search failed, try Pexels */ }
+  // Step 1: Try WP media library with 3 progressively broader searches
+  for(const term of searches){
+    try {
+      apUpdateProgress(`🖼️ Searching WP media for "${term}"...`);
+      const results = await wpReq(site, `media?search=${encodeURIComponent(term)}&per_page=10&orderby=relevance`, 'GET');
+      if(results && results.length > 0){
+        const images = results.filter(m => m.media_type==='image' || (m.mime_type||'').startsWith('image/'));
+        if(images.length > 0){
+          apUpdateProgress(`✅ Found "${images[0].title?.rendered||images[0].slug}" from your WP media library`);
+          return images[0].id;
+        }
+      }
+    } catch(e){ /* try next */ }
+  }
 
   // Step 2: Pexels fallback
   const pexelsKey = localStorage.getItem('wpb_pexels_key') || '';
   if(pexelsKey){
     try {
-      apUpdateProgress(`📷 No WP image found — fetching from Pexels for "${searchTerms}"...`);
-      const pRes = await fetch(`https://api.pexels.com/v1/search?query=${encodeURIComponent(searchTerms)}&per_page=1&orientation=landscape`,{
-        headers:{ 'Authorization': pexelsKey }
-      });
+      apUpdateProgress(`📷 Fetching from Pexels for "${searchTerms}"...`);
+      const pRes  = await fetch(`https://api.pexels.com/v1/search?query=${encodeURIComponent(searchTerms)}&per_page=1&orientation=landscape`,{ headers:{'Authorization':pexelsKey} });
       const pData = await pRes.json();
       const photo = pData.photos?.[0];
       if(photo){
-        // Download and upload to WP media
-        const imgUrl = photo.src.large;
-        const imgRes = await fetch(imgUrl);
-        const imgBlob = await imgRes.blob();
+        const imgBlob = await (await fetch(photo.src.large)).blob();
         const filename = `${searchTerms.replace(/\s+/g,'-')}-${Date.now()}.jpg`;
-
-        const formData = new FormData();
-        formData.append('file', imgBlob, filename);
-        formData.append('title', title);
-        formData.append('alt_text', title);
-
-        const uploadRes = await fetch(site.url + '/wp-json/wp/v2/media',{
+        const fd = new FormData();
+        fd.append('file', imgBlob, filename);
+        fd.append('title', title);
+        fd.append('alt_text', title);
+        const up = await fetch(site.url+'/wp-json/wp/v2/media',{
           method:'POST',
-          headers:{ 'Authorization':'Basic '+btoa(site.user+':'+site.pass) },
-          body: formData
+          headers:{'Authorization':'Basic '+btoa(site.user+':'+site.pass)},
+          body: fd
         });
-        const uploaded = await uploadRes.json();
-        if(uploaded.id){
-          apUpdateProgress(`✅ Pexels image uploaded to WordPress (ID: ${uploaded.id})`);
-          return uploaded.id;
-        }
+        const uploaded = await up.json();
+        if(uploaded.id){ apUpdateProgress(`✅ Pexels image uploaded (ID: ${uploaded.id})`); return uploaded.id; }
       }
-    } catch(e){ /* Pexels failed too */ }
+    } catch(e){ /* Pexels failed */ }
   }
 
-  // Step 3: No image found
-  apUpdateProgress(`⚠️ No image found — publishing without featured image. Upload images to your WP media library named after your keywords.`);
+  apUpdateProgress(`⚠️ No image found — publishing without featured image`);
   return null;
 }
 
