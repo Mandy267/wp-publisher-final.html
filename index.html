@@ -1225,6 +1225,17 @@ MBBS certified doctor" style="font-size:12px;line-height:1.6"></textarea>
                 <option value="2500">~2,500 words (in-depth)</option>
               </select>
             </div>
+            <div style="border-top:1px solid var(--bdr);padding-top:10px;margin-top:2px">
+              <label class="lbl">🖼️ Image Settings</label>
+              <div style="background:var(--teal-l);border:1px solid var(--teal-b);border-radius:6px;padding:8px 12px;font-size:11px;color:var(--teal);margin-bottom:8px">
+                Auto-Pilot searches your <strong>WordPress Media Library</strong> first using the blog keyword. Upload your clinic photos there named like <code>cryolipolysis-treatment.jpg</code> for best results.
+              </div>
+              <label class="lbl" style="margin-top:6px">Pexels API Key (fallback if no WP image found)</label>
+              <input class="inp" id="ap-pexels-key" type="password" placeholder="Paste Pexels API key for auto fallback images..."
+                oninput="localStorage.setItem('wpb_pexels_key',this.value.trim())"
+                style="font-size:11px;font-family:var(--mono)">
+              <div style="font-size:10px;color:var(--ink3);margin-top:4px">Free at <a href="https://pexels.com/api" target="_blank" style="color:var(--teal)">pexels.com/api</a> — used only when no matching image in your WP library</div>
+            </div>
             <div id="ap-next-run" style="background:var(--teal-l);border:1px solid var(--teal-b);border-radius:6px;padding:8px 12px;font-size:11px;color:var(--teal);display:none">
               ⏰ Next auto-publish: <strong id="ap-next-time">—</strong>
             </div>
@@ -3993,6 +4004,10 @@ function apInit(){
   renderApCalendar();
   renderApHistory();
   apCheckTimer();
+  // Restore Pexels key
+  const pk = localStorage.getItem('wpb_pexels_key') || '';
+  const pkel = document.getElementById('ap-pexels-key');
+  if(pk && pkel) pkel.value = pk;
 }
 
 function switchApTab(id, el){
@@ -4101,7 +4116,7 @@ Return only the JSON array, no explanation.`;
 
     const res = await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01'},
+      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
       body:JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:2000,
         messages:[{role:'user',content:prompt}] })
     });
@@ -4217,7 +4232,7 @@ Requirements:
 
     const res = await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01'},
+      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
       body:JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:4000,
         messages:[{role:'user',content:blogPrompt}] })
     });
@@ -4225,9 +4240,13 @@ Requirements:
     if(data.error) throw new Error(data.error.message);
     const blogHTML = data.content?.[0]?.text || '';
 
+    // Step 2: Find image — WP Media Library first, Pexels fallback
+    apUpdateProgress(`🔍 Searching your WordPress media library for "${item.kw}"...`);
+    const featuredMediaId = await apFindImage(site, item.kw, item.title);
+
     apUpdateProgress(`Publishing to WordPress...`);
 
-    // Step 2: Publish to WordPress
+    // Step 3: Publish to WordPress
     const payload = {
       title:   item.title,
       content: blogHTML,
@@ -4237,9 +4256,11 @@ Requirements:
         rank_math_title: item.title,
       }
     };
+    if(featuredMediaId) payload.featured_media = featuredMediaId;
+
     const post = await wpReq(site, 'posts', 'POST', payload);
 
-    // Step 3: Update calendar
+    // Step 4: Update calendar
     apCalendar[idx].status   = 'done';
     apCalendar[idx].postId   = post.id;
     apCalendar[idx].postLink = post.link;
@@ -4270,6 +4291,75 @@ function apUpdateProgress(msg){
   const el = document.getElementById('ap-progress-body');
   if(el) el.innerHTML = `<div style="font-size:12px;color:var(--ink2)">${msg}</div>`;
 }
+
+// ── IMAGE FINDER: WP Media Library → Pexels fallback ──
+async function apFindImage(site, keyword, title) {
+  // Extract core search terms from keyword
+  const searchTerms = keyword.replace(/\bin\b|\bat\b|\bthe\b|\ba\b|\bfor\b|\bof\b/gi,'').trim().split(' ').slice(0,3).join(' ');
+
+  // Step 1: Search WordPress Media Library
+  try {
+    apUpdateProgress(`🖼️ Searching your WordPress media library for "${searchTerms}"...`);
+    const mediaResults = await wpReq(site, `media?search=${encodeURIComponent(searchTerms)}&per_page=5&media_type=image`, 'GET');
+    if(mediaResults && mediaResults.length > 0){
+      // Found image in WP media library — use it
+      const img = mediaResults[0];
+      apUpdateProgress(`✅ Found your image: "${img.title?.rendered || img.slug}" from WordPress media library`);
+      return img.id;
+    }
+
+    // Try broader search with just first word
+    const firstWord = searchTerms.split(' ')[0];
+    const broadResults = await wpReq(site, `media?search=${encodeURIComponent(firstWord)}&per_page=5&media_type=image`, 'GET');
+    if(broadResults && broadResults.length > 0){
+      const img = broadResults[0];
+      apUpdateProgress(`✅ Found related image: "${img.title?.rendered || img.slug}" from WordPress media library`);
+      return img.id;
+    }
+  } catch(e){ /* WP media search failed, try Pexels */ }
+
+  // Step 2: Pexels fallback
+  const pexelsKey = localStorage.getItem('wpb_pexels_key') || '';
+  if(pexelsKey){
+    try {
+      apUpdateProgress(`📷 No WP image found — fetching from Pexels for "${searchTerms}"...`);
+      const pRes = await fetch(`https://api.pexels.com/v1/search?query=${encodeURIComponent(searchTerms)}&per_page=1&orientation=landscape`,{
+        headers:{ 'Authorization': pexelsKey }
+      });
+      const pData = await pRes.json();
+      const photo = pData.photos?.[0];
+      if(photo){
+        // Download and upload to WP media
+        const imgUrl = photo.src.large;
+        const imgRes = await fetch(imgUrl);
+        const imgBlob = await imgRes.blob();
+        const filename = `${searchTerms.replace(/\s+/g,'-')}-${Date.now()}.jpg`;
+
+        const formData = new FormData();
+        formData.append('file', imgBlob, filename);
+        formData.append('title', title);
+        formData.append('alt_text', title);
+
+        const uploadRes = await fetch(site.url + '/wp-json/wp/v2/media',{
+          method:'POST',
+          headers:{ 'Authorization':'Basic '+btoa(site.user+':'+site.pass) },
+          body: formData
+        });
+        const uploaded = await uploadRes.json();
+        if(uploaded.id){
+          apUpdateProgress(`✅ Pexels image uploaded to WordPress (ID: ${uploaded.id})`);
+          return uploaded.id;
+        }
+      }
+    } catch(e){ /* Pexels failed too */ }
+  }
+
+  // Step 3: No image found
+  apUpdateProgress(`⚠️ No image found — publishing without featured image. Upload images to your WP media library named after your keywords.`);
+  return null;
+}
+
+
 
 // ── AUTO-PILOT TIMER ──
 function apToggleAutopilot(on){
