@@ -1183,7 +1183,13 @@ MBBS certified doctor" style="font-size:12px;line-height:1.6"></textarea>
         <div style="font-weight:600;margin-bottom:6px">No calendar yet</div>
         <div style="font-size:12px">Fill in your niche details and find keywords first</div>
       </div>
-      <div id="ap-cal-list" style="display:none;flex-direction:column;gap:8px;overflow-y:auto;max-height:calc(100vh - 180px)"></div>
+      <div id="ap-cal-toolbar" style="display:none;padding:8px 12px;border-bottom:1px solid var(--bdr);background:var(--surf2);display:flex;gap:6px;flex-wrap:wrap">
+        <button class="btn btn-ghost" style="font-size:10px;padding:3px 10px;height:26px;color:#dc2626;border-color:#FECACA" onclick="apClearFailed()">🗑 Clear Failed</button>
+        <button class="btn btn-ghost" style="font-size:10px;padding:3px 10px;height:26px;color:#dc2626;border-color:#FECACA" onclick="apClearDone()">🗑 Clear Done</button>
+        <button class="btn btn-ghost" style="font-size:10px;padding:3px 10px;height:26px;color:#dc2626;border-color:#FECACA" onclick="apClearAll()">🗑 Clear All</button>
+        <span style="font-size:10px;color:var(--ink3);margin-left:auto;align-self:center" id="ap-cal-count"></span>
+      </div>
+      <div id="ap-cal-list" style="display:none;flex-direction:column;gap:8px;overflow-y:auto;max-height:calc(100vh - 220px);padding:8px"></div>
     </div>
 
     <!-- Auto-Publish Pane -->
@@ -4243,12 +4249,23 @@ Return only the JSON array, no explanation.`;
 
 // ── RENDER CALENDAR ──
 function renderApCalendar(){
-  const empty = document.getElementById('ap-cal-empty');
-  const list  = document.getElementById('ap-cal-list');
+  const empty   = document.getElementById('ap-cal-empty');
+  const list    = document.getElementById('ap-cal-list');
+  const toolbar = document.getElementById('ap-cal-toolbar');
+  const count   = document.getElementById('ap-cal-count');
   if(!apCalendar.length){
-    empty.style.display=''; list.style.display='none'; return;
+    empty.style.display=''; list.style.display='none';
+    if(toolbar) toolbar.style.display='none';
+    return;
   }
   empty.style.display='none'; list.style.display='flex';
+  if(toolbar) toolbar.style.display='flex';
+  if(count){
+    const pending = apCalendar.filter(i=>i.status==='pending').length;
+    const done    = apCalendar.filter(i=>i.status==='done').length;
+    const failed  = apCalendar.filter(i=>i.status==='failed').length;
+    count.textContent = `${apCalendar.length} total · ${pending} pending · ${done} done · ${failed} failed`;
+  }
   list.innerHTML = apCalendar.map((item,i)=>`
     <div class="ap-cal-item" id="ap-cal-item-${item.id}">
       <div class="ap-cal-day">Day ${item.day}<br>${item.date}</div>
@@ -4279,6 +4296,29 @@ function apDeleteItem(i){
   apSaveCal(); renderApCalendar();
 }
 
+function apClearFailed(){
+  if(!confirm('Remove all failed items?')) return;
+  apCalendar = apCalendar.filter(i=>i.status!=='failed');
+  apCalendar.forEach((item,idx)=>{ item.day=idx+1; });
+  apSaveCal(); renderApCalendar();
+  toast('Cleared failed items','ok');
+}
+
+function apClearDone(){
+  if(!confirm('Remove all completed items?')) return;
+  apCalendar = apCalendar.filter(i=>i.status!=='done');
+  apCalendar.forEach((item,idx)=>{ item.day=idx+1; });
+  apSaveCal(); renderApCalendar();
+  toast('Cleared completed items','ok');
+}
+
+function apClearAll(){
+  if(!confirm('Clear entire calendar? This cannot be undone.')) return;
+  apCalendar = [];
+  apSaveCal(); renderApCalendar();
+  toast('Calendar cleared','ok');
+}
+
 // ── GENERATE + PUBLISH A SINGLE BLOG ──
 async function apRunSingle(idx){
   const item = apCalendar[idx];
@@ -4289,12 +4329,13 @@ async function apRunSingle(idx){
   if(!apiKey){ toast('Add your Claude API key first','err'); switchApTab('autopublish',document.querySelectorAll('#mode-autopilot .rtab')[1]); return; }
   if(!site)  { toast('No WordPress site selected','err'); return; }
 
-  const bizName  = document.getElementById('ap-bizname').value.trim();
+  const bizName  = document.getElementById('ap-bizname').value.trim() || 'the clinic';
   const location = document.getElementById('ap-location').value.trim();
   const audience = document.getElementById('ap-audience').value.trim();
   const tone     = document.getElementById('ap-tone').value;
   const length   = document.getElementById('ap-pub-length')?.value || '2000';
   const status   = document.getElementById('ap-pub-status')?.value || 'draft';
+  const title    = item.title;
 
   apCalendar[idx].status = 'running';
   apSaveCal(); renderApCalendar();
