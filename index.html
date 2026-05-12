@@ -1636,6 +1636,17 @@ MBBS certified doctor" style="font-size:12px;line-height:1.6"></textarea>
     <div class="mh"><div class="mh-title">Add WordPress Site</div><span class="mclose" onclick="closeModal()">×</span></div>
     <div class="mb">
       <div class="fg"><label class="lbl">Site Name</label><input class="inp" id="m-name" placeholder="Biospecimen Solutions"/></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div class="fg" style="margin:0"><label class="lbl">Brand Color</label>
+          <div style="display:flex;gap:6px;align-items:center">
+            <input type="color" id="m-color" value="#0A6B5E" style="width:36px;height:34px;border:1px solid var(--bdr);border-radius:4px;cursor:pointer;padding:2px"/>
+            <input class="inp" id="m-color-hex" placeholder="#0A6B5E" style="flex:1;font-family:var(--mono);font-size:11px" oninput="document.getElementById('m-color').value=this.value"/>
+          </div>
+        </div>
+        <div class="fg" style="margin:0"><label class="lbl">Heading Font</label>
+          <input class="inp" id="m-font" placeholder="e.g. Poppins, Playfair Display"/>
+        </div>
+      </div>
       <div class="fg"><label class="lbl">Site URL</label><input class="inp" id="m-url" placeholder="https://biospecimensolutions.in" type="url"/></div>
       <div class="fg"><label class="lbl">WP Username</label><input class="inp" id="m-user" placeholder="your_wp_username"/></div>
       <div class="fg"><label class="lbl">Application Password</label><input class="inp" id="m-pass" type="password" placeholder="xxxx xxxx xxxx xxxx xxxx xxxx"/>
@@ -1695,7 +1706,7 @@ function openAddSite(){document.getElementById('sites-menu').classList.remove('o
 function addSite(){
   const n=gv('m-name'),u=gv('m-url').replace(/\/$/,''),us=gv('m-user'),p=gv('m-pass');
   if(!n||!u||!us||!p){toast('All fields required','err');return}
-  sites.push({name:n,url:u,user:us,pass:p});activeIdx=sites.length-1;
+  var mc=document.getElementById("m-color");var mf=document.getElementById("m-font");sites.push({name:n,url:u,user:us,pass:p,color:(mc?mc.value:"#0A6B5E"),font:(mf?mf.value.trim():"")});activeIdx=sites.length-1;
   localStorage.setItem('wpb_active',activeIdx);saveSites();renderSites();updatePill();closeModal();
   ['m-name','m-url','m-user','m-pass'].forEach(id=>document.getElementById(id).value='');
   toast('Site added: '+n,'ok');
@@ -2267,22 +2278,22 @@ function getBSPStyles(primary, secondary, fontHead, fontBody, h1size, h1mob, h2s
   secondary  = secondary  || '#0A1F3C';
   fontHead   = fontHead   || 'Poppins';
   fontBody   = fontBody   || 'Inter';
-  h1size     = h1size     || 'clamp(22px,3.5vw,38px)';
-  h1mob      = h1mob      || '20px';
-  h2size     = h2size     || 'clamp(18px,2.5vw,24px)';
-  h2mob      = h2mob      || '17px';
-  h3size     = h3size     || '17px';
-  bodySize   = bodySize   || '16px';
-  bodyMob    = bodyMob    || '15px';
-  lineH      = lineH      || '1.85';
-  maxW       = maxW       || '820px';
+  h1size     = h1size     || 'clamp(26px,4vw,42px)';
+  h1mob      = h1mob      || '24px';
+  h2size     = h2size     || 'clamp(20px,2.5vw,26px)';
+  h2mob      = h2mob      || '19px';
+  h3size     = h3size     || '18px';
+  bodySize   = bodySize   || '17px';
+  bodyMob    = bodyMob    || '16px';
+  lineH      = lineH      || '1.95';
+  maxW       = maxW       || '860px';
   heroH      = heroH      || '420px';
-  paraSpace  = paraSpace  || '20px';
+  paraSpace  = paraSpace  || '24px';
   h2style    = h2style    || 'border-bottom:2px solid #eee';
 
   return [
     '<style>',
-    '.bsp-article{font-family:"' + fontBody + '",system-ui,sans-serif;color:#2d2d2d;line-height:' + lineH + ';max-width:' + maxW + ';margin:0 auto;font-size:' + bodySize + '}',
+    '.bsp-article{font-family:"' + fontBody + '",system-ui,sans-serif;color:#1a1a2e;line-height:' + lineH + ';max-width:' + maxW + ';margin:0 auto;font-size:' + bodySize + '}',
     /* HERO */
     '.bsp-hero{margin-bottom:32px}',
     '.bsp-hero-img-wrap{border-radius:12px;overflow:hidden;margin-bottom:20px;box-shadow:0 4px 20px rgba(0,0,0,.08)}',
@@ -2302,7 +2313,7 @@ function getBSPStyles(primary, secondary, fontHead, fontBody, h1size, h1mob, h2s
     '.bsp-toc-body li{margin-bottom:7px;font-size:13px}',
     '.bsp-toc-body a{color:' + primary + ';text-decoration:none;font-weight:500}',
     /* BODY */
-    '.bsp-article p{font-size:' + bodySize + ';color:#3d3d3d;margin:0 0 ' + paraSpace + ';line-height:' + lineH + '}',
+    '.bsp-article p{font-size:' + bodySize + ';color:#333;margin:0 0 ' + paraSpace + ';line-height:' + lineH + ';letter-spacing:0.01em}',
     '.bsp-article strong{color:#1a1a1a;font-weight:600}',
     '.bsp-article a{color:' + primary + ';text-decoration:underline}',
     /* HEADINGS */
@@ -2331,7 +2342,6 @@ function getBSPStyles(primary, secondary, fontHead, fontBody, h1size, h1mob, h2s
     '.bsp-img-block{margin:24px 0}',
     '.bsp-img-wrap{border-radius:10px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.07)}',
     '.bsp-img-wrap img{width:100%;height:auto;display:block;aspect-ratio:16/9;object-fit:cover}',
-    '.bsp-img-caption{text-align:center;font-size:12px;color:#888;margin-top:7px;font-style:italic}',
     /* TABLE */
     '.bsp-table-wrap{overflow-x:auto;margin:24px 0;border-radius:8px;border:1px solid #e5e7eb}',
     '.bsp-table{width:100%;border-collapse:collapse;font-size:14px}',
@@ -2519,7 +2529,6 @@ function convertToHTML(raw){
   const hero=`<div class="bsp-hero">
   <div class="bsp-hero-img-wrap">
     <img src="${imgs.hero||fallback}" alt="${fmt(imgAlts.hero||title)}" loading="eager"/>
-    <div class="bsp-hero-img-caption">${fmt(heroCaption)}</div>
   </div>
   <span class="bsp-hero-tag">${fmt(heroTag)}</span>
   <h1>${fmt(title)}</h1>
@@ -2904,7 +2913,7 @@ function bspTab(id,idx){
       }
       const alt = altText || gv('alt-img1') || imgAlts.img1 || 'Article image';
       const cap = caption || alt;
-      body+=`<div class="bsp-img-block"><div class="bsp-img-wrap"><img src="${imgs.img1||fallback}" alt="${fmt(alt)}" loading="lazy"/><div class="bsp-img-caption">${fmt(cap)}</div></div></div>\n`;
+      body+=`<div class="bsp-img-block"><div class="bsp-img-wrap"><img src="${imgs.img1||fallback}" alt="${fmt(alt)}" loading="lazy"/></div></div>\n`;
       continue;
     }
     
@@ -2913,7 +2922,7 @@ function bspTab(id,idx){
     if(img1old){
       const cap=img1old[1].trim()||'Article image';
       const alt=gv('alt-img1')||imgAlts.img1||cap;
-      body+=`<div class="bsp-img-block"><div class="bsp-img-wrap"><img src="${imgs.img1||fallback}" alt="${fmt(alt)}" loading="lazy"/><div class="bsp-img-caption">${fmt(cap)}</div></div></div>\n`;
+      body+=`<div class="bsp-img-block"><div class="bsp-img-wrap"><img src="${imgs.img1||fallback}" alt="${fmt(alt)}" loading="lazy"/></div></div>\n`;
       continue;
     }
 
@@ -2931,7 +2940,7 @@ function bspTab(id,idx){
       }
       const alt = altText || gv('alt-img2') || imgAlts.img2 || 'Article image';
       const cap = caption || alt;
-      body+=`<div class="bsp-img-block"><div class="bsp-img-wrap"><img src="${imgs.img2||fallback}" alt="${fmt(alt)}" loading="lazy"/><div class="bsp-img-caption">${fmt(cap)}</div></div></div>\n`;
+      body+=`<div class="bsp-img-block"><div class="bsp-img-wrap"><img src="${imgs.img2||fallback}" alt="${fmt(alt)}" loading="lazy"/></div></div>\n`;
       continue;
     }
     
@@ -2940,7 +2949,7 @@ function bspTab(id,idx){
     if(img2old){
       const cap=img2old[1].trim()||'Article image';
       const alt=gv('alt-img2')||imgAlts.img2||cap;
-      body+=`<div class="bsp-img-block"><div class="bsp-img-wrap"><img src="${imgs.img2||fallback}" alt="${fmt(alt)}" loading="lazy"/><div class="bsp-img-caption">${fmt(cap)}</div></div></div>\n`;
+      body+=`<div class="bsp-img-block"><div class="bsp-img-wrap"><img src="${imgs.img2||fallback}" alt="${fmt(alt)}" loading="lazy"/></div></div>\n`;
       continue;
     }
 
@@ -3000,8 +3009,12 @@ function bspTab(id,idx){
   const _tp = (typeof clientProfiles!=='undefined' && clientProfiles[activeProfileIdx]) ? clientProfiles[activeProfileIdx] : {};
   var _fonts = [_tp.fontHeading, _tp.fontBody].filter(Boolean).map(function(f){return f.replace(/['"]/g,'').trim();}).filter(function(f){return f&&!f.includes('system')&&!f.includes('sans')&&!f.includes('serif');});
   var _fontLink = _fonts.length ? '<link href="https://fonts.googleapis.com/css2?'+_fonts.map(function(f){return 'family='+encodeURIComponent(f)+':wght@400;600;700';}).join('&')+'&display=swap" rel="stylesheet"/>' : '';
+  // Use site color if no profile color set
+  var _site = (typeof sites !== 'undefined' && sites[activeIdx]) ? sites[activeIdx] : {};
+  var _primaryColor = _tp.colorPrimary || _site.color || '#0A6B5E';
+  var _headFont = _tp.fontHeading || _site.font || 'Poppins';
   var _css = getBSPStyles(
-    _tp.colorPrimary, _tp.colorSecondary, _tp.fontHeading, _tp.fontBody,
+    _primaryColor, _tp.colorSecondary, _headFont, _tp.fontBody,
     _tp.styleH1Size, _tp.styleH1Mobile, _tp.styleH2Size, _tp.styleH2Mobile,
     _tp.styleH3Size, _tp.styleBodySize, _tp.styleBodyMobile, _tp.styleLineHeight,
     _tp.styleMaxWidth, _tp.styleHeroHeight, _tp.styleParaSpace, _tp.styleH2Style
@@ -6183,7 +6196,7 @@ function buildAutoPrompt(topic){
   p.push('#SECONDARY_KW = [6 related keywords comma separated]');
   p.push('');
   p.push('#INTRO');
-  p.push('[2 short punchy paragraphs. Hook immediately. Include "' + focusKw + '". Max 4 sentences total.]');
+  p.push('[Write 2 SHORT paragraphs. MAX 2 sentences each. First sentence = strong hook. Include "' + focusKw + '". Short and punchy — no walls of text.]');
   p.push('');
   p.push('#STATS_START');
   p.push('[90%+] | [Patient satisfaction rate]');
