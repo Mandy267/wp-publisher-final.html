@@ -613,6 +613,8 @@ input.inp::placeholder,textarea.inp::placeholder{color:var(--ink3)}
           <div class="leg-item"><span class="leg-tag" style="background:#FBF0E8;color:#8B4A0A">#IMAGE_1 / _2</span> Auto image</div>
           <div class="leg-item"><span class="leg-tag" style="background:#E8EAF0;color:#0A2540">#TABLE_START/END</span> Table accordion ↕</div>
           <div class="leg-item"><span class="leg-tag" style="background:#E8F5F2;color:#0A5040">#ACCORDION_START/END</span> Any content → accordion ↕</div>
+          <div class="leg-item"><span class="leg-tag" style="background:#EEF2FF;color:#3730A3">#TAB_START = T1|T2|T3</span> 🆕 Tabbed sections</div>
+          <div class="leg-item"><span class="leg-tag" style="background:#F0FDF4;color:#166534">#STATS_START/END</span> 🆕 Stats highlight boxes</div>
           <div class="leg-item"><span class="leg-tag" style="background:linear-gradient(135deg,#E8EEF8,#E8F5EE);color:#0A5040">#CTA_TITLE/_BODY</span> CTA block</div>
           <div class="leg-item"><span class="leg-tag" style="background:#F0E8FB;color:#5A1A8B">#AUTHOR_NAME/ROLE/BIO</span> Author bio</div>
           <div class="leg-item"><span class="leg-tag" style="background:#EEEDEA;color:#9A9890">#INTRO</span> Intro paragraphs</div>
@@ -696,7 +698,7 @@ MBBS certified doctor" style="font-size:12px;line-height:1.6"></textarea>
         <div class="fg" style="margin-bottom:4px">
           <label class="lbl">Blog Structure</label>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px" id="blog-structure-grid">
+        <div style="display:none" id="blog-structure-grid">
 
           <div class="blog-struct-card selected" onclick="selectBlogStructure('educational',this)" id="struct-educational">
             <div class="bsc-icon">📚</div>
@@ -2397,8 +2399,32 @@ const BSP_CSS=`<style>
 .bsp-author-role{font-size:12px;color:var(--bsp-primary,#0A6B5E);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin:0 0 8px}
 .bsp-author-bio{font-size:13px;color:#555;margin:0;line-height:1.65}
 
-@media(max-width:900px){
-  .bsp-review-card{min-width:calc(50% - 7px);flex:0 0 calc(50% - 7px)}
+/* STATS BOX */
+.bsp-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;margin:24px 0}
+.bsp-stat-box{background:#f8fafc;border:1px solid #e5e7eb;border-radius:10px;padding:16px 12px;text-align:center}
+.bsp-stat-val{font-size:28px;font-weight:800;color:var(--bsp-primary,#0A6B5E);line-height:1;margin-bottom:6px}
+.bsp-stat-label{font-size:12px;color:#666;line-height:1.4;font-weight:500}
+
+/* TABS */
+.bsp-tabs{margin:28px 0;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden}
+.bsp-tab-nav{display:flex;overflow-x:auto;background:#f8fafc;border-bottom:1px solid #e5e7eb;-ms-overflow-style:none;scrollbar-width:none}
+.bsp-tab-nav::-webkit-scrollbar{display:none}
+.bsp-tab-btn{padding:12px 18px;font-size:13px;font-weight:600;color:#666;border:none;background:transparent;cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;transition:all .15s;font-family:inherit}
+.bsp-tab-btn:hover{color:#333;background:rgba(0,0,0,.03)}
+.bsp-tab-btn.active{color:var(--bsp-primary,#0A6B5E);border-bottom-color:var(--bsp-primary,#0A6B5E);background:#fff}
+.bsp-tab-pane{display:none;padding:20px 22px}
+.bsp-tab-pane.active{display:block}
+.bsp-tab-h3{font-size:15px;font-weight:600;color:#1a1a1a;margin:16px 0 8px}
+.bsp-tab-pane p{font-size:14px;color:#444;line-height:1.75;margin-bottom:14px}
+.bsp-tab-pane .bsp-list li{font-size:14px}
+.bsp-tab-pane .bsp-check-header{padding:10px 0}
+.bsp-tab-pane .bsp-check-num{width:24px;height:24px;min-width:24px;font-size:11px}
+
+@media(max-width:640px){
+  .bsp-tab-btn{padding:10px 14px;font-size:12px}
+  .bsp-tab-pane{padding:16px}
+  .bsp-stats{grid-template-columns:repeat(2,1fr)}
+  .bsp-stat-val{font-size:22px}
 }
 @media(max-width:640px){
   .bsp-hero-img-wrap img{height:220px}
@@ -2646,6 +2672,33 @@ ${reviewItems.map(r=>`      <div class="bsp-review-card">
     inReviews=false;reviewItems=[];
   };
 
+  let inTabs=false,tabLabels=[],tabContents=[],currentTab=0;
+  const closeTabs=()=>{
+    if(!inTabs||!tabLabels.length)return;
+    const tabId='tab-'+Math.random().toString(36).substr(2,6);
+    body+=`<div class="bsp-tabs" id="${tabId}">
+  <div class="bsp-tab-nav">
+    ${tabLabels.map((l,i)=>`<button class="bsp-tab-btn${i===0?' active':''}" onclick="bspTab('${tabId}',${i})">${fmt(l)}</button>`).join('')}
+  </div>
+  ${tabContents.map((c,i)=>`<div class="bsp-tab-pane${i===0?' active':''}" id="${tabId}-${i}">${c}</div>`).join('')}
+</div>
+<script>
+function bspTab(id,idx){
+  const wrap=document.getElementById(id);
+  wrap.querySelectorAll('.bsp-tab-btn').forEach((b,i)=>b.classList.toggle('active',i===idx));
+  wrap.querySelectorAll('.bsp-tab-pane').forEach((p,i)=>p.classList.toggle('active',i===idx));
+}
+<\/script>\n`;
+    inTabs=false;tabLabels=[];tabContents=[];currentTab=0;
+  };
+
+  let inStats=false,statItems=[];
+  const closeStats=()=>{
+    if(!inStats||!statItems.length)return;
+    body+=`<div class="bsp-stats">${statItems.map(s=>`<div class="bsp-stat-box"><div class="bsp-stat-val">${fmt(s.val)}</div><div class="bsp-stat-label">${fmt(s.label)}</div></div>`).join('')}</div>\n`;
+    inStats=false;statItems=[];
+  };
+
   const lines=raw.split('\n');
   let i=0;
   while(i<lines.length){
@@ -2688,9 +2741,47 @@ ${reviewItems.map(r=>`      <div class="bsp-review-card">
     // REVIEWS
     if(/^#REVIEWS_START/i.test(line)){closeReviews();inReviews=true;continue}
     if(/^#REVIEWS_END/i.test(line)){closeReviews();continue}
+    // TABS — #TAB_START = Tab1 Name | Tab2 Name | Tab3 Name
+    if(/^#TAB_START/i.test(line)){closeTabs();inTabs=true;
+      const tabMatch=line.match(/^#TAB_START\s*=\s*(.+)/i);
+      tabLabels=tabMatch?tabMatch[1].split('|').map(t=>t.trim()):[];
+      tabContents=tabLabels.map(()=>'');
+      currentTab=0;
+      continue;
+    }
+    if(/^#TAB_END/i.test(line)){closeTabs();continue}
+    if(inTabs){
+      const nextTabMatch=line.match(/^#TAB\s*=\s*(.+)/i);
+      if(nextTabMatch){currentTab++;continue}
+      if(currentTab<tabContents.length){
+        // Process line as HTML inside tab
+        const tl=line;
+        if(/^#H3\s*=/i.test(tl)){tabContents[currentTab]+=`<h3 class="bsp-tab-h3">${fmt(tl.replace(/^#H3\s*=\s*/i,''))}</h3>\n`;}
+        else if(/^#PARA/i.test(tl)){
+          let paraLines=[];let pi=i;
+          while(pi<lines.length&&!/^#[A-Z_]/.test(lines[pi].trim())){if(lines[pi].trim())paraLines.push(lines[pi].trim());pi++;}
+          tabContents[currentTab]+=`<p>${fmt(paraLines.join(' '))}</p>\n`;i=pi;
+        }
+        else if(/^#LIST_START/i.test(tl)){
+          let litems=[];let pi=i;
+          while(pi<lines.length&&!/^#LIST_END/i.test(lines[pi].trim())){if(lines[pi].trim())litems.push(lines[pi].trim().replace(/^[-*•]\s*/,''));pi++;}
+          tabContents[currentTab]+=`<ul class="bsp-list">${litems.map(it=>`<li>${fmt(it)}</li>`).join('')}</ul>\n`;i=pi+1;
+        }
+        else if(/^#CHECK\s*=/i.test(tl)){tabContents[currentTab]+=`<div class="bsp-check-header"><div class="bsp-check-num">${++checkNum}</div><div class="bsp-check-info"><h3>${fmt(tl.replace(/^#CHECK\s*=\s*/i,''))}</h3></div></div>\n`;}
+        else if(tl&&!tl.startsWith('#')){tabContents[currentTab]+=`<p>${fmt(tl)}</p>\n`;}
+      }
+      continue;
+    }
+    // STATS BOX — #STATS_START / value | label per line / #STATS_END
+    if(/^#STATS_START/i.test(line)){closeStats();inStats=true;statItems=[];continue}
+    if(/^#STATS_END/i.test(line)){closeStats();continue}
 
     // Collect block items
-    if(inList){ listItems.push(line.replace(/^[-*•]\s*/,'')); continue; }
+    if(inStats){
+      const parts=line.split('|').map(p=>p.trim());
+      if(parts.length>=2)statItems.push({val:parts[0],label:parts[1]});
+      continue;
+    }
     if(inAsk){  askItems.push(line.replace(/^[-*•]\s*/,'')); continue; }
     if(inTable){ tableLines.push(line); continue; }
     if(inAccordion){ accordionItems.push(line.replace(/^[-*•]\s*/,'')); continue; }
@@ -2718,7 +2809,7 @@ ${reviewItems.map(r=>`      <div class="bsp-review-card">
     // SINGLE-LINE MARKERS
     const h2m=line.match(/^#H2\s*=\s*(.+)/i);
     if(h2m){
-      closeList();closeAsk();closeFaq();closeTable();closeAccordion();closeReviews();
+      closeList();closeAsk();closeFaq();closeTable();closeAccordion();closeReviews();closeTabs();closeStats();
       // Track if this H2 is a FAQ heading — so we don't double-print it
       if(/frequently asked|^faq/i.test(h2m[1])){
         lastH2WasFaq=true;
@@ -6067,40 +6158,196 @@ async function generateBlogAuto(autoPublish=false){
 }
 
 function buildAutoPrompt(topic){
-  const profile  = clientProfiles[activeProfileIdx];
-  const location = document.getElementById('ai-location').value.trim() || (profile?.city || '');
-  const audience = document.getElementById('ai-audience').value.trim() || '';
+  const profile   = clientProfiles[activeProfileIdx] || {};
+  const location  = document.getElementById('ai-location').value.trim() || profile.city || '';
+  const audience  = document.getElementById('ai-audience').value.trim() || '';
   const keypoints = document.getElementById('ai-keypoints').value.trim();
-  const structure = document.getElementById('ai-blog-structure')?.value || 'educational';
-  const focusKw  = topic.toLowerCase() + (location ? ' ' + location.toLowerCase() : '');
+  const focusKw   = topic.toLowerCase() + (location ? ' ' + location.toLowerCase() : '');
+  const biz       = profile.name || 'our clinic';
+  const author    = profile.authorName || 'Dr. Expert';
+  const authorRole= profile.authorRole || 'Specialist';
+  const authorBio = profile.authorBio  || `Expert at ${biz}`;
+  const cta       = profile.ctaBtn     || 'Book a Free Consultation';
+  const ctaUrl    = profile.ctaUrl     || '';
+  const tone      = profile.tone       || 'Professional & Reassuring';
+  const keypointsSection = keypoints ? `\nKEY POINTS TO INCLUDE:\n${keypoints.split('\n').map(p=>'- '+p.trim()).filter(Boolean).join('\n')}` : '';
 
-  // Get structure-specific prompt
-  const structurePrompt = getBlogStructurePrompt(structure, topic, focusKw, profile, location, audience, keypoints);
+  return `You are a premium medical/wellness content writer for ${biz}${location?' in '+location:''}.
 
-  const keypointsSection = keypoints ? `\nKEY POINTS TO COVER:\n${keypoints.split('\n').map(p=>'- '+p.trim()).join('\n')}` : '';
-  const audienceSection  = audience  ? `\nTARGET AUDIENCE: ${audience}` : '';
+Write a COMPLETE blog post about "${topic}" using EXACTLY the marker structure below.
+Focus keyword: "${focusKw}" — use naturally 5-8 times.
+Tone: ${tone}. Target: Indian audience. Use ₹ for pricing.
+${keypointsSection}
 
-  return `You are a professional SEO blog writer for ${profile?.name||'a clinic'}.
-${profile ? `Business: ${profile.name} | Industry: ${profile.industry||''} | Location: ${profile.city||''}${profile.state?', '+profile.state:''} | Tone: ${profile.tone||'Professional'}` : ''}
-${audienceSection}${keypointsSection}
+CRITICAL RULES:
+1. Follow the marker structure EXACTLY — do not add or remove markers
+2. Write real, specific, helpful content — not generic filler
+3. Keep paragraphs under 3 sentences each — short and punchy
+4. Make FAQ questions sound like real Google searches
+5. Reviews: casual Indian English, mention specific results, 15-20 words max
+6. Stats: use realistic numbers relevant to ${topic}
+7. Tab content: keep each tab focused and concise — 3-5 points per tab
+8. Do NOT write placeholder text — write actual content
 
-Write a COMPLETE, PUBLISH-READY blog using EXACTLY this marker structure below. No explanations — only the marker-formatted content.
+--- OUTPUT STARTS HERE ---
 
-OUTPUT REQUIREMENTS:
-1. Use ONLY the markers shown — no extra text outside markers
-2. 1500+ words minimum
-3. Use "${focusKw}" naturally 5-8 times
-4. Write in ${profile?.tone||'professional but approachable'} tone
-5. Target Indian audience, use ₹ for pricing
-6. Make FAQ questions sound like real search queries
-7. Reviews: casual Indian language, specific results, 15-20 words max each
-8. Do NOT add #IMAGE_1 or #IMAGE_2 — tool auto-inserts them
+#TITLE = [SEO title 50-60 chars with "${focusKw}"]
+#HERO_TAG = ${profile.industry||'Treatment'} · ${location||'Expert Guide'}
+#AUTHOR = ${author}
+#AUTHOR_ROLE = ${authorRole}
+#AUTHOR_BIO = ${authorBio}
+#READ_TIME = 8
+#META_TITLE = [SEO meta title 50-60 chars]
+#META_DESC = [Compelling meta description 130-160 chars with "${focusKw}"]
+#FOCUS_KW = ${focusKw}
+#SECONDARY_KW = [6 related keywords comma separated]
 
---- START MARKER OUTPUT ---
+#INTRO
+[2 short punchy paragraphs about ${topic}. First sentence must hook immediately. Include "${focusKw}" in first paragraph. Max 4 sentences total.]
 
-${structurePrompt}
+#STATS_START
+[Relevant number like "92%"] | [Stat label like "Patient satisfaction"]
+[Relevant number like "5,000+"] | [Stat label like "Successful treatments"]
+[Relevant number like "15+"] | [Stat label like "Years of expertise"]
+[Relevant number like "₹X,XXX"] | [Stat label like "Starting price"]
+#STATS_END
 
---- END MARKER OUTPUT ---`;
+#H2 = What Is ${topic}?
+#PARA = [Clear 2-sentence explanation of what ${topic} is and who it helps]
+#IMAGE_1 = ${topic}
+
+#H2 = Our Holistic Approach to ${topic}
+#TAB_START = Overview | How It Works | Who It's For | Results
+#H3 = What We Offer
+#PARA = [2-3 sentences about the overall approach at ${biz}]
+#LIST_START
+[Key offering 1]
+[Key offering 2]
+[Key offering 3]
+[Key offering 4]
+#LIST_END
+#TAB = How It Works
+#H3 = The Treatment Process
+#CHECK = Step 1: [First step name]
+#CHECK = Step 2: [Second step name]
+#CHECK = Step 3: [Third step name]
+#CHECK = Step 4: [Fourth step name]
+#TAB = Who It's For
+#H3 = Ideal Candidates
+#PARA = [Who should consider ${topic}]
+#LIST_START
+[Candidate type 1]
+[Candidate type 2]
+[Candidate type 3]
+[Candidate type 4]
+#LIST_END
+#TAB = Results
+#H3 = What to Expect
+#PARA = [Realistic results and timeline]
+#LIST_START
+[Result milestone 1 with timeframe]
+[Result milestone 2 with timeframe]
+[Result milestone 3 with timeframe]
+#LIST_END
+#TAB_END
+
+#H2 = Diagnosis & Assessment
+#CHECK = [First assessment step]
+#PARA = [One sentence detail]
+#CHECK = [Second assessment step]
+#PARA = [One sentence detail]
+#CHECK = [Third assessment step]
+#PARA = [One sentence detail]
+
+#H2 = Treatment Options — A Comparison
+#TABLE_START
+| Option | Best For | Duration | Cost Range | Sessions |
+| --- | --- | --- | --- | --- |
+| [Option 1] | [Best for] | [Duration] | ₹[Range] | [N] |
+| [Option 2] | [Best for] | [Duration] | ₹[Range] | [N] |
+| [Option 3] | [Best for] | [Duration] | ₹[Range] | [N] |
+#TABLE_END
+
+#H2 = Treatment Plans at ${biz}
+#TAB_START = Basic | Advanced | Premium
+#H3 = Basic Plan
+#PARA = [What's included in basic]
+#LIST_START
+[Included item 1]
+[Included item 2]
+[Included item 3]
+#LIST_END
+#TAB = Advanced
+#H3 = Advanced Plan
+#PARA = [What's included in advanced]
+#LIST_START
+[Included item 1]
+[Included item 2]
+[Included item 3]
+[Included item 4]
+#LIST_END
+#TAB = Premium
+#H3 = Premium Plan
+#PARA = [What's included in premium]
+#LIST_START
+[Included item 1]
+[Included item 2]
+[Included item 3]
+[Included item 4]
+[Included item 5]
+#LIST_END
+#TAB_END
+
+#IMAGE_2 = ${topic} results
+
+#H2 = Lifestyle & Long-Term Success
+#LIST_START
+[Lifestyle tip 1 specific to ${topic}]
+[Lifestyle tip 2]
+[Lifestyle tip 3]
+[Lifestyle tip 4]
+[Lifestyle tip 5]
+#LIST_END
+
+#H2 = Why Choose ${biz}${location?' in '+location:''}?
+#STATS_START
+[Number] | [Specific credential or achievement]
+[Number] | [Technology or equipment stat]
+[Number] | [Patient outcome stat]
+[Number] | [Experience or certification stat]
+#STATS_END
+#PARA = [2 sentences on what makes ${biz} different — specific, not generic]
+
+#REVIEWS_START
+[Specific result they got from ${topic}] | [Indian first name last initial] | [Bangalore area] | 5
+[Specific result mentioning timeframe] | [Indian name] | [Area] | 5
+[Review mentioning doctor by name and outcome] | [Indian name] | [Area] | 5
+[Review about experience and recommendation] | [Indian name] | [Area] | 5
+[Review with before/after detail] | [Indian name] | [Area] | 5
+#REVIEWS_END
+
+#FAQ_START
+Q: How much does ${topic} cost${location?' in '+location:''}?
+A: [Honest answer with ₹ range and factors that affect price]
+Q: How many sessions of ${topic} do I need?
+A: [Specific answer with typical range]
+Q: Is ${topic} painful?
+A: [Reassuring, honest answer]
+Q: How long do ${topic} results last?
+A: [Specific timeframe with maintenance advice]
+Q: Is ${topic} safe?
+A: [Reassuring answer with safety credentials]
+Q: What is the recovery time after ${topic}?
+A: [Practical answer about downtime]
+#FAQ_END
+
+#CTA_TITLE = ${cta}
+#CTA_BODY = [One powerful sentence about why to book now at ${biz} for ${topic}]
+
+#AUTHOR_NAME/${authorRole}/BIO
+${authorBio}
+
+--- OUTPUT ENDS HERE ---`;
 }
 
 
