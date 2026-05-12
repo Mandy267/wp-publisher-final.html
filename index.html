@@ -299,40 +299,6 @@ input.inp::placeholder,textarea.inp::placeholder{color:var(--ink3)}
 .ap-cal-status.done     { background:#F0FDF4; color:#16A34A; border:1px solid #BBF7D0; }
 .ap-cal-status.running  { background:var(--teal-l); color:var(--teal); border:1px solid var(--teal-b); }
 .ap-cal-actions { display:flex; gap:6px; margin-top:8px; }
-
-/* Blog Structure Cards */
-.blog-struct-card {
-  border: 1.5px solid var(--bdr);
-  border-radius: 8px;
-  padding: 10px 12px;
-  cursor: pointer;
-  transition: all .15s;
-  background: var(--surf);
-  position: relative;
-}
-.blog-struct-card:hover {
-  border-color: var(--teal-b);
-  background: var(--teal-l);
-}
-.blog-struct-card.selected {
-  border-color: var(--teal);
-  background: var(--teal-l);
-  box-shadow: 0 0 0 2px var(--teal-b);
-}
-.blog-struct-card.selected::after {
-  content: '✓';
-  position: absolute;
-  top: 7px; right: 9px;
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--teal);
-}
-.bsc-icon { font-size: 18px; margin-bottom: 4px; }
-.bsc-name { font-size: 12px; font-weight: 700; color: var(--ink); margin-bottom: 3px; }
-.bsc-desc { font-size: 10px; color: var(--ink3); line-height: 1.5; margin-bottom: 6px; }
-.bsc-tags { display: flex; gap: 4px; flex-wrap: wrap; }
-.bsc-tags span { font-size: 9px; font-weight: 600; padding: 2px 6px; border-radius: 10px; background: var(--surf2); color: var(--ink3); border: 1px solid var(--bdr); }
-.blog-struct-card.selected .bsc-tags span { background: rgba(255,255,255,.6); color: var(--teal); border-color: var(--teal-b); }
 </style>
 </head>
 <body>
@@ -439,132 +405,6 @@ input.inp::placeholder,textarea.inp::placeholder{color:var(--ink3)}
         </div>
       </div>
       <div style="margin-top:12px;border-top:1px solid var(--bdr);padding-top:12px">
-        <div style="font-size:11px;font-weight:600;color:var(--ink2);margin-bottom:8px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.5px">🎨 Blog Style Settings</div>
-        <div style="background:var(--teal-l);border:1px solid var(--teal-b);border-radius:6px;padding:7px 11px;font-size:11px;color:var(--teal);margin-bottom:10px">
-          These settings apply to every blog published from this profile — both manual and Auto-Pilot
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-
-          <!-- Font Sizes -->
-          <div class="fg">
-            <label class="lbl">H1 Size (desktop)</label>
-            <select class="inp" id="p-h1-size">
-              <option value="clamp(24px,4vw,36px)">Small (36px)</option>
-              <option value="clamp(26px,4vw,40px)" selected>Medium (40px)</option>
-              <option value="clamp(28px,5vw,48px)">Large (48px)</option>
-              <option value="clamp(32px,5vw,56px)">Extra Large (56px)</option>
-            </select>
-          </div>
-          <div class="fg">
-            <label class="lbl">H1 Size (mobile)</label>
-            <select class="inp" id="p-h1-mobile">
-              <option value="18px">Small (18px)</option>
-              <option value="20px" selected>Medium (20px)</option>
-              <option value="22px">Large (22px)</option>
-              <option value="24px">Extra Large (24px)</option>
-            </select>
-          </div>
-          <div class="fg">
-            <label class="lbl">H2 Size (desktop)</label>
-            <select class="inp" id="p-h2-size">
-              <option value="18px">Small (18px)</option>
-              <option value="22px">Medium (22px)</option>
-              <option value="clamp(20px,2.5vw,26px)" selected>Large (26px)</option>
-              <option value="clamp(22px,3vw,30px)">Extra Large (30px)</option>
-            </select>
-          </div>
-          <div class="fg">
-            <label class="lbl">H2 Size (mobile)</label>
-            <select class="inp" id="p-h2-mobile">
-              <option value="15px">Small (15px)</option>
-              <option value="17px" selected>Medium (17px)</option>
-              <option value="19px">Large (19px)</option>
-              <option value="21px">Extra Large (21px)</option>
-            </select>
-          </div>
-          <div class="fg">
-            <label class="lbl">H3 Size (desktop)</label>
-            <select class="inp" id="p-h3-size">
-              <option value="15px">Small (15px)</option>
-              <option value="17px">Medium (17px)</option>
-              <option value="18px" selected>Large (18px)</option>
-              <option value="20px">Extra Large (20px)</option>
-            </select>
-          </div>
-          <div class="fg">
-            <label class="lbl">H3 Size (mobile)</label>
-            <select class="inp" id="p-h3-mobile">
-              <option value="13px">Small (13px)</option>
-              <option value="15px" selected>Medium (15px)</option>
-              <option value="17px">Large (17px)</option>
-            </select>
-          </div>
-          <div class="fg">
-            <label class="lbl">Body Text (desktop)</label>
-            <select class="inp" id="p-body-size">
-              <option value="14px">Small (14px)</option>
-              <option value="15px">Medium (15px)</option>
-              <option value="16px" selected>Large (16px)</option>
-              <option value="17px">Extra Large (17px)</option>
-            </select>
-          </div>
-          <div class="fg">
-            <label class="lbl">Body Text (mobile)</label>
-            <select class="inp" id="p-body-mobile">
-              <option value="13px">Small (13px)</option>
-              <option value="14px">Medium (14px)</option>
-              <option value="15px" selected>Large (15px)</option>
-              <option value="16px">Extra Large (16px)</option>
-            </select>
-          </div>
-          <div class="fg">
-            <label class="lbl">Line Height</label>
-            <select class="inp" id="p-line-height">
-              <option value="1.6">Compact (1.6)</option>
-              <option value="1.75">Normal (1.75)</option>
-              <option value="1.85" selected>Relaxed (1.85)</option>
-              <option value="2">Spacious (2.0)</option>
-            </select>
-          </div>
-          <div class="fg">
-            <label class="lbl">Max Content Width</label>
-            <select class="inp" id="p-max-width">
-              <option value="680px">Narrow (680px)</option>
-              <option value="760px">Medium (760px)</option>
-              <option value="820px" selected>Wide (820px)</option>
-              <option value="900px">Extra Wide (900px)</option>
-            </select>
-          </div>
-          <div class="fg">
-            <label class="lbl">H2 Style</label>
-            <select class="inp" id="p-h2-style">
-              <option value="border-bottom:2px solid #e8f4f8">Underline (default)</option>
-              <option value="border-left:4px solid var(--bsp-primary);padding-left:12px;border-bottom:none">Left Border</option>
-              <option value="background:var(--bsp-primary);color:#fff;padding:8px 14px;border-radius:6px;border-bottom:none">Filled Badge</option>
-              <option value="border-bottom:none">Plain (no decoration)</option>
-            </select>
-          </div>
-          <div class="fg">
-            <label class="lbl">Hero Image Height</label>
-            <select class="inp" id="p-hero-height">
-              <option value="300px">Short (300px)</option>
-              <option value="380px">Medium (380px)</option>
-              <option value="440px" selected>Tall (440px)</option>
-              <option value="520px">Extra Tall (520px)</option>
-            </select>
-          </div>
-          <div class="fg" style="grid-column:1/-1">
-            <label class="lbl">Paragraph Spacing</label>
-            <select class="inp" id="p-para-spacing">
-              <option value="12px">Tight (12px)</option>
-              <option value="16px">Normal (16px)</option>
-              <option value="20px" selected>Relaxed (20px)</option>
-              <option value="28px">Spacious (28px)</option>
-            </select>
-          </div>
-        </div>
-      </div>
-      <div style="margin-top:12px;border-top:1px solid var(--bdr);padding-top:12px">
         <div style="font-size:11px;font-weight:600;color:var(--ink2);margin-bottom:8px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.5px">Default CTA</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
           <div class="fg"><label class="lbl">CTA Button Text</label><input class="inp" id="p-cta-btn" placeholder="Book a Free Consultation"/></div>
@@ -613,8 +453,6 @@ input.inp::placeholder,textarea.inp::placeholder{color:var(--ink3)}
           <div class="leg-item"><span class="leg-tag" style="background:#FBF0E8;color:#8B4A0A">#IMAGE_1 / _2</span> Auto image</div>
           <div class="leg-item"><span class="leg-tag" style="background:#E8EAF0;color:#0A2540">#TABLE_START/END</span> Table accordion ↕</div>
           <div class="leg-item"><span class="leg-tag" style="background:#E8F5F2;color:#0A5040">#ACCORDION_START/END</span> Any content → accordion ↕</div>
-          <div class="leg-item"><span class="leg-tag" style="background:#EEF2FF;color:#3730A3">#TAB_START = T1|T2|T3</span> 🆕 Tabbed sections</div>
-          <div class="leg-item"><span class="leg-tag" style="background:#F0FDF4;color:#166534">#STATS_START/END</span> 🆕 Stats highlight boxes</div>
           <div class="leg-item"><span class="leg-tag" style="background:linear-gradient(135deg,#E8EEF8,#E8F5EE);color:#0A5040">#CTA_TITLE/_BODY</span> CTA block</div>
           <div class="leg-item"><span class="leg-tag" style="background:#F0E8FB;color:#5A1A8B">#AUTHOR_NAME/ROLE/BIO</span> Author bio</div>
           <div class="leg-item"><span class="leg-tag" style="background:#EEEDEA;color:#9A9890">#INTRO</span> Intro paragraphs</div>
@@ -694,51 +532,10 @@ Why choose us over competitors
 MBBS certified doctor" style="font-size:12px;line-height:1.6"></textarea>
         </div>
 
-        <!-- BLOG STRUCTURE SELECTOR -->
-        <div class="fg" style="margin-bottom:4px">
-          <label class="lbl">Blog Structure</label>
-        </div>
-        <div style="display:none" id="blog-structure-grid">
-
-          <div class="blog-struct-card selected" onclick="selectBlogStructure('educational',this)" id="struct-educational">
-            <div class="bsc-icon">📚</div>
-            <div class="bsc-name">Educational Guide</div>
-            <div class="bsc-desc">Intro → What/Why → How it works → Benefits → FAQ → CTA</div>
-            <div class="bsc-tags"><span>Info</span><span>SEO</span><span>FAQ</span></div>
-          </div>
-
-          <div class="blog-struct-card" onclick="selectBlogStructure('listicle',this)" id="struct-listicle">
-            <div class="bsc-icon">📋</div>
-            <div class="bsc-name">Listicle / Top Tips</div>
-            <div class="bsc-desc">Hook → Numbered tips with detail → Summary → FAQ → CTA</div>
-            <div class="bsc-tags"><span>Tips</span><span>List</span><span>Quick</span></div>
-          </div>
-
-          <div class="blog-struct-card" onclick="selectBlogStructure('comparison',this)" id="struct-comparison">
-            <div class="bsc-icon">⚖️</div>
-            <div class="bsc-name">Comparison / Review</div>
-            <div class="bsc-desc">Overview → Side-by-side table → Pros/Cons → Verdict → CTA</div>
-            <div class="bsc-tags"><span>Table</span><span>Compare</span><span>Review</span></div>
-          </div>
-
-          <div class="blog-struct-card" onclick="selectBlogStructure('local',this)" id="struct-local">
-            <div class="bsc-icon">📍</div>
-            <div class="bsc-name">Local SEO Blog</div>
-            <div class="bsc-desc">City intro → Why local → What to expect → Cost → Clinic → FAQ</div>
-            <div class="bsc-tags"><span>Local</span><span>Maps</span><span>Reviews</span></div>
-          </div>
-
-        </div>
-        <input type="hidden" id="ai-blog-structure" value="educational">
-
-        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-          <button class="btn btn-navy" onclick="generateBlogAuto(false)" id="ai-gen-btn" style="flex:1">
+        <div style="display:flex;gap:8px;align-items:center">
+          <button class="btn btn-navy" onclick="generateBlogAuto()" id="ai-gen-btn" style="flex:1">
             <div class="spin"></div>
-            <span class="lbl">🚀 Generate Blog</span>
-          </button>
-          <button class="btn btn-primary" onclick="generateBlogAuto(true)" id="ai-gen-publish-btn" style="flex:1">
-            <div class="spin"></div>
-            <span class="lbl">⚡ Generate & Publish</span>
+            <span class="lbl">🚀 Auto-Generate Complete Blog</span>
           </button>
           <button class="btn btn-ghost" onclick="clearAIForm()" style="font-size:11px;padding:8px 14px">Clear</button>
         </div>
@@ -865,7 +662,6 @@ MBBS certified doctor" style="font-size:12px;line-height:1.6"></textarea>
       <div class="rtab" onclick="switchTab('queue',this)">📅 Queue</div>
       <div class="rtab" onclick="switchTab('schema',this)">🧬 Schema</div>
       <div class="rtab" onclick="switchTab('links',this)">🔗 Links</div>
-      <div class="rtab" onclick="switchTab('gscdata',this)">📊 GSC Data</div>
     </div>
 
     <!-- SEO PANE -->
@@ -1094,14 +890,10 @@ MBBS certified doctor" style="font-size:12px;line-height:1.6"></textarea>
         Reads blog markers → generates JSON-LD → paste into WordPress header
       </div>
 
-      <div style="background:#FFF1F1;border:1px solid #FECACA;border-radius:6px;padding:9px 12px;font-size:11px;color:#dc2626;margin-bottom:10px;line-height:1.6">
-        ⚠️ <strong>RankMath Duplicate Warning:</strong> If RankMath is active on this site, <strong>do not enable FAQPage</strong> below — it causes duplicate schema errors in Google Search Console. RankMath already handles FAQ schema. Only use Article, Person, Organization, and Breadcrumb here.
-      </div>
-
       <div style="font-size:10px;font-weight:600;color:var(--ink2);font-family:var(--mono);text-transform:uppercase;letter-spacing:.7px;margin-bottom:6px">Schema Types</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:10px">
         <label style="display:flex;align-items:center;gap:5px;font-size:11px;cursor:pointer;padding:5px 8px;background:var(--surf2);border-radius:5px;border:1px solid var(--bdr)"><input type="checkbox" id="schema-article" checked style="accent-color:var(--teal)"> Article</label>
-        <label style="display:flex;align-items:center;gap:5px;font-size:11px;cursor:pointer;padding:5px 8px;background:var(--surf2);border-radius:5px;border:1px solid var(--bdr)"><input type="checkbox" id="schema-faq" style="accent-color:var(--teal)"> FAQPage</label>
+        <label style="display:flex;align-items:center;gap:5px;font-size:11px;cursor:pointer;padding:5px 8px;background:var(--surf2);border-radius:5px;border:1px solid var(--bdr)"><input type="checkbox" id="schema-faq" checked style="accent-color:var(--teal)"> FAQPage</label>
         <label style="display:flex;align-items:center;gap:5px;font-size:11px;cursor:pointer;padding:5px 8px;background:var(--surf2);border-radius:5px;border:1px solid var(--bdr)"><input type="checkbox" id="schema-person" checked style="accent-color:var(--teal)"> Person</label>
         <label style="display:flex;align-items:center;gap:5px;font-size:11px;cursor:pointer;padding:5px 8px;background:var(--surf2);border-radius:5px;border:1px solid var(--bdr)"><input type="checkbox" id="schema-org" checked style="accent-color:var(--teal)"> Organization</label>
         <label style="display:flex;align-items:center;gap:5px;font-size:11px;cursor:pointer;padding:5px 8px;background:var(--surf2);border-radius:5px;border:1px solid var(--bdr)"><input type="checkbox" id="schema-breadcrumb" checked style="accent-color:var(--teal)"> Breadcrumb</label>
@@ -1163,40 +955,6 @@ MBBS certified doctor" style="font-size:12px;line-height:1.6"></textarea>
 
       <div id="links-no-site" style="display:none;background:var(--gold-l);border:1px solid var(--gold-b);border-radius:var(--r);padding:10px 13px;font-size:11px;color:var(--gold)">
         Connect a WordPress site first to fetch published posts.
-      </div>
-    </div>
-
-    <!-- GSC DATA PANE -->
-    <div class="rpane" id="pane-gscdata" style="overflow-y:auto;gap:10px">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
-        <div style="font-size:13px;font-weight:600;color:var(--ink)">📊 GSC Keyword Data</div>
-        <button class="btn btn-primary" style="font-size:11px;padding:6px 12px" id="blog-gsc-fetch-btn" onclick="blogGscFetch()">⚡ Fetch</button>
-      </div>
-      <!-- Auth status -->
-      <div id="blog-gsc-status" style="background:var(--surf2);border:1px solid var(--bdr);border-radius:6px;padding:8px 12px;font-size:11px;color:var(--ink3)">
-        🔒 Not connected — <a href="#" onclick="gscConnect();return false;" style="color:var(--teal)">Connect GSC</a> first
-      </div>
-      <!-- Filters -->
-      <div id="blog-gsc-filters" style="display:none;flex-direction:column;gap:6px">
-        <select class="inp" id="blog-gsc-site" style="font-size:11px"></select>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
-          <select class="inp" id="blog-gsc-days" style="font-size:11px">
-            <option value="28">Last 28 days</option>
-            <option value="90" selected>Last 90 days</option>
-            <option value="180">Last 6 months</option>
-          </select>
-          <select class="inp" id="blog-gsc-filter" style="font-size:11px">
-            <option value="all">All Keywords</option>
-            <option value="quick-wins">Quick Wins (4-20)</option>
-            <option value="low-ctr">Low CTR</option>
-            <option value="untapped">Untapped</option>
-          </select>
-        </div>
-      </div>
-      <!-- Results -->
-      <div id="blog-gsc-results" style="display:none;flex-direction:column;gap:6px">
-        <div style="font-size:10px;color:var(--ink3);font-family:var(--mono)">Click any keyword to auto-fill SEO fields →</div>
-        <div id="blog-gsc-list" style="display:flex;flex-direction:column;gap:4px;max-height:420px;overflow-y:auto"></div>
       </div>
     </div>
 
@@ -1319,36 +1077,6 @@ MBBS certified doctor" style="font-size:12px;line-height:1.6"></textarea>
     <div class="rtabs">
       <div class="rtab active" onclick="switchPageTab('preview',this)">Preview</div>
       <div class="rtab" onclick="switchPageTab('history',this)">History</div>
-      <div class="rtab" onclick="switchPageTab('gscdata',this)">📊 GSC Data</div>
-    </div>
-    <div class="rpane" id="page-pane-gscdata" style="overflow-y:auto;gap:10px">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
-        <div style="font-size:13px;font-weight:600;color:var(--ink)">📊 GSC Keyword Data</div>
-        <button class="btn btn-primary" style="font-size:11px;padding:6px 12px" onclick="blogGscFetch('page')">⚡ Fetch</button>
-      </div>
-      <div id="page-gsc-status" style="background:var(--surf2);border:1px solid var(--bdr);border-radius:6px;padding:8px 12px;font-size:11px;color:var(--ink3)">
-        🔒 Not connected — <a href="#" onclick="gscConnect();return false;" style="color:var(--teal)">Connect GSC</a> first
-      </div>
-      <div id="page-gsc-filters" style="display:none;flex-direction:column;gap:6px">
-        <select class="inp" id="page-gsc-site" style="font-size:11px"></select>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
-          <select class="inp" id="page-gsc-days" style="font-size:11px">
-            <option value="28">Last 28 days</option>
-            <option value="90" selected>Last 90 days</option>
-            <option value="180">Last 6 months</option>
-          </select>
-          <select class="inp" id="page-gsc-filter" style="font-size:11px">
-            <option value="all">All Keywords</option>
-            <option value="quick-wins">Quick Wins (4-20)</option>
-            <option value="low-ctr">Low CTR</option>
-            <option value="untapped">Untapped</option>
-          </select>
-        </div>
-      </div>
-      <div id="page-gsc-results" style="display:none;flex-direction:column;gap:6px">
-        <div style="font-size:10px;color:var(--ink3);font-family:var(--mono)">Click any keyword to auto-fill page title and target keyword →</div>
-        <div id="page-gsc-list" style="display:flex;flex-direction:column;gap:4px;max-height:420px;overflow-y:auto"></div>
-      </div>
     </div>
     <div class="rpane active" id="page-pane-preview">
       <div style="font-size:12px;font-weight:600;color:var(--ink2);margin-bottom:8px">Page Preview</div>
@@ -1444,7 +1172,6 @@ MBBS certified doctor" style="font-size:12px;line-height:1.6"></textarea>
     <div class="rtabs">
       <div class="rtab active" onclick="switchApTab('calendar',this)">📅 Content Calendar</div>
       <div class="rtab" onclick="switchApTab('autopublish',this)">⚡ Auto-Publish</div>
-      <div class="rtab" onclick="switchApTab('gsc',this)">🔍 GSC Keywords</div>
       <div class="rtab" onclick="switchApTab('aphistory',this)">📋 History</div>
     </div>
 
@@ -1455,13 +1182,7 @@ MBBS certified doctor" style="font-size:12px;line-height:1.6"></textarea>
         <div style="font-weight:600;margin-bottom:6px">No calendar yet</div>
         <div style="font-size:12px">Fill in your niche details and find keywords first</div>
       </div>
-      <div id="ap-cal-toolbar" style="padding:8px 12px;border-bottom:1px solid var(--bdr);background:var(--surf2);display:none;gap:6px;flex-wrap:wrap;align-items:center">
-        <button class="btn btn-ghost" style="font-size:10px;padding:3px 10px;height:26px;color:#dc2626;border-color:#FECACA" onclick="apClearFailed()">🗑 Clear Failed</button>
-        <button class="btn btn-ghost" style="font-size:10px;padding:3px 10px;height:26px;color:#dc2626;border-color:#FECACA" onclick="apClearDone()">🗑 Clear Done</button>
-        <button class="btn btn-ghost" style="font-size:10px;padding:3px 10px;height:26px;color:#dc2626;border-color:#FECACA" onclick="apClearAll()">🗑 Clear All</button>
-        <span style="font-size:10px;color:var(--ink3);margin-left:auto;align-self:center" id="ap-cal-count"></span>
-      </div>
-      <div id="ap-cal-list" style="display:none;flex-direction:column;gap:8px;overflow-y:auto;max-height:calc(100vh - 220px);padding:8px"></div>
+      <div id="ap-cal-list" style="display:none;flex-direction:column;gap:8px;overflow-y:auto;max-height:calc(100vh - 180px)"></div>
     </div>
 
     <!-- Auto-Publish Pane -->
@@ -1504,15 +1225,6 @@ MBBS certified doctor" style="font-size:12px;line-height:1.6"></textarea>
                 <option value="2500">~2,500 words (in-depth)</option>
               </select>
             </div>
-            <div class="fg" style="margin:0">
-              <label class="lbl">WordPress Category</label>
-              <input class="inp" id="ap-pub-category" placeholder="e.g. Skin Treatments, Hair Care, Blog">
-              <div style="font-size:10px;color:var(--ink3);margin-top:3px">Must match an existing category in WordPress exactly</div>
-            </div>
-            <div class="fg" style="margin:0">
-              <label class="lbl">Author Slug</label>
-              <input class="inp" id="ap-pub-author" placeholder="e.g. dr-ramya (WordPress username)">
-            </div>
             <div style="border-top:1px solid var(--bdr);padding-top:10px;margin-top:2px">
               <label class="lbl">🖼️ Image Settings</label>
               <div style="background:var(--teal-l);border:1px solid var(--teal-b);border-radius:6px;padding:8px 12px;font-size:11px;color:var(--teal);margin-bottom:8px">
@@ -1541,84 +1253,6 @@ MBBS certified doctor" style="font-size:12px;line-height:1.6"></textarea>
       </div>
     </div>
 
-    <!-- GSC Keywords Pane -->
-    <div class="rpane" id="ap-pane-gsc">
-      <div style="display:flex;flex-direction:column;gap:14px;padding:4px 0">
-
-        <!-- Connect Card -->
-        <div class="card" style="margin:0" id="gsc-connect-card">
-          <div class="card-hdr"><div class="card-hdr-title">🔍 Google Search Console</div></div>
-          <div class="card-body" style="gap:10px">
-            <div style="font-size:12px;color:var(--ink2);line-height:1.7">
-              Connect your GSC to find <strong>real keyword opportunities</strong> — keywords you're already ranking for but not in top 3, high impression / low CTR terms, and untapped queries.
-            </div>
-            <div id="gsc-auth-status" style="background:var(--surf2);border:1.5px solid var(--bdr);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--ink3);display:flex;align-items:center;gap:8px">
-              <span style="font-size:16px">🔒</span>
-              <span>Not connected — click below to connect with Google</span>
-            </div>
-            <button class="btn btn-primary" id="gsc-connect-btn" onclick="gscConnect()" style="width:100%">
-              <span class="spin"></span><span class="lbl">🔗 Connect Google Search Console</span>
-            </button>
-            <button class="btn btn-ghost" id="gsc-disconnect-btn" onclick="gscDisconnect()" style="width:100%;display:none;color:#dc2626;border-color:#FECACA">
-              Disconnect GSC
-            </button>
-          </div>
-        </div>
-
-        <!-- Site + Date filters -->
-        <div class="card" style="margin:0" id="gsc-filters-card" style="display:none">
-          <div class="card-hdr"><div class="card-hdr-title">⚙️ Filter Keywords</div></div>
-          <div class="card-body" style="gap:10px">
-            <div class="fg" style="margin:0">
-              <label class="lbl">GSC Property (your site)</label>
-              <select class="inp" id="gsc-site-select">
-                <option value="">— Loading your sites... —</option>
-              </select>
-            </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-              <div class="fg" style="margin:0">
-                <label class="lbl">Date Range</label>
-                <select class="inp" id="gsc-date-range">
-                  <option value="28">Last 28 days</option>
-                  <option value="90" selected>Last 90 days</option>
-                  <option value="180">Last 6 months</option>
-                </select>
-              </div>
-              <div class="fg" style="margin:0">
-                <label class="lbl">Opportunity Type</label>
-                <select class="inp" id="gsc-filter-type">
-                  <option value="all">All Opportunities</option>
-                  <option value="quick-wins">Quick Wins (Pos 4-20)</option>
-                  <option value="low-ctr">Low CTR (High Impressions)</option>
-                  <option value="untapped">Untapped (0 clicks)</option>
-                </select>
-              </div>
-            </div>
-            <button class="btn btn-navy" onclick="gscFetchKeywords()" id="gsc-fetch-btn" style="width:100%">
-              <span class="spin"></span><span class="lbl">📊 Fetch Keyword Opportunities</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- Results -->
-        <div class="card" style="margin:0" id="gsc-results-card" style="display:none">
-          <div class="card-hdr">
-            <div class="card-hdr-title">🎯 Keyword Opportunities</div>
-            <button class="btn btn-ghost" style="font-size:10px;padding:3px 10px" onclick="gscSelectAll()">Select All</button>
-          </div>
-          <div class="card-body" style="gap:0;padding:0">
-            <div id="gsc-kw-list" style="max-height:340px;overflow-y:auto"></div>
-            <div style="padding:12px;border-top:1px solid var(--bdr)">
-              <button class="btn btn-primary" onclick="gscAddToCalendar()" style="width:100%">
-                <span class="spin"></span><span class="lbl">📅 Add Selected to Content Calendar →</span>
-              </button>
-            </div>
-          </div>
-        </div>
-
-      </div>
-    </div>
-
     <!-- AP History Pane -->
     <div class="rpane" id="ap-pane-aphistory">
       <div id="ap-hist-list" style="display:flex;flex-direction:column;gap:8px;overflow-y:auto;max-height:calc(100vh - 180px)">
@@ -1636,17 +1270,6 @@ MBBS certified doctor" style="font-size:12px;line-height:1.6"></textarea>
     <div class="mh"><div class="mh-title">Add WordPress Site</div><span class="mclose" onclick="closeModal()">×</span></div>
     <div class="mb">
       <div class="fg"><label class="lbl">Site Name</label><input class="inp" id="m-name" placeholder="Biospecimen Solutions"/></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-        <div class="fg" style="margin:0"><label class="lbl">Brand Color</label>
-          <div style="display:flex;gap:6px;align-items:center">
-            <input type="color" id="m-color" value="#0A6B5E" style="width:36px;height:34px;border:1px solid var(--bdr);border-radius:4px;cursor:pointer;padding:2px"/>
-            <input class="inp" id="m-color-hex" placeholder="#0A6B5E" style="flex:1;font-family:var(--mono);font-size:11px" oninput="document.getElementById('m-color').value=this.value"/>
-          </div>
-        </div>
-        <div class="fg" style="margin:0"><label class="lbl">Heading Font</label>
-          <input class="inp" id="m-font" placeholder="e.g. Poppins, Playfair Display"/>
-        </div>
-      </div>
       <div class="fg"><label class="lbl">Site URL</label><input class="inp" id="m-url" placeholder="https://biospecimensolutions.in" type="url"/></div>
       <div class="fg"><label class="lbl">WP Username</label><input class="inp" id="m-user" placeholder="your_wp_username"/></div>
       <div class="fg"><label class="lbl">Application Password</label><input class="inp" id="m-pass" type="password" placeholder="xxxx xxxx xxxx xxxx xxxx xxxx"/>
@@ -1706,7 +1329,7 @@ function openAddSite(){document.getElementById('sites-menu').classList.remove('o
 function addSite(){
   const n=gv('m-name'),u=gv('m-url').replace(/\/$/,''),us=gv('m-user'),p=gv('m-pass');
   if(!n||!u||!us||!p){toast('All fields required','err');return}
-  var mc=document.getElementById("m-color");var mf=document.getElementById("m-font");sites.push({name:n,url:u,user:us,pass:p,color:(mc?mc.value:"#0A6B5E"),font:(mf?mf.value.trim():"")});activeIdx=sites.length-1;
+  sites.push({name:n,url:u,user:us,pass:p});activeIdx=sites.length-1;
   localStorage.setItem('wpb_active',activeIdx);saveSites();renderSites();updatePill();closeModal();
   ['m-name','m-url','m-user','m-pass'].forEach(id=>document.getElementById(id).value='');
   toast('Site added: '+n,'ok');
@@ -1721,7 +1344,6 @@ function switchTab(id,el){
   document.querySelectorAll('.rpane').forEach(p=>p.classList.remove('active'));
   el.classList.add('active');
   document.getElementById('pane-'+id).classList.add('active');
-  if(id==='gscdata') blogGscInit('blog');
 }
 
 // ═══════════════
@@ -2268,204 +1890,175 @@ function selImg(slot,url,dl,el){
 // ═══════════════════════════════════════
 // THE CONVERTER — markers → BSP HTML
 // ═══════════════════════════════════════
-const BSP_CSS = (function(){
-  var p = document.querySelector('[data-bsp-primary]');
-  return '';
-})();
-
-function getBSPStyles(primary,secondary,fontHead,fontBody,h1size,h1mob,h2size,h2mob,h3size,bodySize,bodyMob,lineH,maxW,heroH,paraSpace,h2style){
-  primary   = primary   || '#0A6B5E';
-  secondary = secondary || '#0A1F3C';
-  fontHead  = fontHead  || 'Poppins';
-  fontBody  = fontBody  || 'Inter';
-  h1size    = h1size    || 'clamp(26px,4vw,42px)';
-  h1mob     = h1mob     || '24px';
-  h2size    = h2size    || 'clamp(20px,2.5vw,26px)';
-  h2mob     = h2mob     || '19px';
-  h3size    = h3size    || '18px';
-  bodySize  = bodySize  || '17px';
-  bodyMob   = bodyMob   || '16px';
-  lineH     = lineH     || '1.95';
-  maxW      = maxW      || '860px';
-  heroH     = heroH     || '420px';
-  paraSpace = paraSpace || '24px';
-  h2style   = h2style   || 'border-bottom:2px solid #eee';
-
-  // Use !important throughout so WordPress theme cannot override
-  var s = [];
-  s.push('<style>');
-  // Google Fonts link is added separately
-
-  // WRAPPER
-  s.push('.bsp-article,.bsp-article *{box-sizing:border-box}');
-  s.push('.bsp-article{font-family:"'+fontBody+'",system-ui,-apple-system,sans-serif!important;color:#1a1a2e!important;line-height:'+lineH+'!important;max-width:'+maxW+'!important;margin:0 auto!important;font-size:'+bodySize+'!important}');
-
-  // HERO
-  s.push('.bsp-hero{margin-bottom:36px!important}');
-  s.push('.bsp-hero-img-wrap{border-radius:12px!important;overflow:hidden!important;margin-bottom:24px!important;box-shadow:0 4px 24px rgba(0,0,0,.1)!important}');
-  s.push('.bsp-hero-img-wrap img{width:100%!important;height:'+heroH+'!important;object-fit:cover!important;display:block!important}');
-  s.push('.bsp-hero-tag{display:inline-block!important;background:'+primary+'!important;color:#fff!important;font-size:11px!important;font-weight:700!important;letter-spacing:1.5px!important;text-transform:uppercase!important;padding:5px 14px!important;border-radius:4px!important;margin-bottom:14px!important}');
-  s.push('.bsp-hero-meta{display:flex!important;align-items:center!important;gap:20px!important;flex-wrap:wrap!important;padding:14px 0!important;border-top:1px solid #eee!important;border-bottom:1px solid #eee!important;margin-bottom:28px!important;font-size:14px!important;color:#666!important}');
-  s.push('.bsp-hero-meta strong{color:#333!important;font-weight:600!important}');
-
-  // HEADINGS
-  s.push('.bsp-article h2{font-size:'+h2size+'!important;font-weight:700!important;color:#1a1a1a!important;margin:40px 0 16px!important;padding-bottom:12px!important;'+h2style+'!important;line-height:1.3!important;font-family:"'+fontHead+'",sans-serif!important}');
-  s.push('.bsp-article h3{font-size:'+h3size+'!important;font-weight:600!important;color:#2d2d2d!important;margin:24px 0 10px!important;font-family:"'+fontHead+'",sans-serif!important}');
-
-  // BODY TEXT
-  s.push('.bsp-article p{font-size:'+bodySize+'!important;color:#2d2d2d!important;margin:0 0 '+paraSpace+'!important;line-height:'+lineH+'!important;letter-spacing:0.01em!important}');
-  s.push('.bsp-article strong{color:#1a1a1a!important;font-weight:600!important}');
-  s.push('.bsp-article a{color:'+primary+'!important;text-decoration:underline!important}');
-  s.push('.bsp-article ul,.bsp-article ol{padding-left:24px!important;margin:0 0 20px!important}');
-  s.push('.bsp-article li{font-size:'+bodySize+'!important;color:#2d2d2d!important;margin-bottom:8px!important;line-height:'+lineH+'!important}');
-
-  // CHECK STEPS
-  s.push('.bsp-check-header{display:flex!important;align-items:flex-start!important;gap:14px!important;padding:14px 0!important;border-bottom:1px solid #f0f0f0!important}');
-  s.push('.bsp-check-num{width:32px!important;height:32px!important;min-width:32px!important;border-radius:50%!important;background:'+primary+'!important;color:#fff!important;font-size:14px!important;font-weight:700!important;display:flex!important;align-items:center!important;justify-content:center!important;flex-shrink:0!important;margin-top:2px!important}');
-  s.push('.bsp-check-info{flex:1!important}');
-  s.push('.bsp-check-title{font-size:16px!important;font-weight:600!important;color:#1a1a1a!important;line-height:1.4!important;margin-bottom:4px!important}');
-  s.push('.bsp-check-desc{font-size:14px!important;color:#555!important;line-height:1.7!important;margin:0!important}');
-
-  // BULLET LIST
-  s.push('.bsp-list{list-style:none!important;padding:0!important;margin:0 0 24px!important}');
-  s.push('.bsp-list li{padding:8px 0 8px 26px!important;position:relative!important;font-size:15px!important;color:#2d2d2d!important;border-bottom:1px solid #f5f5f5!important;line-height:1.75!important}');
-  s.push('.bsp-list li:last-child{border-bottom:none!important}');
-  s.push('.bsp-list li::before{content:"✓"!important;position:absolute!important;left:0!important;color:'+primary+'!important;font-weight:700!important;font-size:13px!important;top:10px!important}');
-
-  // CALLOUTS
-  s.push('.bsp-callout{border-radius:8px!important;padding:14px 18px!important;margin:20px 0!important;display:flex!important;gap:12px!important;align-items:flex-start!important}');
-  s.push('.bsp-callout.info{background:#f0f7ff!important;border-left:4px solid #3b82f6!important}');
-  s.push('.bsp-callout.tip{background:#f0fdf4!important;border-left:4px solid #22c55e!important}');
-  s.push('.bsp-callout.warning{background:#fffbeb!important;border-left:4px solid #f59e0b!important}');
-  s.push('.bsp-callout-icon{font-size:18px!important;flex-shrink:0!important}');
-  s.push('.bsp-callout-text{font-size:14px!important;color:#374151!important;line-height:1.7!important;margin:0!important}');
-  s.push('.bsp-callout-text strong{display:block!important;margin-bottom:3px!important;color:#111!important}');
-
-  // IMAGES
-  s.push('.bsp-img-block{margin:36px 0!important}');
-  s.push('.bsp-img-wrap{border-radius:10px!important;overflow:hidden!important;box-shadow:0 2px 16px rgba(0,0,0,.08)!important}');
-  s.push('.bsp-img-wrap img{width:100%!important;height:360px!important;display:block!important;object-fit:cover!important}');
-
-  // TABLE
-  s.push('.bsp-table-wrap{overflow-x:auto!important;margin:28px 0!important;border-radius:8px!important;border:1px solid #e5e7eb!important;-webkit-overflow-scrolling:touch!important}');
-  s.push('.bsp-table{width:100%!important;border-collapse:collapse!important;font-size:14px!important;min-width:480px!important}');
-  s.push('.bsp-table thead tr{background:#f9fafb!important}');
-  s.push('.bsp-table thead th{padding:12px 16px!important;text-align:left!important;color:#374151!important;font-weight:600!important;font-size:13px!important;border-bottom:2px solid #e5e7eb!important}');
-  s.push('.bsp-table tbody tr:nth-child(even){background:#fafafa!important}');
-  s.push('.bsp-table tbody tr:hover{background:#f0f9f6!important}');
-  s.push('.bsp-table td{padding:11px 16px!important;color:#374151!important;border-bottom:1px solid #e5e7eb!important;vertical-align:middle!important;line-height:1.5!important}');
-  s.push('.bsp-table td:first-child{font-weight:500!important;color:#111!important}');
-  s.push('.bsp-table tbody tr:last-child td{border-bottom:none!important}');
-
-  // ACCORDION
-  s.push('.bsp-accordion{border:1px solid #e5e7eb!important;border-radius:8px!important;margin:10px 0!important;overflow:hidden!important}');
-  s.push('.bsp-accordion summary{list-style:none!important;padding:14px 16px!important;font-size:14px!important;font-weight:600!important;color:#1a1a1a!important;cursor:pointer!important;display:flex!important;align-items:center!important;justify-content:space-between!important;gap:10px!important;background:#fafafa!important;line-height:1.4!important}');
-  s.push('.bsp-accordion summary::-webkit-details-marker,.bsp-accordion summary::marker{display:none!important}');
-  s.push('.bsp-accordion[open] summary{border-bottom:1px solid #e5e7eb!important}');
-  s.push('.bsp-accordion-icon{font-size:13px!important;color:#888!important;transition:transform .2s!important}');
-  s.push('.bsp-accordion[open] .bsp-accordion-icon{transform:rotate(180deg)!important}');
-  s.push('.bsp-accordion-body{padding:14px 16px!important;background:#fff!important;font-size:14px!important;color:#3d3d3d!important;line-height:1.75!important}');
-
-  // FAQ
-  s.push('.bsp-faq{margin:32px 0!important}');
-  s.push('.bsp-faq-title{font-size:22px!important;font-weight:700!important;color:#1a1a1a!important;margin:0 0 16px!important;padding-bottom:12px!important;border-bottom:2px solid #eee!important;font-family:"'+fontHead+'",sans-serif!important}');
-  s.push('.bsp-faq-item{border-bottom:1px solid #eee!important}');
-  s.push('.bsp-faq-item:last-child{border-bottom:none!important}');
-  s.push('.bsp-faq-item summary{list-style:none!important;padding:16px 0!important;font-size:15px!important;font-weight:600!important;color:#1a1a1a!important;cursor:pointer!important;display:flex!important;align-items:center!important;justify-content:space-between!important;gap:10px!important;line-height:1.4!important;background:transparent!important}');
-  s.push('.bsp-faq-item summary::-webkit-details-marker,.bsp-faq-item summary::marker{display:none!important}');
-  s.push('.bsp-faq-icon{font-size:20px!important;color:'+primary+'!important;flex-shrink:0!important;transition:transform .2s!important}');
-  s.push('.bsp-faq-item[open] .bsp-faq-icon{transform:rotate(45deg)!important}');
-  s.push('.bsp-faq-a{padding:0 0 16px!important;font-size:15px!important;color:#444!important;line-height:1.8!important}');
-
-  // TABS
-  s.push('.bsp-tabs{margin:28px 0!important;border:1px solid #e5e7eb!important;border-radius:10px!important;overflow:hidden!important}');
-  s.push('.bsp-tab-nav{display:flex!important;overflow-x:auto!important;background:#f8fafc!important;border-bottom:1px solid #e5e7eb!important;scrollbar-width:none!important}');
-  s.push('.bsp-tab-nav::-webkit-scrollbar{display:none!important}');
-  s.push('.bsp-tab-btn{padding:12px 20px!important;font-size:13px!important;font-weight:600!important;color:#777!important;border:none!important;background:transparent!important;cursor:pointer!important;white-space:nowrap!important;border-bottom:2px solid transparent!important;transition:all .15s!important;font-family:inherit!important}');
-  s.push('.bsp-tab-btn.active{color:'+primary+'!important;border-bottom-color:'+primary+'!important;background:#fff!important}');
-  s.push('.bsp-tab-pane{display:none!important;padding:20px 22px!important}');
-  s.push('.bsp-tab-pane.active{display:block!important}');
-  s.push('.bsp-tab-h3{font-size:15px!important;font-weight:600!important;color:#1a1a1a!important;margin:14px 0 8px!important}');
-  s.push('.bsp-tab-pane p{font-size:14px!important;color:#444!important;line-height:1.75!important;margin-bottom:14px!important}');
-  s.push('.bsp-tab-pane .bsp-list li{font-size:14px!important}');
-  s.push('.bsp-tab-pane .bsp-check-num{width:26px!important;height:26px!important;min-width:26px!important;font-size:12px!important}');
-  s.push('.bsp-tab-pane .bsp-check-title{font-size:14px!important}');
-
-  // STATS
-  s.push('.bsp-stats{display:grid!important;grid-template-columns:repeat(4,1fr)!important;gap:12px!important;margin:24px 0!important}');
-  s.push('.bsp-stat-box{background:#f8fafc!important;border:1px solid #e5e7eb!important;border-radius:10px!important;padding:18px 14px!important;text-align:center!important}');
-  s.push('.bsp-stat-val{font-size:26px!important;font-weight:800!important;color:'+primary+'!important;line-height:1!important;margin-bottom:6px!important;display:block!important}');
-  s.push('.bsp-stat-label{font-size:12px!important;color:#666!important;line-height:1.4!important;font-weight:500!important;display:block!important}');
-
-  // REVIEWS
-  s.push('.bsp-reviews{margin:36px 0!important}');
-  s.push('.bsp-reviews-title{font-size:22px!important;font-weight:700!important;color:#1a1a1a!important;margin:0 0 20px!important;padding-bottom:12px!important;border-bottom:2px solid #eee!important}');
-  s.push('.bsp-reviews-carousel{position:relative!important;overflow:hidden!important;padding:0 36px!important}');
-  s.push('.bsp-reviews-track{display:flex!important;gap:14px!important;transition:transform .35s ease!important}');
-  s.push('.bsp-review-card{min-width:calc(33.333% - 10px)!important;flex:0 0 calc(33.333% - 10px)!important;background:#fff!important;border:1px solid #e5e7eb!important;border-radius:10px!important;padding:20px!important;box-shadow:0 1px 4px rgba(0,0,0,.05)!important}');
-  s.push('.bsp-review-stars{color:#f59e0b!important;font-size:14px!important;margin-bottom:10px!important;letter-spacing:1px!important}');
-  s.push('.bsp-review-text{font-size:13px!important;line-height:1.7!important;color:#444!important;margin:0 0 14px!important;font-style:italic!important}');
-  s.push('.bsp-review-author{font-size:13px!important;font-weight:600!important;color:#111!important;margin:0!important}');
-  s.push('.bsp-review-location{font-size:12px!important;color:#888!important;margin:3px 0 0!important}');
-  s.push('.bsp-carousel-btn{position:absolute!important;top:50%!important;transform:translateY(-50%)!important;width:32px!important;height:32px!important;border-radius:50%!important;background:#fff!important;border:1px solid #e5e7eb!important;color:#555!important;font-size:16px!important;cursor:pointer!important;display:flex!important;align-items:center!important;justify-content:center!important;z-index:2!important}');
-  s.push('.bsp-carousel-btn.prev{left:0!important}');
-  s.push('.bsp-carousel-btn.next{right:0!important}');
-  s.push('.bsp-carousel-dots{display:flex!important;gap:6px!important;justify-content:center!important;margin-top:16px!important}');
-  s.push('.bsp-carousel-dot{width:6px!important;height:6px!important;border-radius:50%!important;background:#ddd!important;cursor:pointer!important;transition:all .2s!important}');
-  s.push('.bsp-carousel-dot.active{background:'+primary+'!important;width:20px!important;border-radius:3px!important}');
-
-  // CTA
-  s.push('.bsp-cta{background:'+primary+'!important;border-radius:12px!important;padding:36px 40px!important;text-align:center!important;margin:44px 0!important}');
-  s.push('.bsp-cta-eyebrow{font-size:10px!important;font-weight:700!important;text-transform:uppercase!important;letter-spacing:1.5px!important;color:rgba(255,255,255,.7)!important;margin:0 0 8px!important;display:block!important}');
-  s.push('.bsp-cta h2{font-size:clamp(18px,2.5vw,24px)!important;font-weight:700!important;color:#fff!important;margin:0 0 10px!important;border:none!important;padding:0!important}');
-  s.push('.bsp-cta p{color:rgba(255,255,255,.88)!important;font-size:15px!important;max-width:500px!important;margin:0 auto 22px!important}');
-  s.push('.bsp-cta-btn{display:inline-block!important;background:#fff!important;color:'+primary+'!important;font-size:15px!important;font-weight:700!important;padding:12px 30px!important;border-radius:6px!important;text-decoration:none!important}');
-
-  // AUTHOR
-  s.push('.bsp-author{display:flex!important;gap:16px!important;align-items:flex-start!important;background:#f9f9f9!important;border:1px solid #e5e7eb!important;border-radius:10px!important;padding:20px 24px!important;margin:40px 0!important}');
-  s.push('.bsp-author-avatar{width:56px!important;height:56px!important;min-width:56px!important;border-radius:50%!important;background:'+primary+'!important;display:flex!important;align-items:center!important;justify-content:center!important;font-size:20px!important;font-weight:700!important;color:#fff!important;flex-shrink:0!important;overflow:hidden!important}');
-  s.push('.bsp-author-avatar img{width:100%!important;height:100%!important;object-fit:cover!important}');
-  s.push('.bsp-author-name{font-size:16px!important;font-weight:700!important;color:#1a1a1a!important;margin:0 0 3px!important}');
-  s.push('.bsp-author-role{font-size:12px!important;color:'+primary+'!important;font-weight:600!important;text-transform:uppercase!important;letter-spacing:.5px!important;margin:0 0 8px!important}');
-  s.push('.bsp-author-bio{font-size:14px!important;color:#555!important;margin:0!important;line-height:1.65!important}');
-
-  // QUESTIONS BOX
-  s.push('.bsp-questions{background:#f8faff!important;border:1px solid #e0e8ff!important;border-radius:8px!important;padding:18px 22px!important;margin:22px 0!important}');
-  s.push('.bsp-questions-title{font-size:11px!important;font-weight:700!important;text-transform:uppercase!important;letter-spacing:1px!important;color:'+primary+'!important;margin:0 0 10px!important}');
-  s.push('.bsp-questions ul{margin:0!important;padding-left:18px!important}');
-  s.push('.bsp-questions li{color:#444!important;font-size:14px!important;margin-bottom:6px!important;line-height:1.6!important}');
-
-  // TOC
-  s.push('.bsp-toc{margin:0 0 28px!important;border:1px solid #e8e8e8!important;border-radius:8px!important;overflow:hidden!important;background:#fafafa!important}');
-  s.push('.bsp-toc summary{list-style:none!important;padding:13px 16px!important;cursor:pointer!important;display:flex!important;align-items:center!important;justify-content:space-between!important;background:#f5f5f5!important;font-size:13px!important;font-weight:700!important;color:#333!important;text-transform:uppercase!important;letter-spacing:.6px!important}');
-  s.push('.bsp-toc summary::-webkit-details-marker,.bsp-toc summary::marker{display:none!important}');
-  s.push('.bsp-toc-body{padding:14px 18px!important}');
-  s.push('.bsp-toc-body ol{margin:0!important;padding-left:20px!important}');
-  s.push('.bsp-toc-body li{margin-bottom:8px!important;font-size:14px!important}');
-  s.push('.bsp-toc-body a{color:'+primary+'!important;text-decoration:none!important;font-weight:500!important}');
-
-  // MOBILE
-  s.push('@media(max-width:640px){');
-  s.push('.bsp-hero-img-wrap img{height:220px!important}');
-  s.push('.bsp-article h2{font-size:'+h2mob+'!important;margin:28px 0 12px!important}');
-  s.push('.bsp-article h3{font-size:16px!important}');
-  s.push('.bsp-article p{font-size:'+bodyMob+'!important;margin-bottom:18px!important}');
-  s.push('.bsp-article li{font-size:15px!important}');
-  s.push('.bsp-stats{grid-template-columns:repeat(2,1fr)!important}');
-  s.push('.bsp-stat-val{font-size:22px!important}');
-  s.push('.bsp-cta{padding:24px 18px!important}');
-  s.push('.bsp-cta h2{font-size:18px!important}');
-  s.push('.bsp-author{flex-direction:column!important;gap:12px!important;padding:16px!important}');
-  s.push('.bsp-review-card{min-width:100%!important;flex:0 0 100%!important}');
-  s.push('.bsp-reviews-carousel{padding:0 28px!important}');
-  s.push('.bsp-tab-btn{padding:10px 14px!important;font-size:12px!important}');
-  s.push('.bsp-tab-pane{padding:14px!important}');
-  s.push('.bsp-img-wrap img{height:240px!important}');
-  s.push('}');
-  s.push('</style>');
-  return s.join('\n');
+const BSP_CSS=`<style>
+/* ARTICLE BASE */
+.bsp-article{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:#1a1a2e;line-height:1.8;max-width:820px;margin:0 auto}
+/* HERO */
+.bsp-hero{margin-bottom:32px}
+.bsp-hero-img-wrap{border-radius:14px;overflow:hidden;margin-bottom:20px;box-shadow:0 8px 32px rgba(0,0,0,.12);position:relative}
+.bsp-hero-img-wrap img{width:100%;height:auto;aspect-ratio:1/1;object-fit:cover;display:block}
+.bsp-hero-img-caption{position:absolute;bottom:10px;right:12px;font-size:11px;color:rgba(255,255,255,.85);font-weight:500;text-shadow:0 1px 3px rgba(0,0,0,.5);background:rgba(0,0,0,.3);padding:4px 10px;border-radius:4px}
+.bsp-hero-tag{display:inline-block;background:var(--bsp-primary,#0A6B5E);color:#fff;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:4px 12px;border-radius:20px;margin-bottom:12px}
+.bsp-hero h1{font-size:clamp(24px,4vw,40px);font-weight:800;color:#1a1a2e;line-height:1.2;margin:0 0 14px;letter-spacing:-0.5px;font-family:var(--bsp-font-heading,inherit)}
+.bsp-hero-meta{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding-bottom:16px;border-bottom:2px solid #f0f0f0}
+.bsp-hero-meta span{color:#666;font-size:13px;display:flex;align-items:center;gap:5px}
+.bsp-hero-meta strong{color:#1a1a2e;font-weight:600}
+/* TOC — collapsible dropdown like FAQ */
+.bsp-toc{margin:0 0 36px;border-radius:10px;overflow:hidden;border:1px solid #c8e0f4;border-left:4px solid #0a6b8a}
+.bsp-toc summary{list-style:none;padding:14px 18px;background:#f0f8ff;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px;user-select:none;-webkit-user-select:none}
+.bsp-toc summary::-webkit-details-marker{display:none}
+.bsp-toc summary::marker{display:none}
+.bsp-toc summary:hover{background:#e4f2fb}
+.bsp-toc[open] summary{background:#e0eefa;border-bottom:1px solid #c8e0f4}
+.bsp-toc-title{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#0a6b8a;display:flex;align-items:center;gap:7px}
+.bsp-toc-icon{font-size:16px;color:#0a6b8a;flex-shrink:0;transition:transform .25s}
+.bsp-toc[open] .bsp-toc-icon{transform:rotate(180deg)}
+.bsp-toc-body{padding:16px 20px;background:#f7fbff}
+.bsp-toc-body ol{margin:0;padding-left:20px}
+.bsp-toc-body li{margin-bottom:6px;font-size:14px;line-height:1.5}
+.bsp-toc-body a{color:#1a5276;text-decoration:none;font-weight:500}
+.bsp-toc-body a:hover{text-decoration:underline;color:#0a6b8a}
+/* CHECK BADGE — tight alignment, number vertically centered with heading */
+.bsp-check-header{display:flex;align-items:center;gap:16px;background:linear-gradient(135deg,#f0f9ff 0%,#e8f8f4 100%);border:1px solid #c8e8f0;border-radius:12px;padding:18px 22px;margin:32px 0 14px}
+.bsp-check-num{width:44px;height:44px;min-width:44px;border-radius:10px;background:linear-gradient(135deg,#0a6b8a,#0e9977);color:#fff;font-size:20px;font-weight:800;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 10px rgba(10,107,138,.3);flex-shrink:0;line-height:1}
+.bsp-check-info{flex:1;min-width:0;display:flex;align-items:center}
+.bsp-check-info h2{font-size:clamp(16px,2vw,20px);font-weight:700;color:#0a2540;margin:0;border:none;padding:0;line-height:1.3}
+/* BODY TEXT */
+.bsp-article p{font-size:16px;color:#2c2c3e;margin:0 0 20px;line-height:1.85}
+.bsp-article strong{color:#1a1a2e;font-weight:600}
+/* HEADINGS */
+.bsp-article h2{font-size:clamp(20px,2.5vw,26px);font-weight:700;color:#0a2540;margin:44px 0 16px;padding-bottom:10px;border-bottom:2px solid #e8f4f8;letter-spacing:-0.3px;line-height:1.3}
+.bsp-article h3{font-size:18px;font-weight:600;color:#0a3d62;margin:28px 0 10px}
+/* CALLOUTS */
+.bsp-callout{border-radius:10px;padding:18px 22px;margin:24px 0;display:flex;gap:14px;align-items:flex-start}
+.bsp-callout.info{background:#e8f4fd;border:1px solid #aed6f1}
+.bsp-callout.tip{background:#eafaf1;border:1px solid #a9dfbf}
+.bsp-callout.warning{background:#fef9e7;border:1px solid #f9e79f}
+.bsp-callout-icon{font-size:20px;flex-shrink:0;margin-top:1px}
+.bsp-callout-text{font-size:14px;color:#2c3e50;line-height:1.7;margin:0}
+.bsp-callout-text strong{display:block;margin-bottom:4px;font-size:14px}
+/* BULLET LIST */
+.bsp-list{list-style:none;padding:0;margin:0 0 20px}
+.bsp-list li{padding:8px 0 8px 28px;position:relative;font-size:15px;color:#2c2c3e;border-bottom:1px solid #f0f0f0;line-height:1.7}
+.bsp-list li:last-child{border-bottom:none}
+.bsp-list li::before{content:'✓';position:absolute;left:0;color:#0e9977;font-weight:700;font-size:14px}
+/* ASK QUESTIONS BOX */
+.bsp-questions{background:#1a2942;border-radius:12px;padding:22px 26px;margin:24px 0}
+.bsp-questions-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#00ddb4;margin:0 0 14px}
+.bsp-questions ul{margin:0;padding-left:18px}
+.bsp-questions li{color:#e8ecf0;font-size:14px;margin-bottom:8px;line-height:1.6}
+.bsp-questions li:last-child{margin-bottom:0}
+/* IMAGES */
+.bsp-img-block{margin:36px 0}
+.bsp-img-wrap{border-radius:14px;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,.1);position:relative}
+.bsp-img-wrap img{width:100%;height:auto;aspect-ratio:1/1;object-fit:cover;display:block}
+.bsp-img-caption{position:absolute;bottom:10px;right:12px;font-size:11px;color:rgba(255,255,255,.85);font-weight:500;text-shadow:0 1px 3px rgba(0,0,0,.5);background:rgba(0,0,0,.3);padding:4px 10px;border-radius:4px}
+/* COMPARISON TABLE — always visible, not accordion */
+.bsp-table-wrap{overflow-x:auto;margin:32px 0;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,.08);-webkit-overflow-scrolling:touch}
+.bsp-table{width:100%;border-collapse:collapse;font-size:13px;min-width:100%;table-layout:auto}
+.bsp-table th{white-space:nowrap}
+.bsp-table td{word-wrap:break-word;overflow-wrap:break-word;max-width:200px}
+.bsp-table thead tr{background:linear-gradient(135deg,#0a2540,#0a6b8a)}
+.bsp-table thead th{padding:14px 18px;text-align:left;color:#fff;font-weight:600;font-size:13px;letter-spacing:.3px}
+.bsp-table thead th:first-child{border-radius:12px 0 0 0}
+.bsp-table thead th:last-child{border-radius:0 12px 0 0}
+.bsp-table tbody tr:nth-child(even){background:#f8fbfd}
+.bsp-table tbody tr:nth-child(odd){background:#ffffff}
+.bsp-table tbody tr:hover{background:#e8f4f8}
+.bsp-table td{padding:13px 18px;color:#2c2c3e;border-bottom:1px solid #e8ecf0;vertical-align:middle;line-height:1.5}
+.bsp-table td:first-child{font-weight:600;color:#0a3d62}
+.bsp-table tbody tr:last-child td{border-bottom:none}
+.bsp-tick{color:#0e9977;font-weight:700;font-size:15px}
+/* CONTENT ACCORDION (for #ACCORDION_START blocks) */
+.bsp-accordion{border:1px solid #e8f0f8;border-radius:10px;margin:16px 0;overflow:hidden}
+.bsp-accordion summary{list-style:none;padding:14px 18px;font-size:14px;font-weight:600;color:#0a2540;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;background:#f8fbff;line-height:1.4;user-select:none;-webkit-user-select:none}
+.bsp-accordion summary::-webkit-details-marker{display:none}
+.bsp-accordion summary::marker{display:none}
+.bsp-accordion summary:hover{background:#eef6fb}
+.bsp-accordion[open] summary{background:#e4f0fa}
+.bsp-accordion-icon{font-size:16px;color:#0a6b8a;flex-shrink:0;transition:transform .25s}
+.bsp-accordion[open] .bsp-accordion-icon{transform:rotate(180deg)}
+.bsp-accordion-body{padding:14px 18px;background:#fff;border-top:1px solid #e8f0f8}
+.bsp-accordion-body ul{list-style:none;padding:0;margin:0}
+.bsp-accordion-body ul li{padding:7px 0 7px 24px;position:relative;font-size:14px;color:#2c2c3e;border-bottom:1px solid #f5f5f5;line-height:1.65}
+.bsp-accordion-body ul li:last-child{border-bottom:none}
+.bsp-accordion-body ul li::before{content:'✓';position:absolute;left:0;color:#0e9977;font-weight:700;font-size:12px}
+/* FAQ — CSS details/summary, no JavaScript */
+.bsp-faq{margin:32px 0}
+.bsp-faq-title{font-size:22px;font-weight:700;color:#0a2540;margin:0 0 20px;padding-bottom:10px;border-bottom:2px solid #e8f4f8}
+.bsp-faq-item{border:1px solid #e0ecf4;border-radius:10px;margin-bottom:10px;overflow:hidden;transition:box-shadow .2s}
+.bsp-faq-item:hover{box-shadow:0 4px 16px rgba(10,107,138,.1)}
+.bsp-faq-item summary{list-style:none;padding:16px 20px;font-size:15px;font-weight:600;color:#0a2540;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;background:#f5fbff;line-height:1.4;transition:background .15s;user-select:none;-webkit-user-select:none}
+.bsp-faq-item summary::-webkit-details-marker{display:none}
+.bsp-faq-item summary::marker{display:none}
+.bsp-faq-item summary:hover{background:#e8f4fb}
+.bsp-faq-item[open] summary{background:#e0f0fa}
+.bsp-faq-icon{font-size:20px;color:#0a6b8a;flex-shrink:0;transition:transform .25s ease;font-style:normal;line-height:1}
+.bsp-faq-item[open] .bsp-faq-icon{transform:rotate(45deg)}
+.bsp-faq-a{padding:16px 20px;background:#fff;font-size:14px;color:#2c2c3e;line-height:1.75;border-top:1px solid #e0ecf4}
+/* CTA */
+.bsp-cta{background:linear-gradient(135deg,#0a2540 0%,#0a6b8a 60%,#0e9977 100%);border-radius:16px;padding:40px 44px;text-align:center;margin:44px 0;position:relative;overflow:hidden}
+.bsp-cta::before{content:'';position:absolute;top:-40px;right:-40px;width:160px;height:160px;border-radius:50%;background:rgba(255,255,255,.05)}
+.bsp-cta::after{content:'';position:absolute;bottom:-60px;left:-30px;width:200px;height:200px;border-radius:50%;background:rgba(0,221,180,.07)}
+.bsp-cta-eyebrow{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:#00ddb4;margin:0 0 12px}
+.bsp-cta h2{font-size:clamp(20px,2.5vw,28px);font-weight:700;color:#fff;margin:0 0 12px;border:none;padding:0;letter-spacing:-0.3px}
+.bsp-cta p{color:rgba(255,255,255,.8);font-size:15px;max-width:520px;margin:0 auto 28px}
+.bsp-cta-btn{display:inline-block;background:#00ddb4;color:#0a2540;font-size:15px;font-weight:700;padding:14px 36px;border-radius:50px;text-decoration:none;transition:all .2s;box-shadow:0 6px 20px rgba(0,221,180,.35);position:relative;z-index:1}
+.bsp-cta-btn:hover{background:#00c9a4;transform:translateY(-2px);box-shadow:0 10px 28px rgba(0,221,180,.45)}
+/* REVIEWS CAROUSEL */
+.bsp-reviews{margin:40px 0;padding:0}
+.bsp-reviews-title{font-size:22px;font-weight:700;color:#0a2540;margin:0 0 28px;text-align:center;padding-bottom:12px;border-bottom:2px solid #e8f4f8}
+.bsp-reviews-carousel{position:relative;overflow:hidden;padding:0 44px}
+.bsp-reviews-track{display:flex;gap:16px;transition:transform .4s ease;scroll-behavior:smooth}
+.bsp-review-card{min-width:calc(33.333% - 11px);flex:0 0 calc(33.333% - 11px);background:#fff;border:1px solid #e0ecf4;border-radius:12px;padding:24px;box-shadow:0 2px 8px rgba(10,107,138,.06);transition:all .2s}
+.bsp-review-card:hover{box-shadow:0 6px 20px rgba(10,107,138,.12);transform:translateY(-2px)}
+.bsp-review-stars{color:#ffc107;font-size:16px;margin-bottom:12px;letter-spacing:2px}
+.bsp-review-text{font-size:14px;line-height:1.7;color:#2c2c3e;margin:0 0 16px;font-style:italic}
+.bsp-review-author{font-size:13px;font-weight:600;color:#0a6b8a;margin:0}
+.bsp-review-location{font-size:12px;color:#78909c;margin:4px 0 0}
+.bsp-carousel-btn{position:absolute;top:50%;transform:translateY(-50%);width:40px;height:40px;border-radius:50%;background:#fff;border:2px solid #e0ecf4;color:#0a6b8a;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;z-index:2;user-select:none}
+.bsp-carousel-btn:hover{background:#e8f4fb;border-color:#0a6b8a;transform:translateY(-50%) scale(1.1)}
+.bsp-carousel-btn.prev{left:0}
+.bsp-carousel-btn.next{right:0}
+.bsp-carousel-dots{display:flex;gap:8px;justify-content:center;margin-top:24px}
+.bsp-carousel-dot{width:8px;height:8px;border-radius:50%;background:#ddd;cursor:pointer;transition:all .2s}
+.bsp-carousel-dot.active{background:#0a6b8a;width:24px;border-radius:4px}
+@media(max-width:900px){
+.bsp-review-card{min-width:calc(50% - 8px);flex:0 0 calc(50% - 8px)}
+.bsp-reviews-carousel{padding:0 40px}
 }
-
+@media(max-width:600px){
+.bsp-review-card{min-width:100%;flex:0 0 100%}
+.bsp-reviews-carousel{padding:0 36px}
+.bsp-carousel-btn{width:36px;height:36px;font-size:18px}
+}
+/* AUTHOR */
+.bsp-author{display:flex;gap:20px;align-items:flex-start;background:#f8fbff;border:1px solid #d0e8f4;border-radius:14px;padding:24px 28px;margin:44px 0 20px}
+.bsp-author-avatar{width:68px;height:68px;min-width:68px;border-radius:50%;background:linear-gradient(135deg,#0a6b8a,#0e9977);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;color:#fff;box-shadow:0 4px 12px rgba(10,107,138,.25);flex-shrink:0}
+.bsp-author-body{}
+.bsp-author-name{font-size:16px;font-weight:700;color:#0a2540;margin:0 0 2px}
+.bsp-author-role{font-size:13px;color:#0a6b8a;font-weight:500;margin:0 0 10px}
+.bsp-author-bio{font-size:13px;color:#4a5568;line-height:1.7;margin:0 0 10px}
+.bsp-author-link{font-size:13px;color:#0a6b8a;text-decoration:none;font-weight:600}
+.bsp-author-link:hover{text-decoration:underline}
+/* RESPONSIVE */
+@media(max-width:640px){
+  .bsp-hero-img-wrap img{aspect-ratio:1/1}
+  .bsp-hero-overlay{padding:24px}
+  .bsp-hero h1{font-size:20px}
+  .bsp-check-header{flex-direction:row}
+  .bsp-cta{padding:28px 24px}
+  .bsp-author{flex-direction:column;gap:14px}
+  .bsp-table thead th:first-child,.bsp-table thead th:last-child{border-radius:0}
+  .bsp-img-wrap img{aspect-ratio:1/1}
+  .bsp-article h2{font-size:18px;margin:28px 0 10px}
+  .bsp-article h3{font-size:15px}
+  .bsp-article p{font-size:14px}
+  .bsp-list li{font-size:13px}
+  .bsp-faq-item summary{font-size:13px;padding:12px 14px}
+  .bsp-faq-a{font-size:13px;padding:12px 14px}
+}
+</style>`;
 
 function fmt(s){
   return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
@@ -2534,7 +2127,7 @@ function convertToHTML(raw){
   if(!authorRole) authorRole = 'Author';
   if(!authorBio) authorBio = 'Professional author and expert in this field.';
   
-  authorName = ((raw.match(/^#AUTHOR_NAME\s*=\s*(.+)/im)||['',''])[1].trim()) || ((raw.match(/^#AUTHOR\s*=\s*(.+)/im)||['',''])[1].trim()) || activeProf.authorName || '';
+  authorName = ((raw.match(/^#AUTHOR_NAME\s*=\s*(.+)/im)||['',''])[1].trim()) || ((raw.match(/^#AUTHOR\s*=\s*(.+)/im)||['',''])[1].trim()) || activeProf.authorName || authorSlug.split('-').map(w=>w.charAt(0).toUpperCase()+w.slice(1)).join(' ');
   const authorInitials = authorName.split(' ').map(w=>w[0]).join('').substring(0,2);
   
   const heroTag    = (raw.match(/^#HERO_TAG\s*=\s*(.+)/im)||['','Research Guide'])[1].trim();
@@ -2542,11 +2135,14 @@ function convertToHTML(raw){
   const fallback   = 'https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?w=1200&q=80';
 
   // ── HERO ──
+  const heroCaption = imgAlts.hero || title;
   const hero=`<div class="bsp-hero">
   <div class="bsp-hero-img-wrap">
     <img src="${imgs.hero||fallback}" alt="${fmt(imgAlts.hero||title)}" loading="eager"/>
+    <div class="bsp-hero-img-caption">${fmt(heroCaption)}</div>
   </div>
   <span class="bsp-hero-tag">${fmt(heroTag)}</span>
+  <h1>${fmt(title)}</h1>
   <div class="bsp-hero-meta">
     <span>✍ By <strong>${fmt(authorName)}</strong></span>
     <span>⏱ ${readTime} min read</span>
@@ -2581,12 +2177,12 @@ function convertToHTML(raw){
 
   const closeList=()=>{
     if(!inList)return;
-    body+='<ul class="bsp-list">'+listItems.map(function(i){return '<li>'+fmt(i)+'</li>';}).join('')+'</ul>\n';
+    body+=`<ul class="bsp-list">${listItems.map(i=>`<li>${fmt(i)}</li>`).join('')}</ul>\n`;
     inList=false;listItems=[];
   };
   const closeAsk=()=>{
     if(!inAsk)return;
-    body+='<div class="bsp-questions"><div class="bsp-questions-title">🎯 Ask the CRO These Questions</div><ul>'+askItems.map(function(i){return '<li>'+fmt(i)+'</li>';}).join('')+'</ul></div>\n';
+    body+=`<div class="bsp-questions"><div class="bsp-questions-title">🎯 Ask the CRO These Questions</div><ul>${askItems.map(i=>`<li>${fmt(i)}</li>`).join('')}</ul></div>\n`;
     inAsk=false;askItems=[];
   };
   const closeFaq=()=>{
@@ -2608,12 +2204,12 @@ function convertToHTML(raw){
     if(rows.length>=1){
       const headers=rows[0].split('|').map(c=>c.trim()).filter(Boolean);
       // Render table with ALL columns
-      body+='<div class="bsp-table-wrap"><table class="bsp-table"><thead><tr>'+headers.map(function(h){return '<th>'+fmt(h)+'</th>';}).join('')+'</tr></thead><tbody>\n';
+      body+=`<div class="bsp-table-wrap"><table class="bsp-table"><thead><tr>${headers.map(h=>`<th>${fmt(h)}</th>`).join('')}</tr></thead><tbody>\n`;
       rows.slice(1).forEach(row=>{
         const cells=row.split('|').map(c=>c.trim()).filter(Boolean);
         if(cells.length >= headers.length){
           // Render all cells
-          body+='<tr>'+cells.map(function(c){return '<td>'+fmt(c)+'</td>';}).join('')+'</tr>\n';
+          body+=`<tr>${cells.map(c=>`<td>${fmt(c)}</td>`).join('')}</tr>\n`;
         }
       });
       body+=`</tbody></table></div>\n`;
@@ -2679,38 +2275,6 @@ ${reviewItems.map(r=>`      <div class="bsp-review-card">
     inReviews=false;reviewItems=[];
   };
 
-  let inTabs=false,tabLabels=[],tabContents=[],currentTab=0,tabCheckNum=0;
-  const closeTabs=()=>{
-    if(!inTabs||!tabLabels.length)return;
-    const tabId='tab-'+Math.random().toString(36).substr(2,6);
-    body+=`<div class="bsp-tabs" id="${tabId}">
-  <div class="bsp-tab-nav">
-    ${tabLabels.map((l,i)=>`<button class="bsp-tab-btn${i===0?' active':''}" onclick="bspTab('${tabId}',${i})">${fmt(l)}</button>`).join('')}
-  </div>
-  ${tabContents.map((c,i)=>`<div class="bsp-tab-pane${i===0?' active':''}" id="${tabId}-${i}">${c}</div>`).join('')}
-</div>
-<script>
-function bspTab(id,idx){
-  const wrap=document.getElementById(id);
-  wrap.querySelectorAll('.bsp-tab-btn').forEach((b,i)=>b.classList.toggle('active',i===idx));
-  wrap.querySelectorAll('.bsp-tab-pane').forEach((p,i)=>p.classList.toggle('active',i===idx));
-}
-<\/script>\n`;
-    inTabs=false;tabLabels=[];tabContents=[];currentTab=0;
-  };
-
-  let inStats=false,statItems=[];
-  const closeStats=()=>{
-    if(!inStats||!statItems.length)return;
-    var statsHtml = '<div class="bsp-stats">';
-    statItems.forEach(function(s){
-      statsHtml += '<div class="bsp-stat-box"><div class="bsp-stat-val">'+fmt(s.val)+'</div><div class="bsp-stat-label">'+fmt(s.label)+'</div></div>';
-    });
-    statsHtml += '</div>\n';
-    body += statsHtml;
-    inStats=false;statItems=[];
-  };
-
   const lines=raw.split('\n');
   let i=0;
   while(i<lines.length){
@@ -2753,47 +2317,9 @@ function bspTab(id,idx){
     // REVIEWS
     if(/^#REVIEWS_START/i.test(line)){closeReviews();inReviews=true;continue}
     if(/^#REVIEWS_END/i.test(line)){closeReviews();continue}
-    // TABS — #TAB_START = Tab1 Name | Tab2 Name | Tab3 Name
-    if(/^#TAB_START/i.test(line)){closeTabs();inTabs=true;
-      const tabMatch=line.match(/^#TAB_START\s*=\s*(.+)/i);
-      tabLabels=tabMatch?tabMatch[1].split('|').map(t=>t.trim()):[];
-      tabContents=tabLabels.map(()=>'');
-      currentTab=0;
-      continue;
-    }
-    if(/^#TAB_END/i.test(line)){closeTabs();continue}
-    if(inTabs){
-      const nextTabMatch=line.match(/^#TAB\s*=\s*(.+)/i);
-      if(nextTabMatch){currentTab++;tabCheckNum=0;continue}
-      if(currentTab<tabContents.length){
-        // Process line as HTML inside tab
-        const tl=line;
-        if(/^#H3\s*=/i.test(tl)){tabContents[currentTab]+=`<h3 class="bsp-tab-h3">${fmt(tl.replace(/^#H3\s*=\s*/i,''))}</h3>\n`;}
-        else if(/^#PARA/i.test(tl)){
-          let paraLines=[];let pi=i;
-          while(pi<lines.length&&!/^#[A-Z_]/.test(lines[pi].trim())){if(lines[pi].trim())paraLines.push(lines[pi].trim());pi++;}
-          tabContents[currentTab]+=`<p>${fmt(paraLines.join(' '))}</p>\n`;i=pi;
-        }
-        else if(/^#LIST_START/i.test(tl)){
-          let litems=[];let pi=i;
-          while(pi<lines.length&&!/^#LIST_END/i.test(lines[pi].trim())){if(lines[pi].trim())litems.push(lines[pi].trim().replace(/^[-*•]\s*/,''));pi++;}
-          tabContents[currentTab]+=`<ul class="bsp-list">${litems.map(it=>`<li>${fmt(it)}</li>`).join('')}</ul>\n`;i=pi+1;
-        }
-        else if(/^#CHECK\s*=/i.test(tl)){var _tn=tl.replace(/^#CHECK\s*=\s*/i,'').trim();tabContents[currentTab]+="<div class=\"bsp-check-header\"><div class=\"bsp-check-num\">"+(++tabCheckNum)+"</div><div class=\"bsp-check-info\"><div class=\"bsp-check-title\">"+fmt(_tn)+"</div></div></div>\n";}
-        else if(tl&&!tl.startsWith('#')){tabContents[currentTab]+=`<p>${fmt(tl)}</p>\n`;}
-      }
-      continue;
-    }
-    // STATS BOX — #STATS_START / value | label per line / #STATS_END
-    if(/^#STATS_START/i.test(line)){closeStats();inStats=true;statItems=[];continue}
-    if(/^#STATS_END/i.test(line)){closeStats();continue}
 
     // Collect block items
-    if(inStats){
-      const parts=line.split('|').map(p=>p.trim());
-      if(parts.length>=2)statItems.push({val:parts[0],label:parts[1]});
-      continue;
-    }
+    if(inList){ listItems.push(line.replace(/^[-*•]\s*/,'')); continue; }
     if(inAsk){  askItems.push(line.replace(/^[-*•]\s*/,'')); continue; }
     if(inTable){ tableLines.push(line); continue; }
     if(inAccordion){ accordionItems.push(line.replace(/^[-*•]\s*/,'')); continue; }
@@ -2821,8 +2347,7 @@ function bspTab(id,idx){
     // SINGLE-LINE MARKERS
     const h2m=line.match(/^#H2\s*=\s*(.+)/i);
     if(h2m){
-      closeList();closeAsk();closeFaq();closeTable();closeAccordion();closeReviews();closeTabs();closeStats();
-      checkNum=0; // Reset numbering for each new section
+      closeList();closeAsk();closeFaq();closeTable();closeAccordion();closeReviews();
       // Track if this H2 is a FAQ heading — so we don't double-print it
       if(/frequently asked|^faq/i.test(h2m[1])){
         lastH2WasFaq=true;
@@ -2843,34 +2368,18 @@ function bspTab(id,idx){
     if(chm){
       closeList();closeAsk();closeFaq();closeTable();closeAccordion();closeReviews();
       const fullText = chm[1].trim();
+      // Extract number from text e.g. "Check #3: Energy Production" → num=3
       const numMatch = fullText.match(/^(?:check|step|tip|reason|way|point|benefit|sign|type|cause|factor)\s*#?(\d+)/i);
       const displayNum = numMatch ? numMatch[1] : ++checkNum;
+      // Strip "Check #N:" prefix from heading — badge already shows the number
       const headingText = fullText
         .replace(/^(?:check|step|tip|reason|way|point|benefit|sign|type|cause|factor)\s*#?\d+\s*[:.\-–—]?\s*/i,'')
         .trim();
+      // Skip empty cards (no heading text at all)
       if(!headingText) continue;
-      // Peek next line for description
-      let descText = '';
-      if(i < lines.length){
-        const nextLine = lines[i].trim();
-        if(nextLine && !nextLine.startsWith('#')){
-          descText = nextLine; i++;
-        } else if(/^#PARA/i.test(nextLine)){
-          i++;
-          let paraLines=[];
-          while(i<lines.length && !/^#[A-Z_]/.test(lines[i].trim())){
-            if(lines[i].trim()) paraLines.push(lines[i].trim());
-            i++;
-          }
-          descText = paraLines.join(' ');
-        }
-      }
       body+=`<div class="bsp-check-header" id="${slug(headingText)}">
   <div class="bsp-check-num">${displayNum}</div>
-  <div class="bsp-check-info">
-    <div class="bsp-check-title">${fmt(headingText)}</div>
-    ${descText?`<div class="bsp-check-desc">${fmt(descText)}</div>`:""}
-  </div>
+  <div class="bsp-check-info"><h2>${fmt(headingText)}</h2></div>
 </div>\n`;continue}
 
     const wm=line.match(/^#WARNING\s*=\s*(.+)/i);
@@ -2928,7 +2437,7 @@ function bspTab(id,idx){
       }
       const alt = altText || gv('alt-img1') || imgAlts.img1 || 'Article image';
       const cap = caption || alt;
-      body+=`<div class="bsp-img-block"><div class="bsp-img-wrap"><img src="${imgs.img1||fallback}" alt="${fmt(alt)}" loading="lazy"/></div></div>\n`;
+      body+=`<div class="bsp-img-block"><div class="bsp-img-wrap"><img src="${imgs.img1||fallback}" alt="${fmt(alt)}" loading="lazy"/><div class="bsp-img-caption">${fmt(cap)}</div></div></div>\n`;
       continue;
     }
     
@@ -2937,7 +2446,7 @@ function bspTab(id,idx){
     if(img1old){
       const cap=img1old[1].trim()||'Article image';
       const alt=gv('alt-img1')||imgAlts.img1||cap;
-      body+=`<div class="bsp-img-block"><div class="bsp-img-wrap"><img src="${imgs.img1||fallback}" alt="${fmt(alt)}" loading="lazy"/></div></div>\n`;
+      body+=`<div class="bsp-img-block"><div class="bsp-img-wrap"><img src="${imgs.img1||fallback}" alt="${fmt(alt)}" loading="lazy"/><div class="bsp-img-caption">${fmt(cap)}</div></div></div>\n`;
       continue;
     }
 
@@ -2955,7 +2464,7 @@ function bspTab(id,idx){
       }
       const alt = altText || gv('alt-img2') || imgAlts.img2 || 'Article image';
       const cap = caption || alt;
-      body+=`<div class="bsp-img-block"><div class="bsp-img-wrap"><img src="${imgs.img2||fallback}" alt="${fmt(alt)}" loading="lazy"/></div></div>\n`;
+      body+=`<div class="bsp-img-block"><div class="bsp-img-wrap"><img src="${imgs.img2||fallback}" alt="${fmt(alt)}" loading="lazy"/><div class="bsp-img-caption">${fmt(cap)}</div></div></div>\n`;
       continue;
     }
     
@@ -2964,7 +2473,7 @@ function bspTab(id,idx){
     if(img2old){
       const cap=img2old[1].trim()||'Article image';
       const alt=gv('alt-img2')||imgAlts.img2||cap;
-      body+=`<div class="bsp-img-block"><div class="bsp-img-wrap"><img src="${imgs.img2||fallback}" alt="${fmt(alt)}" loading="lazy"/></div></div>\n`;
+      body+=`<div class="bsp-img-block"><div class="bsp-img-wrap"><img src="${imgs.img2||fallback}" alt="${fmt(alt)}" loading="lazy"/><div class="bsp-img-caption">${fmt(cap)}</div></div></div>\n`;
       continue;
     }
 
@@ -3020,23 +2529,25 @@ function bspTab(id,idx){
   const accordionScript = '';
 
   // Inject active profile brand theme
-  // Get profile styles
-  const _tp = (typeof clientProfiles!=='undefined' && clientProfiles[activeProfileIdx]) ? clientProfiles[activeProfileIdx] : {};
-  var _fonts = [_tp.fontHeading, _tp.fontBody].filter(Boolean).map(function(f){return f.replace(/['"]/g,'').trim();}).filter(function(f){return f&&!f.includes('system')&&!f.includes('sans')&&!f.includes('serif');});
-  var _fontLink = _fonts.length ? '<link href="https://fonts.googleapis.com/css2?'+_fonts.map(function(f){return 'family='+encodeURIComponent(f)+':wght@400;600;700';}).join('&')+'&display=swap" rel="stylesheet"/>' : '';
-  // Use site color if no profile color set
-  var _site = (typeof sites !== 'undefined' && sites[activeIdx]) ? sites[activeIdx] : {};
-  var _primaryColor = _tp.colorPrimary || _site.color || '#0A6B5E';
-  var _headFont = _tp.fontHeading || _site.font || 'Poppins';
-  var _css = getBSPStyles(
-    _primaryColor, _tp.colorSecondary, _headFont, _tp.fontBody,
-    _tp.styleH1Size, _tp.styleH1Mobile, _tp.styleH2Size, _tp.styleH2Mobile,
-    _tp.styleH3Size, _tp.styleBodySize, _tp.styleBodyMobile, _tp.styleLineHeight,
-    _tp.styleMaxWidth, _tp.styleHeroHeight, _tp.styleParaSpace, _tp.styleH2Style
-  );
-  return _fontLink + _css + '\n<div class="bsp-article">\n' + hero + '\n' + tocHtml + '\n' + body + '\n' + authorHtml + '\n</div>\n' + accordionScript;
+  let themeOverride = '';
+  if(typeof clientProfiles !== 'undefined' && clientProfiles[activeProfileIdx]){
+    const tp = clientProfiles[activeProfileIdx];
+    const overrides = [];
+    if(tp.colorPrimary)   overrides.push('--bsp-primary:'+tp.colorPrimary);
+    if(tp.colorSecondary) overrides.push('--bsp-secondary:'+tp.colorSecondary);
+    if(tp.fontHeading)    overrides.push('--bsp-font-heading:'+tp.fontHeading);
+    if(tp.fontBody)       overrides.push('--bsp-font-body:'+tp.fontBody);
+    if(overrides.length){
+      themeOverride = '<style>:root{'+overrides.join(';')+'}</style>';
+      // Also load Google Fonts if custom font
+      if(tp.fontHeading || tp.fontBody){
+        const fonts = [tp.fontHeading, tp.fontBody].filter(Boolean).map(f=>f.replace(/['"]/g,'').trim()).filter(f=>f&&!f.includes('system')&&!f.includes('sans-serif')&&!f.includes('serif'));
+        if(fonts.length) themeOverride += '<link href="https://fonts.googleapis.com/css2?'+fonts.map(f=>'family='+encodeURIComponent(f)+':wght@400;600;700').join('&')+'&display=swap" rel="stylesheet"/>';
+      }
+    }
+  }
+  return themeOverride+BSP_CSS+'\n<div class="bsp-article">\n'+hero+'\n'+tocHtml+'\n'+body+'\n'+authorHtml+'\n</div>\n'+accordionScript;
 }
-
 
 // ═══════════════
 // GENERATE
@@ -3802,6 +3313,14 @@ let currentPageType = 'landing';
 let generatedPageHTML = '';
 let pageHistLog = [];
 
+function switchMode(mode){
+  currentMode = mode;
+  document.getElementById('mode-blog').style.display = mode==='blog' ? '' : 'none';
+  document.getElementById('mode-pages').style.display = mode==='pages' ? '' : 'none';
+  document.getElementById('tab-blog').className = 'mode-tab'+(mode==='blog'?' active':'');
+  document.getElementById('tab-pages').className = 'mode-tab'+(mode==='pages'?' active':'');
+  if(mode==='pages') renderPageTypeRef();
+}
 
 const PAGE_TYPES = {
   landing:{name:'Landing Page'},
@@ -4496,7 +4015,6 @@ function switchApTab(id, el){
   document.querySelectorAll('#mode-autopilot .rpane').forEach(p=>p.classList.remove('active'));
   el.classList.add('active');
   document.getElementById('ap-pane-'+id).classList.add('active');
-  if(id==='gsc') gscInit();
 }
 
 // ── KEYWORD RESEARCH (Google Autocomplete via allorigins proxy) ──
@@ -4636,23 +4154,12 @@ Return only the JSON array, no explanation.`;
 
 // ── RENDER CALENDAR ──
 function renderApCalendar(){
-  const empty   = document.getElementById('ap-cal-empty');
-  const list    = document.getElementById('ap-cal-list');
-  const toolbar = document.getElementById('ap-cal-toolbar');
-  const count   = document.getElementById('ap-cal-count');
+  const empty = document.getElementById('ap-cal-empty');
+  const list  = document.getElementById('ap-cal-list');
   if(!apCalendar.length){
-    empty.style.display=''; list.style.display='none';
-    if(toolbar) toolbar.style.display='none';
-    return;
+    empty.style.display=''; list.style.display='none'; return;
   }
   empty.style.display='none'; list.style.display='flex';
-  if(toolbar){ toolbar.style.display='flex'; }
-  if(count){
-    const pending = apCalendar.filter(i=>i.status==='pending').length;
-    const done    = apCalendar.filter(i=>i.status==='done').length;
-    const failed  = apCalendar.filter(i=>i.status==='failed').length;
-    count.textContent = `${apCalendar.length} total · ${pending} pending · ${done} done · ${failed} failed`;
-  }
   list.innerHTML = apCalendar.map((item,i)=>`
     <div class="ap-cal-item" id="ap-cal-item-${item.id}">
       <div class="ap-cal-day">Day ${item.day}<br>${item.date}</div>
@@ -4683,29 +4190,6 @@ function apDeleteItem(i){
   apSaveCal(); renderApCalendar();
 }
 
-function apClearFailed(){
-  if(!confirm('Remove all failed items?')) return;
-  apCalendar = apCalendar.filter(i=>i.status!=='failed');
-  apCalendar.forEach((item,idx)=>{ item.day=idx+1; });
-  apSaveCal(); renderApCalendar();
-  toast('Cleared failed items','ok');
-}
-
-function apClearDone(){
-  if(!confirm('Remove all completed items?')) return;
-  apCalendar = apCalendar.filter(i=>i.status!=='done');
-  apCalendar.forEach((item,idx)=>{ item.day=idx+1; });
-  apSaveCal(); renderApCalendar();
-  toast('Cleared completed items','ok');
-}
-
-function apClearAll(){
-  if(!confirm('Clear entire calendar? This cannot be undone.')) return;
-  apCalendar = [];
-  apSaveCal(); renderApCalendar();
-  toast('Calendar cleared','ok');
-}
-
 // ── GENERATE + PUBLISH A SINGLE BLOG ──
 async function apRunSingle(idx){
   const item = apCalendar[idx];
@@ -4716,13 +4200,12 @@ async function apRunSingle(idx){
   if(!apiKey){ toast('Add your Claude API key first','err'); switchApTab('autopublish',document.querySelectorAll('#mode-autopilot .rtab')[1]); return; }
   if(!site)  { toast('No WordPress site selected','err'); return; }
 
-  const bizName  = document.getElementById('ap-bizname').value.trim() || 'the clinic';
+  const bizName  = document.getElementById('ap-bizname').value.trim();
   const location = document.getElementById('ap-location').value.trim();
   const audience = document.getElementById('ap-audience').value.trim();
   const tone     = document.getElementById('ap-tone').value;
   const length   = document.getElementById('ap-pub-length')?.value || '2000';
   const status   = document.getElementById('ap-pub-status')?.value || 'draft';
-  const title    = item.title;
 
   apCalendar[idx].status = 'running';
   apSaveCal(); renderApCalendar();
@@ -4757,71 +4240,25 @@ Requirements:
     if(data.error) throw new Error(data.error.message);
     const blogHTML = data.content?.[0]?.text || '';
 
-    // Step 2: Fetch 4 images — hero, inline1, inline2, author
-    apUpdateProgress(`🖼️ Finding images...`);
-
-    // Fetch image URL from WP media by ID
-    async function getImgUrl(id){ try{ const m=await wpReq(site,`media/${id}`,'GET'); return m.source_url||m.guid?.rendered||null; }catch(e){ return null; } }
-
-    // Search variations for each image
-    const heroId    = await apFindImage(site, item.kw, item.title);
-    const inline1Id = await apFindImage(site, item.kw.split(' ').slice(0,2).join(' ') + ' treatment', item.title);
-    const inline2Id = await apFindImage(site, bizName + ' clinic', item.title);
-
-    // Author image — search by author name
-    const prof       = (typeof clientProfiles!=='undefined'&&clientProfiles[activeProfileIdx])||{};
-    const authorName = prof.authorName || '';
-    const authorImgId = authorName ? await apFindImage(site, authorName.split(' ')[0], authorName) : null;
-
-    // Get actual URLs for inline injection
-    const heroUrl    = heroId     ? await getImgUrl(heroId)     : null;
-    const inline1Url = inline1Id  ? await getImgUrl(inline1Id)  : null;
-    const inline2Url = inline2Id  ? await getImgUrl(inline2Id)  : null;
-    const authorUrl  = authorImgId ? await getImgUrl(authorImgId) : null;
-
-    apUpdateProgress(`Wrapping in blog template...`);
-
-    // Step 3: Wrap in BSP styled template
-    const styledHTML = apWrapInTemplate({
-      title, content: blogHTML, kw, bizName, location, tone,
-      images: { hero: heroUrl, inline1: inline1Url, inline2: inline2Url, author: authorUrl }
-    });
+    // Step 2: Find image — WP Media Library first, Pexels fallback
+    apUpdateProgress(`🔍 Searching your WordPress media library for "${item.kw}"...`);
+    const featuredMediaId = await apFindImage(site, item.kw, item.title);
 
     apUpdateProgress(`Publishing to WordPress...`);
 
-    // Step 4: Build slug from keyword
-    const slug = item.kw.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
-
-    // Step 5: Resolve category + author
-    const catName    = document.getElementById('ap-pub-category')?.value.trim();
-    const authorSlug = document.getElementById('ap-pub-author')?.value.trim();
-    const catId      = catName ? await getOrCreate(site,'categories',catName) : null;
-    const authorId   = authorSlug ? await getAuthorId(site, authorSlug) : null;
-
-    // Step 6: Publish to WordPress
+    // Step 3: Publish to WordPress
     const payload = {
-      title:          item.title,
-      slug,
-      content:        styledHTML,
-      status,
-      comment_status: 'closed',
-      ping_status:    'closed',
+      title:   item.title,
+      content: blogHTML,
+      status:  status,
       meta: {
         rank_math_focus_keyword: item.kw,
-        rank_math_title:         item.title,
-        rank_math_description:   `Learn about ${item.kw} at ${bizName} in ${location}. Expert care, proven results.`
+        rank_math_title: item.title,
       }
     };
-    if(catId)    payload.categories     = [catId];
-    if(authorId) payload.author         = authorId;
-    if(heroId)   payload.featured_media = heroId;
+    if(featuredMediaId) payload.featured_media = featuredMediaId;
 
     const post = await wpReq(site, 'posts', 'POST', payload);
-
-    // Step 7: Set RankMath SEO
-    apUpdateProgress(`Setting RankMath SEO...`);
-    await setRankMathSEO(site, post.id, item.kw, item.title,
-      `Learn about ${item.kw} at ${bizName} in ${location}. Expert care, proven results.`, '');
 
     // Step 4: Update calendar
     apCalendar[idx].status   = 'done';
@@ -4843,14 +4280,10 @@ Requirements:
 
   } catch(err){
     apCalendar[idx].status = 'failed';
-    let errMsg = err.message;
-    if(errMsg.includes('not allowed to create posts') || errMsg.includes('not allowed')){
-      errMsg = 'WordPress permissions error. Go to WordPress → Users → Your Profile → Application Passwords → create one and use it as your password in WP Publisher site settings.';
-    }
-    apCalendar[idx].error  = errMsg;
+    apCalendar[idx].error  = err.message;
     apSaveCal(); renderApCalendar();
-    apUpdateProgress(`❌ Failed: ${errMsg}`);
-    toast('Auto-Pilot failed','err', errMsg);
+    apUpdateProgress(`❌ Failed: ${err.message}`);
+    toast('Auto-Pilot failed','err', err.message);
   }
 }
 
@@ -4859,197 +4292,70 @@ function apUpdateProgress(msg){
   if(el) el.innerHTML = `<div style="font-size:12px;color:var(--ink2)">${msg}</div>`;
 }
 
-// ── Wrap Auto-Pilot blog content in BSP styled template ──
-function apWrapInTemplate({ title, content, kw, bizName, location, tone, images={} }){
-  const prof = (typeof clientProfiles !== 'undefined' && clientProfiles[activeProfileIdx]) ? clientProfiles[activeProfileIdx] : {};
-  const primary    = prof.colorPrimary   || '#0A6B5E';
-  const secondary  = prof.colorSecondary || '#0A1F3C';
-  const fontHead   = prof.fontHeading    || 'Poppins';
-  const fontBody   = prof.fontBody       || 'Inter';
-  const authorName = prof.authorName     || bizName;
-  const authorRole = prof.authorRole     || 'Expert';
-  const authorBio  = prof.authorBio      || `${authorName} is a certified expert at ${bizName} in ${location}, specialising in advanced aesthetic treatments.`;
-
-  const words    = content.replace(/<[^>]+>/g,'').split(/\s+/).length;
-  const readTime = Math.max(1, Math.round(words / 200));
-  const today    = new Date().toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
-  const tag      = kw.split(' ').slice(0,2).map(w=>w.charAt(0).toUpperCase()+w.slice(1)).join(' ');
-
-  // Split content into 3 parts to inject inline images between sections
-  function injectInlineImages(html, img1Url, img2Url){
-    // Split on H2 tags — inject image after 2nd H2 and 4th H2
-    const parts = html.split(/(?=<h2)/i);
-    if(parts.length < 3) return html; // not enough sections
-
-    let result = parts[0];
-    parts.forEach((part, i) => {
-      if(i === 0) return;
-      result += part;
-      // Inject inline image 1 after 2nd section
-      if(i === 2 && img1Url){
-        result += `<figure class="bsp-inline-img"><img src="${img1Url}" alt="${kw}" loading="lazy"><figcaption>${tag} at ${bizName}, ${location}</figcaption></figure>`;
-      }
-      // Inject inline image 2 after 4th section
-      if(i === 4 && img2Url){
-        result += `<figure class="bsp-inline-img"><img src="${img2Url}" alt="${title}" loading="lazy"><figcaption>Expert treatment at ${bizName}</figcaption></figure>`;
-      }
-    });
-    return result;
-  }
-
-  const bodyHTML = injectInlineImages(content, images.inline1, images.inline2);
-
-  // Hero image block
-  const heroImgBlock = images.hero
-    ? `<div class="bsp-hero-img-wrap"><img src="${images.hero}" alt="${title}" loading="eager"></div>`
-    : '';
-
-  // Author image
-  const authorImgBlock = images.author
-    ? `<img src="${images.author}" alt="${authorName}" class="bsp-author-avatar">`
-    : `<div class="bsp-author-initials">${authorName.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase()}</div>`;
-
-  return `<style>:root{--bsp-primary:${primary};--bsp-secondary:${secondary};--bsp-font-heading:${fontHead};--bsp-font-body:${fontBody}}</style>
-<link href="https://fonts.googleapis.com/css2?family=${fontHead.replace(/ /g,'+')}:wght@400;600;700&family=${fontBody.replace(/ /g,'+')}:wght@400;600;700&display=swap" rel="stylesheet">
-<style>
-.bsp-article{font-family:'${fontBody}',system-ui,sans-serif;color:#1a1a2e;line-height:1.8;max-width:820px;margin:0 auto}
-.bsp-hero{margin-bottom:32px}
-.bsp-hero-img-wrap{border-radius:14px;overflow:hidden;margin-bottom:20px;box-shadow:0 8px 32px rgba(0,0,0,.12)}
-.bsp-hero-img-wrap img{width:100%;height:420px;object-fit:cover;display:block}
-.bsp-hero-tag{display:inline-block;background:var(--bsp-primary,${primary});color:#fff;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:4px 12px;border-radius:20px;margin-bottom:12px}
-.bsp-hero h1{font-size:clamp(24px,4vw,40px);font-weight:800;color:#1a1a2e;line-height:1.2;margin:0 0 14px;letter-spacing:-0.5px;font-family:'${fontHead}',sans-serif}
-.bsp-hero-meta{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding-bottom:16px;border-bottom:2px solid #f0f0f0}
-.bsp-hero-meta span{color:#666;font-size:13px;display:flex;align-items:center;gap:5px}
-.bsp-hero-meta strong{color:#1a1a2e;font-weight:600}
-.bsp-article p{font-size:16px;color:#2c2c3e;margin:0 0 20px;line-height:1.85}
-.bsp-article h2{font-size:clamp(20px,2.5vw,26px);font-weight:700;color:#0a2540;margin:44px 0 16px;padding-bottom:10px;border-bottom:2px solid #e8f4f8;font-family:'${fontHead}',sans-serif}
-.bsp-article h3{font-size:18px;font-weight:600;color:#0a3d62;margin:28px 0 10px;font-family:'${fontHead}',sans-serif}
-.bsp-article ul,.bsp-article ol{padding-left:24px;margin:0 0 20px}
-.bsp-article li{margin-bottom:8px;font-size:15px;color:#2c2c3e}
-.bsp-article strong{color:#1a1a2e;font-weight:600}
-.bsp-article a{color:var(--bsp-primary,${primary});text-decoration:none;border-bottom:1px solid}
-.bsp-inline-img{margin:28px 0;border-radius:12px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.1)}
-.bsp-inline-img img{width:100%;height:300px;object-fit:cover;display:block}
-.bsp-inline-img figcaption{font-size:12px;color:#888;padding:8px 12px;background:#f9f9f9;text-align:center;font-style:italic}
-.bsp-author{display:flex;align-items:flex-start;gap:16px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:20px 24px;margin:40px 0}
-.bsp-author-avatar{width:64px;height:64px;border-radius:50%;object-fit:cover;flex-shrink:0;border:3px solid var(--bsp-primary,${primary})}
-.bsp-author-initials{width:64px;height:64px;border-radius:50%;background:var(--bsp-primary,${primary});color:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;flex-shrink:0;font-family:'${fontHead}',sans-serif}
-.bsp-author-info{}
-.bsp-author-name{font-size:16px;font-weight:700;color:#1a1a2e;margin:0 0 2px;font-family:'${fontHead}',sans-serif}
-.bsp-author-role{font-size:12px;color:var(--bsp-primary,${primary});font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin:0 0 8px}
-.bsp-author-bio{font-size:13px;color:#555;margin:0;line-height:1.6}
-.bsp-cta{background:linear-gradient(135deg,var(--bsp-primary,${primary}),var(--bsp-secondary,${secondary}));border-radius:16px;padding:32px;text-align:center;margin:40px 0;color:#fff}
-.bsp-cta h3{font-size:22px;font-weight:700;margin:0 0 10px;color:#fff}
-.bsp-cta p{margin:0 0 20px;opacity:.9;font-size:15px}
-.bsp-cta a{display:inline-block;background:#fff;color:var(--bsp-primary,${primary});font-weight:700;padding:12px 28px;border-radius:8px;text-decoration:none;font-size:15px}
-@media(max-width:640px){
-  .bsp-hero-img-wrap img{height:220px!important;aspect-ratio:16/9}
-  .bsp-hero h1{font-size:20px!important;line-height:1.25!important;margin-bottom:10px!important}
-  .bsp-hero-tag{font-size:9px;padding:3px 10px}
-  .bsp-hero-meta{gap:10px;font-size:12px;flex-wrap:wrap}
-  .bsp-article{padding:0 4px}
-  .bsp-article h2{font-size:17px!important;margin:24px 0 10px!important;padding-bottom:8px!important;line-height:1.3!important}
-  .bsp-article h3{font-size:15px!important;margin:18px 0 8px!important}
-  .bsp-article p{font-size:15px!important;line-height:1.75!important;margin-bottom:16px!important}
-  .bsp-article li{font-size:14px!important}
-  .bsp-article ul,.bsp-article ol{padding-left:18px}
-  .bsp-inline-img img{height:200px!important;aspect-ratio:16/9}
-  .bsp-inline-img figcaption{font-size:11px;padding:6px 10px}
-  .bsp-cta{padding:24px 16px!important;border-radius:12px!important}
-  .bsp-cta h3{font-size:18px!important}
-  .bsp-cta p{font-size:14px!important}
-  .bsp-cta a{padding:10px 20px!important;font-size:14px!important;display:block;margin:0 auto;max-width:220px}
-  .bsp-author{flex-direction:column!important;gap:12px!important;padding:16px!important}
-  .bsp-author-avatar{width:52px!important;height:52px!important;font-size:18px!important}
-  .bsp-author-initials{width:52px!important;height:52px!important;font-size:18px!important}
-  .bsp-author-name{font-size:15px!important}
-  .bsp-author-role{font-size:11px!important}
-  .bsp-author-bio{font-size:13px!important;line-height:1.6!important}
-}
-@media(max-width:400px){
-  .bsp-hero h1{font-size:17px!important}
-  .bsp-article h2{font-size:15px!important}
-  .bsp-article p,.bsp-article li{font-size:14px!important}
-}
-</style>
-<div class="bsp-article">
-  <div class="bsp-hero">
-    ${heroImgBlock}
-    <span class="bsp-hero-tag">${tag}</span>
-    <h1>${title}</h1>
-    <div class="bsp-hero-meta">
-      <span>✍️ By <strong>${authorName}</strong></span>
-      <span>⏱ ${readTime} min read</span>
-      <span>📅 ${today}</span>
-    </div>
-  </div>
-  <div class="bsp-body">
-    ${bodyHTML}
-  </div>
-  <div class="bsp-cta">
-    <h3>Ready to Get Started?</h3>
-    <p>Visit ${bizName} in ${location} for expert care and personalised treatment plans.</p>
-    <a href="#">Book a Free Consultation →</a>
-  </div>
-  <div class="bsp-author">
-    ${authorImgBlock}
-    <div class="bsp-author-info">
-      <p class="bsp-author-name">${authorName}</p>
-      <p class="bsp-author-role">${authorRole}</p>
-      <p class="bsp-author-bio">${authorBio}</p>
-    </div>
-  </div>
-</div>`;
-}
-
-
+// ── IMAGE FINDER: WP Media Library → Pexels fallback ──
 async function apFindImage(site, keyword, title) {
-  const searchTerms = keyword.replace(/\bin\b|\bat\b|\bthe\b|\ba\b|\bfor\b|\bof\b|\band\b|\bto\b/gi,'').trim().replace(/\s+/g,' ').split(' ').slice(0,3).join(' ');
-  const firstWord   = searchTerms.split(' ')[0];
-  const searches    = [...new Set([searchTerms, firstWord, keyword.split(' ')[0]])];
+  // Extract core search terms from keyword
+  const searchTerms = keyword.replace(/\bin\b|\bat\b|\bthe\b|\ba\b|\bfor\b|\bof\b/gi,'').trim().split(' ').slice(0,3).join(' ');
 
-  // Step 1: Try WP media library with 3 progressively broader searches
-  for(const term of searches){
-    try {
-      apUpdateProgress(`🖼️ Searching WP media for "${term}"...`);
-      const results = await wpReq(site, `media?search=${encodeURIComponent(term)}&per_page=10&orderby=relevance`, 'GET');
-      if(results && results.length > 0){
-        const images = results.filter(m => m.media_type==='image' || (m.mime_type||'').startsWith('image/'));
-        if(images.length > 0){
-          apUpdateProgress(`✅ Found "${images[0].title?.rendered||images[0].slug}" from your WP media library`);
-          return images[0].id;
-        }
-      }
-    } catch(e){ /* try next */ }
-  }
+  // Step 1: Search WordPress Media Library
+  try {
+    apUpdateProgress(`🖼️ Searching your WordPress media library for "${searchTerms}"...`);
+    const mediaResults = await wpReq(site, `media?search=${encodeURIComponent(searchTerms)}&per_page=5&media_type=image`, 'GET');
+    if(mediaResults && mediaResults.length > 0){
+      // Found image in WP media library — use it
+      const img = mediaResults[0];
+      apUpdateProgress(`✅ Found your image: "${img.title?.rendered || img.slug}" from WordPress media library`);
+      return img.id;
+    }
+
+    // Try broader search with just first word
+    const firstWord = searchTerms.split(' ')[0];
+    const broadResults = await wpReq(site, `media?search=${encodeURIComponent(firstWord)}&per_page=5&media_type=image`, 'GET');
+    if(broadResults && broadResults.length > 0){
+      const img = broadResults[0];
+      apUpdateProgress(`✅ Found related image: "${img.title?.rendered || img.slug}" from WordPress media library`);
+      return img.id;
+    }
+  } catch(e){ /* WP media search failed, try Pexels */ }
 
   // Step 2: Pexels fallback
   const pexelsKey = localStorage.getItem('wpb_pexels_key') || '';
   if(pexelsKey){
     try {
-      apUpdateProgress(`📷 Fetching from Pexels for "${searchTerms}"...`);
-      const pRes  = await fetch(`https://api.pexels.com/v1/search?query=${encodeURIComponent(searchTerms)}&per_page=1&orientation=landscape`,{ headers:{'Authorization':pexelsKey} });
+      apUpdateProgress(`📷 No WP image found — fetching from Pexels for "${searchTerms}"...`);
+      const pRes = await fetch(`https://api.pexels.com/v1/search?query=${encodeURIComponent(searchTerms)}&per_page=1&orientation=landscape`,{
+        headers:{ 'Authorization': pexelsKey }
+      });
       const pData = await pRes.json();
       const photo = pData.photos?.[0];
       if(photo){
-        const imgBlob = await (await fetch(photo.src.large)).blob();
+        // Download and upload to WP media
+        const imgUrl = photo.src.large;
+        const imgRes = await fetch(imgUrl);
+        const imgBlob = await imgRes.blob();
         const filename = `${searchTerms.replace(/\s+/g,'-')}-${Date.now()}.jpg`;
-        const fd = new FormData();
-        fd.append('file', imgBlob, filename);
-        fd.append('title', title);
-        fd.append('alt_text', title);
-        const up = await fetch(site.url+'/wp-json/wp/v2/media',{
+
+        const formData = new FormData();
+        formData.append('file', imgBlob, filename);
+        formData.append('title', title);
+        formData.append('alt_text', title);
+
+        const uploadRes = await fetch(site.url + '/wp-json/wp/v2/media',{
           method:'POST',
-          headers:{'Authorization':'Basic '+btoa(site.user+':'+site.pass)},
-          body: fd
+          headers:{ 'Authorization':'Basic '+btoa(site.user+':'+site.pass) },
+          body: formData
         });
-        const uploaded = await up.json();
-        if(uploaded.id){ apUpdateProgress(`✅ Pexels image uploaded (ID: ${uploaded.id})`); return uploaded.id; }
+        const uploaded = await uploadRes.json();
+        if(uploaded.id){
+          apUpdateProgress(`✅ Pexels image uploaded to WordPress (ID: ${uploaded.id})`);
+          return uploaded.id;
+        }
       }
-    } catch(e){ /* Pexels failed */ }
+    } catch(e){ /* Pexels failed too */ }
   }
 
-  apUpdateProgress(`⚠️ No image found — publishing without featured image`);
+  // Step 3: No image found
+  apUpdateProgress(`⚠️ No image found — publishing without featured image. Upload images to your WP media library named after your keywords.`);
   return null;
 }
 
@@ -5130,7 +4436,6 @@ function switchPageTab(id,el){
   document.querySelectorAll('#mode-pages .rpane').forEach(p=>p.classList.remove('active'));
   el.classList.add('active');
   document.getElementById('page-pane-'+id).classList.add('active');
-  if(id==='gscdata') blogGscInit('page');
 }
 
 function selectPageType(type){
@@ -5486,21 +4791,6 @@ function openAddProfile(idx){
   document.getElementById('p-cta-btn').value           = p.ctaBtn||'';
   document.getElementById('p-cta-url').value           = p.ctaUrl||'';
   document.getElementById('p-category').value          = p.category||'';
-  // Blog Style Settings
-  const ss = (id,val)=>{ const el=document.getElementById(id); if(el) el.value=val; };
-  ss('p-h1-size',    p.styleH1Size    || 'clamp(26px,4vw,40px)');
-  ss('p-h1-mobile',  p.styleH1Mobile  || '20px');
-  ss('p-h2-size',    p.styleH2Size    || 'clamp(20px,2.5vw,26px)');
-  ss('p-h2-mobile',  p.styleH2Mobile  || '17px');
-  ss('p-h3-size',    p.styleH3Size    || '18px');
-  ss('p-h3-mobile',  p.styleH3Mobile  || '15px');
-  ss('p-body-size',  p.styleBodySize  || '16px');
-  ss('p-body-mobile',p.styleBodyMobile|| '15px');
-  ss('p-line-height',p.styleLineHeight|| '1.85');
-  ss('p-max-width',  p.styleMaxWidth  || '820px');
-  ss('p-h2-style',   p.styleH2Style   || 'border-bottom:2px solid #e8f4f8');
-  ss('p-hero-height',p.styleHeroHeight|| '440px');
-  ss('p-para-spacing',p.styleParaSpace|| '20px');
   // Author image preview
   const prevEl = document.getElementById('p-author-img-preview');
   if(p.authorImg){ prevEl.style.backgroundImage='url('+p.authorImg+')'; prevEl.dataset.src=p.authorImg; prevEl.style.display='block'; }
@@ -5542,20 +4832,6 @@ function saveProfile(){
     ctaBtn:         document.getElementById('p-cta-btn').value.trim(),
     ctaUrl:         document.getElementById('p-cta-url').value.trim(),
     category:       document.getElementById('p-category').value.trim(),
-    // Blog Style Settings
-    styleH1Size:    document.getElementById('p-h1-size')?.value || 'clamp(26px,4vw,40px)',
-    styleH1Mobile:  document.getElementById('p-h1-mobile')?.value || '20px',
-    styleH2Size:    document.getElementById('p-h2-size')?.value || 'clamp(20px,2.5vw,26px)',
-    styleH2Mobile:  document.getElementById('p-h2-mobile')?.value || '17px',
-    styleH3Size:    document.getElementById('p-h3-size')?.value || '18px',
-    styleH3Mobile:  document.getElementById('p-h3-mobile')?.value || '15px',
-    styleBodySize:  document.getElementById('p-body-size')?.value || '16px',
-    styleBodyMobile:document.getElementById('p-body-mobile')?.value || '15px',
-    styleLineHeight:document.getElementById('p-line-height')?.value || '1.85',
-    styleMaxWidth:  document.getElementById('p-max-width')?.value || '820px',
-    styleH2Style:   document.getElementById('p-h2-style')?.value || 'border-bottom:2px solid #e8f4f8',
-    styleHeroHeight:document.getElementById('p-hero-height')?.value || '440px',
-    styleParaSpace: document.getElementById('p-para-spacing')?.value || '20px',
   };
   const editIdx = document.getElementById('modal-profile').dataset.editIdx;
   if(editIdx !== ''){
@@ -6005,7 +5281,7 @@ function clearAIForm(){
   document.getElementById('ai-keypoints').value = '';
 }
 
-async function generateBlogAuto(autoPublish=false){
+async function generateBlogAuto(){
   const topic = document.getElementById('ai-topic').value.trim();
   const apiKey = localStorage.getItem('claude_api_key');
   const model = localStorage.getItem('claude_model') || 'claude-sonnet-4-20250514';
@@ -6021,10 +5297,9 @@ async function generateBlogAuto(autoPublish=false){
     return;
   }
   
-  const btn    = document.getElementById('ai-gen-btn');
-  const btnPub = document.getElementById('ai-gen-publish-btn');
-  btn.classList.add('loading');    btn.disabled    = true;
-  btnPub.classList.add('loading'); btnPub.disabled = true;
+  const btn = document.getElementById('ai-gen-btn');
+  btn.classList.add('loading');
+  btn.disabled = true;
   
   try {
     // Build auto-prompt from profile + topic
@@ -6141,20 +5416,10 @@ async function generateBlogAuto(autoPublish=false){
     // Track usage
     trackTokenUsage(data.usage.input_tokens, data.usage.output_tokens, model);
     
-    // AUTO-CONVERT immediately after generation
-    convertToHTML();
-    
-    // Scroll to publish panel
-    switchTab('seo', document.querySelector('#mode-blog .rtab'));
+    // Scroll to blog content
     document.getElementById('blog-input').scrollIntoView({behavior: 'smooth', block: 'start'});
     
-    if(autoPublish){
-      toast('✅ Blog generated! Publishing now...','ok','');
-      // Small delay to let convert finish rendering
-      setTimeout(()=>{ publishPost(); }, 800);
-    } else {
-      toast('✅ Blog generated & converted!','ok','Review SEO fields → Click Publish when ready');
-    }
+    toast('Complete blog generated!','ok','Review → Add images → Publish');
     
   } catch(err) {
     let errorMsg = err.message;
@@ -6168,191 +5433,134 @@ async function generateBlogAuto(autoPublish=false){
     toast(errorMsg, 'err', errorDetail);
     console.error('AI Generation Error:', err);
   } finally {
-    btn.classList.remove('loading');    btn.disabled    = false;
-    btnPub.classList.remove('loading'); btnPub.disabled = false;
+    btn.classList.remove('loading');
+    btn.disabled = false;
   }
 }
 
 function buildAutoPrompt(topic){
-  var profile   = clientProfiles[activeProfileIdx] || {};
-  var location  = document.getElementById('ai-location').value.trim() || profile.city || '';
-  var keypoints = document.getElementById('ai-keypoints').value.trim();
-  var focusKw   = topic.toLowerCase() + (location ? ' ' + location.toLowerCase() : '');
-  var biz       = profile.name || 'our clinic';
-  var author    = profile.authorName || '';
-  var authorRole= profile.authorRole || 'Specialist';
-  var authorBio = profile.authorBio  || 'Expert at ' + biz;
-  var cta       = profile.ctaBtn     || 'Book a Free Consultation';
-  var tone      = profile.tone       || 'Professional & Reassuring';
-  var kp = keypoints ? '\nKEY POINTS:\n' + keypoints.split('\n').map(function(p){return '- '+p.trim();}).filter(Boolean).join('\n') : '';
-  var loc = location ? ' in ' + location : '';
-  var p = [];
-  p.push('You are a premium medical/wellness content writer for ' + biz + loc + '.');
-  p.push('Write a COMPLETE blog about "' + topic + '" using EXACTLY these markers.');
-  p.push('Focus keyword: "' + focusKw + '" — use 5-8 times. Tone: ' + tone + '. Indian audience. Use Rs for pricing.' + kp);
-  p.push('');
-  p.push('RULES:');
-  p.push('1. Write REAL content — no placeholders');
-  p.push('2. Keep paragraphs under 3 sentences');
-  p.push('3. After each #CHECK line, write a short description on the NEXT line');
-  p.push('4. Stats: credibility numbers only — NO prices');
-  p.push('5. Reviews: casual Indian English, 15-20 words max');
-  p.push('6. FAQ: real Google search style questions');
-  p.push('');
-  p.push('#TITLE = [SEO title 50-60 chars with "' + focusKw + '"]');
-  p.push('#HERO_TAG = ' + (profile.industry || 'Treatment') + ' - ' + (location || 'Expert Guide'));
-  p.push('#AUTHOR = ' + author);
-  p.push('#AUTHOR_ROLE = ' + authorRole);
-  p.push('#AUTHOR_BIO = ' + authorBio);
-  p.push('#READ_TIME = 8');
-  p.push('#META_TITLE = [SEO meta title 50-60 chars]');
-  p.push('#META_DESC = [Meta description 130-160 chars with "' + focusKw + '"]');
-  p.push('#FOCUS_KW = ' + focusKw);
-  p.push('#SECONDARY_KW = [6 related keywords comma separated]');
-  p.push('');
-  p.push('#INTRO');
-  p.push('[Write 2 SHORT paragraphs. MAX 2 sentences each. First sentence = strong hook. Include "' + focusKw + '". Short and punchy — no walls of text.]');
-  p.push('');
-  p.push('#STATS_START');
-  p.push('[90%+] | [Patient satisfaction rate]');
-  p.push('[1000+] | [Successful treatments or patients]');
-  p.push('[10+] | [Years of expertise]');
-  p.push('[4.8/5] | [Patient rating]');
-  p.push('#STATS_END');
-  p.push('');
-  p.push('#H2 = What Is ' + topic + '?');
-  p.push('[2 clear sentences explaining ' + topic + ' and who benefits]');
-  p.push('');
-  p.push('#IMAGE_1 = ' + topic);
-  p.push('');
-  p.push('#H2 = Our Approach to ' + topic);
-  p.push('#TAB_START = Overview | How It Works | Who Its For | Results');
-  p.push('[2 sentences about the approach at ' + biz + ']');
-  p.push('#LIST_START');
-  p.push('[Key offering 1]');
-  p.push('[Key offering 2]');
-  p.push('[Key offering 3]');
-  p.push('[Key offering 4]');
-  p.push('#LIST_END');
-  p.push('#TAB = How It Works');
-  p.push('#CHECK = [First step name]');
-  p.push('[One sentence describing this step]');
-  p.push('#CHECK = [Second step name]');
-  p.push('[One sentence describing this step]');
-  p.push('#CHECK = [Third step name]');
-  p.push('[One sentence describing this step]');
-  p.push('#CHECK = [Fourth step name]');
-  p.push('[One sentence describing this step]');
-  p.push('#TAB = Who Its For');
-  p.push('[One sentence intro about ideal candidates]');
-  p.push('#LIST_START');
-  p.push('[Candidate type 1]');
-  p.push('[Candidate type 2]');
-  p.push('[Candidate type 3]');
-  p.push('[Candidate type 4]');
-  p.push('#LIST_END');
-  p.push('#TAB = Results');
-  p.push('[One sentence about expected results]');
-  p.push('#LIST_START');
-  p.push('[Result milestone 1 with timeframe]');
-  p.push('[Result milestone 2 with timeframe]');
-  p.push('[Result milestone 3 with timeframe]');
-  p.push('#LIST_END');
-  p.push('#TAB_END');
-  p.push('');
-  p.push('#H2 = Diagnosis & Assessment');
-  p.push('#CHECK = [First assessment step]');
-  p.push('[One sentence about this step]');
-  p.push('#CHECK = [Second assessment step]');
-  p.push('[One sentence about this step]');
-  p.push('#CHECK = [Third assessment step]');
-  p.push('[One sentence about this step]');
-  p.push('');
-  p.push('#H2 = Treatment Options Comparison');
-  p.push('#TABLE_START');
-  p.push('| Option | Best For | Duration | Sessions |');
-  p.push('| --- | --- | --- | --- |');
-  p.push('| [Option 1] | [Who it suits] | [Duration] | [N] |');
-  p.push('| [Option 2] | [Who it suits] | [Duration] | [N] |');
-  p.push('| [Option 3] | [Who it suits] | [Duration] | [N] |');
-  p.push('#TABLE_END');
-  p.push('');
-  p.push('#H2 = Treatment Plans at ' + biz);
-  p.push('#TAB_START = Basic | Standard | Premium');
-  p.push('[One sentence about basic plan]');
-  p.push('#LIST_START');
-  p.push('[Included 1]');
-  p.push('[Included 2]');
-  p.push('[Included 3]');
-  p.push('#LIST_END');
-  p.push('#TAB = Standard');
-  p.push('[One sentence about standard plan]');
-  p.push('#LIST_START');
-  p.push('[Included 1]');
-  p.push('[Included 2]');
-  p.push('[Included 3]');
-  p.push('[Included 4]');
-  p.push('#LIST_END');
-  p.push('#TAB = Premium');
-  p.push('[One sentence about premium plan]');
-  p.push('#LIST_START');
-  p.push('[Included 1]');
-  p.push('[Included 2]');
-  p.push('[Included 3]');
-  p.push('[Included 4]');
-  p.push('[Included 5]');
-  p.push('#LIST_END');
-  p.push('#TAB_END');
-  p.push('');
-  p.push('#IMAGE_2 = ' + topic + ' results');
-  p.push('');
-  p.push('#H2 = Aftercare and Long-Term Success');
-  p.push('#LIST_START');
-  p.push('[Aftercare tip 1 for ' + topic + ']');
-  p.push('[Aftercare tip 2]');
-  p.push('[Aftercare tip 3]');
-  p.push('[Aftercare tip 4]');
-  p.push('[Aftercare tip 5]');
-  p.push('#LIST_END');
-  p.push('');
-  p.push('#H2 = Why Choose ' + biz + loc + '?');
-  p.push('#STATS_START');
-  p.push('[Number] | [Credential stat]');
-  p.push('[Number] | [Technology stat]');
-  p.push('[Number] | [Patient outcome stat]');
-  p.push('[Number] | [Years serving ' + (location || 'patients') + ']');
-  p.push('#STATS_END');
-  p.push('[2 specific sentences about what makes ' + biz + ' genuinely different]');
-  p.push('');
-  p.push('#REVIEWS_START');
-  p.push('[Specific result from ' + topic + '] | [Indian name] | [Bangalore area] | 5');
-  p.push('[Result with timeframe] | [Indian name] | [Area] | 5');
-  p.push('[Mentions doctor and outcome] | [Indian name] | [Area] | 5');
-  p.push('[Experience and recommendation] | [Indian name] | [Area] | 5');
-  p.push('[Before and after detail] | [Indian name] | [Area] | 5');
-  p.push('#REVIEWS_END');
-  p.push('');
-  p.push('#FAQ_START');
-  p.push('Q: How many sessions of ' + topic + ' do I need?');
-  p.push('A: [Specific answer with range]');
-  p.push('Q: Is ' + topic + ' painful?');
-  p.push('A: [Honest reassuring answer]');
-  p.push('Q: How long do ' + topic + ' results last?');
-  p.push('A: [Specific timeframe with maintenance tip]');
-  p.push('Q: Is ' + topic + ' safe?');
-  p.push('A: [Safety answer mentioning ' + biz + ' credentials]');
-  p.push('Q: What is recovery time after ' + topic + '?');
-  p.push('A: [Practical downtime answer]');
-  p.push('Q: How do I know if ' + topic + ' is right for me?');
-  p.push('A: [Guide to book consultation at ' + biz + ']');
-  p.push('#FAQ_END');
-  p.push('');
-  p.push('#CTA_TITLE = ' + cta);
-  p.push('#CTA_BODY = [One powerful sentence about booking at ' + biz + ' for ' + topic + ']');
-  p.push('');
-  p.push('#AUTHOR_NAME/' + authorRole + '/BIO');
-  p.push(authorBio);
-  return p.join('\n');
+  const profile = clientProfiles[activeProfileIdx];
+  const location = document.getElementById('ai-location').value.trim() || (profile?.city || '');
+  const audience = document.getElementById('ai-audience').value.trim() || '';
+  const keypoints = document.getElementById('ai-keypoints').value.trim();
+  
+  // Auto-generate focus keyword
+  const focusKw = topic.toLowerCase() + (location ? ' ' + location.toLowerCase() : '');
+  
+  let profileContext = '';
+  if(profile){
+    profileContext = `
+BUSINESS INFO (auto-filled from profile):
+- Name: ${profile.name}
+- Industry: ${profile.industry || 'Not specified'}
+- Location: ${profile.city || ''}${profile.state ? ', ' + profile.state : ''}
+- Website: ${profile.url || ''}
+- Tone: ${profile.tone || 'Professional & Technical'}
+- Author: ${profile.authorName || ''}${profile.authorRole ? ' (' + profile.authorRole + ')' : ''}
+- CTA: ${profile.ctaBtn || 'Book Consultation'} → ${profile.ctaUrl || ''}
+`;
+  }
+  
+  return `You are a professional SEO blog writer. Generate a COMPLETE, READY-TO-PUBLISH blog post.
+
+${profileContext}
+
+TOPIC: ${topic}${location ? ' in ' + location : ''}
+${audience ? 'TARGET AUDIENCE: ' + audience : ''}
+${keypoints ? '\nKEY POINTS TO COVER:\n' + keypoints.split('\n').map(p => '- ' + p.trim()).join('\n') : ''}
+
+FOCUS KEYWORD: ${focusKw}
+
+OUTPUT FORMAT — Use these EXACT markers (no explanations, just the content):
+
+#HERO_TAG = ${profile?.industry || 'Guide'} · ${topic}
+#TITLE = [Compelling title with focus keyword — 50-60 chars]
+#AUTHOR = ${profile?.authorName || 'Author'}
+#AUTHOR_URL = ${profile?.authorUrl || ''}
+#READ_TIME = 12
+#META_TITLE = [SEO title 50-60 chars with "${focusKw}"]
+#META_DESC = [Meta description 130-160 chars with "${focusKw}"]
+#FOCUS_KW = ${focusKw}
+#SECONDARY_KW = [5-8 related keywords, comma-separated]
+
+#INTRO
+[2-3 engaging paragraphs introducing ${topic}. Include focus keyword naturally in first paragraph.]
+
+#H2 = [First Major Heading]
+#PARA = [Detailed content for this section]
+
+#H3 = [Subheading if needed]
+#PARA = [Content]
+
+#CHECK = Check #1: [First key point]
+#PARA = [Explanation]
+
+#CHECK = Check #2: [Second key point]
+#PARA = [Explanation]
+
+#CHECK = Check #3: [Third key point]
+#PARA = [Explanation]
+
+#H2 = [Another Section Heading]
+#PARA = [Content]
+
+#TABLE_START
+| Feature | Details |
+| --- | --- |
+| [Item] | [Description] |
+| [Item] | [Description] |
+#TABLE_END
+
+#FAQ_START
+Q: [Natural question people ask about ${topic}]
+A: [Clear, helpful answer]
+
+Q: [Second question]
+A: [Answer]
+
+Q: [Third question]
+A: [Answer]
+
+Q: [Fourth question]
+A: [Answer]
+
+Q: [Fifth question]
+A: [Answer]
+#FAQ_END
+
+#REVIEWS_START
+[Authentic review text mentioning specific benefit] | [Indian name] | [Location] | 5
+[Another review focusing on service quality] | [Indian name] | [Nearby area] | 5
+[Review highlighting results/outcome] | [Indian name] | [Location] | 5
+[Review about staff/experience] | [Indian name] | [Area] | 5
+[Review about value/recommendation] | [Indian name] | [Location] | 5
+#REVIEWS_END
+
+#CTA_TITLE = ${profile?.ctaBtn || 'Ready to Get Started?'}
+#CTA_BODY = [One compelling line motivating action]
+
+REQUIREMENTS:
+1. Output ONLY marker-formatted content — no preamble
+2. Make it 1500+ words
+3. Use "${focusKw}" naturally 5-8 times
+4. Include all secondary keywords naturally
+5. Write in ${profile?.tone || 'professional but approachable'} tone
+6. Target Indian audience, use ₹ for pricing
+7. Make FAQ sound natural (real questions)
+8. REVIEWS MUST BE NATURAL & SEO-OPTIMIZED:
+   - Write like real Indian customers (casual, specific, emotional)
+   - Mention exact treatment names ("PRP therapy", "cryolipolysis", etc.)
+   - Include location naturally ("best hair treatment in Hennur", "visited from Whitefield")
+   - Use conversational language ("finally found", "highly recommend", "worth every rupee")
+   - Mention specific results ("lost 2 inches", "hair fall reduced 80%", "visible in 3 weeks")
+   - Use doctor/staff names if available
+   - Include time frames ("after 4 sessions", "within 2 months")
+   - Each review 12-20 words maximum
+   - NO generic phrases like "professional staff" — be SPECIFIC
+9. DO NOT include #IMAGE_1 or #IMAGE_2 markers in your output (tool will auto-insert them)
+10. Each review 15-25 words, natural language, specific details
+
+Start with #HERO_TAG:`;
 }
 
 function clearBrief(){
@@ -6980,682 +6188,6 @@ function previewEditedPost() {
   const h = histLog[editingHistIdx];
   if (h && h.link) { window.open(h.link, '_blank'); }
   else { toast('No live URL', 'info', 'Post needs to be published first'); }
-}
-
-// ══════════════════════════════════════════
-// GOOGLE SEARCH CONSOLE INTEGRATION
-// ══════════════════════════════════════════
-
-const GSC_CLIENT_ID  = '761734820860-1nogbqmm3l6t66qigohkh4o4c5bsrk1f.apps.googleusercontent.com';
-const GSC_REDIRECT   = window.location.href.split('?')[0].split('#')[0];
-const GSC_SCOPE      = 'https://www.googleapis.com/auth/webmasters.readonly';
-const GSC_TOKEN_KEY  = 'wpb_gsc_token';
-const GSC_EXPIRY_KEY = 'wpb_gsc_expiry';
-
-let gscKwData = [];
-
-// ── Implicit token flow via popup — no client secret or redirect URI setup needed ──
-function gscConnect(){
-  const btn = document.getElementById('gsc-connect-btn');
-  btn.classList.add('loading'); btn.disabled=true;
-
-  const params = new URLSearchParams({
-    client_id:     GSC_CLIENT_ID,
-    redirect_uri:  'https://mandy267.github.io/wp-publisher-final.html',
-    response_type: 'token',
-    scope:         GSC_SCOPE,
-    prompt:        'consent'
-  });
-
-  const popup = window.open(
-    `https://accounts.google.com/o/oauth2/v2/auth?${params}`,
-    'gsc_auth', 'width=500,height=650,scrollbars=yes,resizable=yes'
-  );
-
-  const timer = setInterval(()=>{
-    try {
-      if(!popup || popup.closed){
-        clearInterval(timer);
-        btn.classList.remove('loading'); btn.disabled=false;
-        return;
-      }
-      const hash = popup.location.hash;
-      if(hash && hash.includes('access_token')){
-        clearInterval(timer);
-        popup.close();
-        const p     = new URLSearchParams(hash.substring(1));
-        const token = p.get('access_token');
-        const exp   = parseInt(p.get('expires_in')||'3600');
-        if(token){
-          localStorage.setItem(GSC_TOKEN_KEY,  token);
-          localStorage.setItem(GSC_EXPIRY_KEY, Date.now()+(exp*1000));
-          btn.classList.remove('loading'); btn.disabled=false;
-          gscUpdateStatus(true);
-          gscLoadSites();
-          toast('✅ GSC Connected!','ok','Now fetch your keyword opportunities');
-        }
-      }
-    } catch(e){ /* still on google domain — keep waiting */ }
-  }, 500);
-
-  setTimeout(()=>{ clearInterval(timer); try{ if(!popup.closed) popup.close(); }catch(e){} btn.classList.remove('loading'); btn.disabled=false; }, 180000);
-}
-
-function gscCleanUrl(){
-  window.history.replaceState({}, document.title, window.location.pathname);
-}
-
-function gscGetToken(){
-  const t = localStorage.getItem(GSC_TOKEN_KEY);
-  const e = parseInt(localStorage.getItem(GSC_EXPIRY_KEY)||'0');
-  return (!t || Date.now() > e) ? null : t;
-}
-
-function gscDisconnect(){
-  [GSC_TOKEN_KEY, GSC_EXPIRY_KEY,'wpb_gsc_refresh'].forEach(k=>localStorage.removeItem(k));
-  gscUpdateStatus(false);
-  toast('GSC disconnected','info');
-}
-
-function gscUpdateStatus(connected){
-  const s  = document.getElementById('gsc-auth-status');
-  const cb = document.getElementById('gsc-connect-btn');
-  const db = document.getElementById('gsc-disconnect-btn');
-  const fc = document.getElementById('gsc-filters-card');
-  if(!s) return;
-  if(connected){
-    s.innerHTML = '<span style="font-size:16px">✅</span><span style="color:var(--teal);font-weight:600">Connected to Google Search Console</span>';
-    s.style.background='var(--teal-l)'; s.style.borderColor='var(--teal-b)';
-    cb.style.display='none'; db.style.display='';
-    if(fc) fc.style.display='';
-  } else {
-    s.innerHTML = '<span style="font-size:16px">🔒</span><span>Not connected — click below to connect with Google</span>';
-    s.style.background='var(--surf2)'; s.style.borderColor='var(--bdr)';
-    cb.style.display=''; db.style.display='none';
-    if(fc) fc.style.display='none';
-  }
-}
-
-async function gscLoadSites(){
-  const token = gscGetToken(); if(!token) return;
-  try {
-    const res  = await fetch('https://www.googleapis.com/webmasters/v3/sites',{ headers:{'Authorization':`Bearer ${token}`} });
-    const data = await res.json();
-    const list = data.siteEntry||[];
-    const sel  = document.getElementById('gsc-site-select');
-    if(!sel) return;
-    sel.innerHTML = list.map(s=>`<option value="${s.siteUrl}">${s.siteUrl}</option>`).join('');
-    const active = getActive();
-    if(active){ const m = list.find(s=>s.siteUrl.includes(active.url.replace(/https?:\/\//,''))); if(m) sel.value=m.siteUrl; }
-    const fc = document.getElementById('gsc-filters-card');
-    if(fc) fc.style.display='';
-  } catch(e){ toast('Failed to load GSC sites','err',e.message); }
-}
-
-async function gscFetchKeywords(){
-  const token = gscGetToken(); if(!token){ toast('GSC not connected','err'); return; }
-  const siteUrl    = document.getElementById('gsc-site-select').value;
-  const days       = parseInt(document.getElementById('gsc-date-range').value);
-  const filterType = document.getElementById('gsc-filter-type').value;
-  if(!siteUrl){ toast('Select a GSC property','err'); return; }
-
-  const btn = document.getElementById('gsc-fetch-btn');
-  btn.classList.add('loading'); btn.disabled=true;
-
-  const end   = new Date();
-  const start = new Date(end - days*864e5);
-  const fmt   = d => d.toISOString().split('T')[0];
-
-  try {
-    const res = await fetch(`https://www.googleapis.com/webmasters/v3/sites/${encodeURIComponent(siteUrl)}/searchAnalytics/query`,{
-      method:'POST',
-      headers:{'Authorization':`Bearer ${token}`,'Content-Type':'application/json'},
-      body: JSON.stringify({ startDate:fmt(start), endDate:fmt(end), dimensions:['query'], rowLimit:200, dataState:'final' })
-    });
-    const data = await res.json();
-    if(data.error) throw new Error(data.error.message);
-
-    let rows = data.rows||[];
-    if(filterType==='quick-wins')  rows = rows.filter(r=>r.position>=4&&r.position<=20&&r.impressions>10);
-    else if(filterType==='low-ctr') rows = rows.filter(r=>r.impressions>50&&r.ctr<0.03);
-    else if(filterType==='untapped') rows = rows.filter(r=>r.impressions>20&&r.clicks===0);
-    else rows = rows.filter(r=>r.impressions>10);
-
-    rows.sort((a,b)=>((b.impressions*(1-b.ctr))/Math.max(b.position,1))-((a.impressions*(1-a.ctr))/Math.max(a.position,1)));
-    rows = rows.slice(0,60);
-
-    gscKwData = rows.map(r=>({
-      kw: r.keys[0], clicks:r.clicks, impressions:r.impressions,
-      ctr:(r.ctr*100).toFixed(1), position:r.position.toFixed(1), selected:true,
-      opportunity: r.position>=4&&r.position<=20?'quick-win':r.ctr<0.03&&r.impressions>50?'low-ctr':'untapped'
-    }));
-
-    renderGscKeywords();
-    document.getElementById('gsc-results-card').style.display='';
-    toast(`Found ${gscKwData.length} opportunities`,'ok');
-  } catch(err){ toast('GSC fetch failed','err',err.message); }
-  finally { btn.classList.remove('loading'); btn.disabled=false; }
-}
-
-function renderGscKeywords(){
-  document.getElementById('gsc-kw-list').innerHTML = gscKwData.map((k,i)=>`
-    <div class="ap-kw-item" onclick="this.querySelector('input').click()">
-      <input type="checkbox" ${k.selected?'checked':''} onchange="gscKwData[${i}].selected=this.checked" onclick="event.stopPropagation()">
-      <div style="flex:1;min-width:0">
-        <div class="ap-kw-label" style="margin-bottom:3px">${k.kw}</div>
-        <div style="display:flex;gap:8px;font-size:10px;color:var(--ink3);font-family:var(--mono)">
-          <span>📍 Pos ${k.position}</span>
-          <span>👁 ${Number(k.impressions).toLocaleString()}</span>
-          <span>🖱 ${k.clicks} clicks</span>
-          <span>CTR ${k.ctr}%</span>
-        </div>
-      </div>
-      <span class="ap-kw-intent ${k.opportunity==='quick-win'?'trans':k.opportunity==='low-ctr'?'info':'nav'}" style="flex-shrink:0">
-        ${k.opportunity==='quick-win'?'⚡ Quick Win':k.opportunity==='low-ctr'?'👁 Low CTR':'🌱 Untapped'}
-      </span>
-    </div>`).join('');
-}
-
-function gscSelectAll(){ gscKwData.forEach(k=>k.selected=true); document.querySelectorAll('#gsc-kw-list input').forEach(c=>c.checked=true); }
-
-async function gscAddToCalendar(){
-  const selected = gscKwData.filter(k=>k.selected);
-  if(!selected.length){ toast('Select at least one keyword','err'); return; }
-  const apiKey  = (localStorage.getItem('claude_api_key')||'').replace(/[^ -~]/g,'').trim();
-  const bizName = document.getElementById('ap-bizname').value.trim()||'the clinic';
-  const location= document.getElementById('ap-location').value.trim();
-  const tone    = document.getElementById('ap-tone').value;
-
-  let titles = [];
-  if(apiKey){
-    try {
-      const res = await fetch('https://api.anthropic.com/v1/messages',{
-        method:'POST',
-        headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-        body:JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:2000,
-          messages:[{role:'user',content:`Generate one SEO blog title per keyword for ${bizName} in ${location}. Return ONLY a JSON array. Keywords: ${selected.map(k=>k.kw).join(', ')}`}] })
-      });
-      const d = await res.json();
-      titles = JSON.parse((d.content?.[0]?.text||'[]').replace(/```json|```/g,'').trim());
-    } catch(e){ titles = selected.map(k=>k.kw); }
-  } else { titles = selected.map(k=>k.kw.charAt(0).toUpperCase()+k.kw.slice(1)); }
-
-  const startDay = apCalendar.length+1;
-  const today    = new Date();
-  apCalendar.push(...selected.map((k,i)=>({
-    id:Date.now()+i, day:startDay+i,
-    date:new Date(today.getTime()+(startDay-1+i)*864e5).toISOString().split('T')[0],
-    kw:k.kw, title:titles[i]||k.kw, intent:k.opportunity, source:'gsc',
-    status:'pending', postId:null, postLink:null, error:null
-  })));
-  apSaveCal(); renderApCalendar();
-  switchApTab('calendar', document.querySelector('#mode-autopilot .rtab'));
-  toast(`✅ Added ${selected.length} GSC keywords to calendar!`,'ok');
-}
-
-function gscInit(){
-  const token = gscGetToken();
-  gscUpdateStatus(!!token);
-  if(token) gscLoadSites();
-}
-
-// ── GSC Data in Blog + Pages tabs ──
-async function blogGscFetch(mode='blog'){
-  const prefix  = mode==='blog' ? 'blog' : 'page';
-  const token   = gscGetToken();
-  const statusEl  = document.getElementById(`${prefix}-gsc-status`);
-  const filtersEl = document.getElementById(`${prefix}-gsc-filters`);
-  const resultsEl = document.getElementById(`${prefix}-gsc-results`);
-
-  if(!token){
-    statusEl.innerHTML = '🔒 Not connected — <a href="#" onclick="gscConnect();return false;" style="color:var(--teal)">Connect GSC</a> first';
-    statusEl.style.display='';
-    if(filtersEl) filtersEl.style.display='none';
-    return;
-  }
-
-  // Show connected status + load sites if needed
-  statusEl.innerHTML = '✅ Connected';
-  statusEl.style.background='var(--teal-l)';
-  statusEl.style.borderColor='var(--teal-b)';
-  statusEl.style.color='var(--teal)';
-  if(filtersEl) filtersEl.style.display='flex';
-
-  // Load sites into dropdown
-  const siteSelect = document.getElementById(`${prefix}-gsc-site`);
-  if(siteSelect && !siteSelect.options.length){
-    try {
-      const res  = await fetch('https://www.googleapis.com/webmasters/v3/sites',{ headers:{'Authorization':`Bearer ${token}`} });
-      const data = await res.json();
-      const list = data.siteEntry||[];
-      siteSelect.innerHTML = list.map(s=>`<option value="${s.siteUrl}">${s.siteUrl}</option>`).join('');
-      // Auto-select active site
-      const active = getActive();
-      if(active){ const m=list.find(s=>s.siteUrl.includes(active.url.replace(/https?:\/\//,''))); if(m) siteSelect.value=m.siteUrl; }
-    } catch(e){}
-  }
-
-  const siteUrl    = siteSelect?.value;
-  if(!siteUrl) return;
-
-  const days       = parseInt(document.getElementById(`${prefix}-gsc-days`)?.value||'90');
-  const filterType = document.getElementById(`${prefix}-gsc-filter`)?.value||'all';
-  const btn        = mode==='blog' ? document.getElementById('blog-gsc-fetch-btn') : null;
-  if(btn){ btn.classList.add('loading'); btn.disabled=true; }
-
-  const end   = new Date();
-  const start = new Date(end - days*864e5);
-  const fmt   = d => d.toISOString().split('T')[0];
-
-  try {
-    const res = await fetch(
-      `https://www.googleapis.com/webmasters/v3/sites/${encodeURIComponent(siteUrl)}/searchAnalytics/query`,{
-      method:'POST',
-      headers:{'Authorization':`Bearer ${token}`,'Content-Type':'application/json'},
-      body: JSON.stringify({ startDate:fmt(start), endDate:fmt(end), dimensions:['query'], rowLimit:500, dataState:'final' })
-    });
-    const data = await res.json();
-    if(data.error) throw new Error(data.error.message);
-
-    let rows = data.rows||[];
-
-    // Apply filter
-    if(filterType==='quick-wins') rows=rows.filter(r=>r.position>=4&&r.position<=20&&r.impressions>10);
-    else if(filterType==='low-ctr') rows=rows.filter(r=>r.impressions>50&&r.ctr<0.03);
-    else if(filterType==='untapped') rows=rows.filter(r=>r.impressions>20&&r.clicks===0);
-    else rows=rows.filter(r=>r.impressions>5);
-
-    // Sort by opportunity score
-    rows.sort((a,b)=>(b.impressions*(1-b.ctr)/Math.max(b.position,1))-(a.impressions*(1-a.ctr)/Math.max(a.position,1)));
-    rows = rows.slice(0,80);
-
-    // Render
-    blogGscRender(rows, mode);
-    if(resultsEl) resultsEl.style.display='flex';
-    toast(`📊 ${rows.length} GSC keywords loaded`,'ok');
-
-  } catch(err){
-    toast('GSC fetch failed','err',err.message);
-  } finally {
-    if(btn){ btn.classList.remove('loading'); btn.disabled=false; }
-  }
-}
-
-function blogGscRender(rows, mode){
-  const listId = mode==='blog' ? 'blog-gsc-list' : 'page-gsc-list';
-  const el = document.getElementById(listId);
-  if(!el) return;
-
-  el.innerHTML = rows.map(r=>{
-    const opp = r.position>=4&&r.position<=20 ? '⚡' : r.ctr<0.03&&r.impressions>50 ? '👁' : '🌱';
-    const kw  = r.keys[0];
-    const pos = r.position.toFixed(1);
-    const imp = Number(r.impressions).toLocaleString();
-    const ctr = (r.ctr*100).toFixed(1);
-
-    return `<div onclick="blogGscApply('${kw.replace(/'/g,"\\'")}','${mode}')"
-      style="padding:8px 10px;border:1px solid var(--bdr);border-radius:6px;cursor:pointer;transition:all .12s;background:var(--surf)"
-      onmouseover="this.style.background='var(--teal-l)';this.style.borderColor='var(--teal-b)'"
-      onmouseout="this.style.background='var(--surf)';this.style.borderColor='var(--bdr)'">
-      <div style="font-size:12px;font-weight:600;color:var(--ink);margin-bottom:4px">${opp} ${kw}</div>
-      <div style="display:flex;gap:10px;font-size:10px;color:var(--ink3);font-family:var(--mono)">
-        <span>📍 ${pos}</span>
-        <span>👁 ${imp}</span>
-        <span>CTR ${ctr}%</span>
-        <span>🖱 ${r.clicks}</span>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-function blogGscApply(kw, mode){
-  if(mode==='blog'){
-    // Auto-fill blog SEO fields
-    const kwEl   = document.getElementById('f-kw');
-    const titleEl = document.getElementById('f-title');
-    const seoTEl  = document.getElementById('f-seo-title');
-    const metaEl  = document.getElementById('f-meta');
-
-    if(kwEl)   { kwEl.value = kw; kwEl.dispatchEvent(new Event('input')); }
-    if(!titleEl?.value && titleEl) titleEl.value = kw.charAt(0).toUpperCase()+kw.slice(1);
-    if(seoTEl && !seoTEl.value) seoTEl.value = kw.charAt(0).toUpperCase()+kw.slice(1);
-    if(metaEl && !metaEl.value) metaEl.value = `Learn about ${kw} — expert guide with tips, costs, and what to expect.`;
-
-    toast(`✅ Applied "${kw}" to SEO fields`,'ok','Adjust title and meta as needed');
-    // Switch to SEO tab to show filled fields
-    switchTab('seo', document.querySelector('.rtab'));
-
-  } else {
-    // Auto-fill page title/keyword
-    const pgTitle = document.getElementById('pg-title');
-    const pgKw    = document.getElementById('pg-kw') || document.getElementById('f-kw');
-    if(pgTitle && !pgTitle.value) pgTitle.value = kw.charAt(0).toUpperCase()+kw.slice(1);
-    if(pgKw) pgKw.value = kw;
-    toast(`✅ Applied "${kw}" to page`,'ok');
-  }
-}
-
-// Auto-init GSC status when GSC tabs are opened in blog/pages
-function blogGscInit(mode){
-  const prefix   = mode==='blog' ? 'blog' : 'page';
-  const token    = gscGetToken();
-  const statusEl = document.getElementById(`${prefix}-gsc-status`);
-  const filtersEl = document.getElementById(`${prefix}-gsc-filters`);
-  if(!statusEl) return;
-  if(token){
-    statusEl.innerHTML='✅ Connected — click Fetch to load keywords';
-    statusEl.style.background='var(--teal-l)';
-    statusEl.style.borderColor='var(--teal-b)';
-    statusEl.style.color='var(--teal)';
-    if(filtersEl) filtersEl.style.display='flex';
-    // Auto-load sites into dropdown
-    blogGscFetch(mode);
-  } else {
-    statusEl.innerHTML='🔒 Not connected — <a href="#" onclick="gscConnect();return false;" style="color:var(--teal)">Connect GSC</a> in Auto-Pilot tab first';
-    statusEl.style.background='var(--surf2)';
-    statusEl.style.borderColor='var(--bdr)';
-    statusEl.style.color='var(--ink3)';
-  }
-}
-
-
-
-// ── BLOG STRUCTURE SELECTOR ──
-function selectBlogStructure(id, el){
-  document.querySelectorAll('.blog-struct-card').forEach(c=>c.classList.remove('selected'));
-  el.classList.add('selected');
-  document.getElementById('ai-blog-structure').value = id;
-}
-
-function getBlogStructurePrompt(structure, topic, focusKw, profile, location, audience, keypoints){
-  const biz    = profile?.name || 'our clinic';
-  const author = profile?.authorName || 'Author';
-  const cta    = profile?.ctaBtn || 'Book a Consultation';
-
-  const base = `#HERO_TAG = ${profile?.industry||'Guide'} · ${topic}
-#TITLE = [Compelling SEO title with "${focusKw}" — 50-60 chars]
-#AUTHOR = ${author}
-#AUTHOR_URL = ${profile?.authorUrl||''}
-#READ_TIME = 10
-#META_TITLE = [SEO title 50-60 chars with "${focusKw}"]
-#META_DESC = [Meta description 130-160 chars with "${focusKw}"]
-#FOCUS_KW = ${focusKw}
-#SECONDARY_KW = [5-8 related keywords comma-separated]`;
-
-  const footer = `#REVIEWS_START
-[Specific review mentioning treatment result] | [Indian name] | [Location] | 5
-[Review about doctor experience] | [Indian name] | [Nearby area] | 5
-[Review mentioning specific outcome] | [Indian name] | [Location] | 5
-[Review about value] | [Indian name] | [Area] | 5
-[Review with timeframe and results] | [Indian name] | [Location] | 5
-#REVIEWS_END
-
-#CTA_TITLE = ${cta}
-#CTA_BODY = [One compelling sentence motivating action for ${topic}]`;
-
-  const structures = {
-    educational: `${base}
-
-#INTRO
-[2-3 engaging paragraphs about ${topic}. Include "${focusKw}" in first 100 words. Hook with a relatable problem.]
-
-#H2 = What Is ${topic}?
-#PARA = [Clear explanation, who it's for]
-
-#H2 = Why ${topic} Matters${location?' in '+location:''}
-#PARA = [Why this matters for the audience]
-#LIST_START
-[Problem it solves 1]
-[Problem it solves 2]
-[Problem it solves 3]
-[Problem it solves 4]
-#LIST_END
-
-#IMAGE_1 = ${topic} treatment
-
-#H2 = How ${topic} Works — Step by Step
-#CHECK = Step 1: [First stage]
-#PARA = [Detailed explanation]
-#CHECK = Step 2: [Second stage]
-#PARA = [Detailed explanation]
-#CHECK = Step 3: [Third stage]
-#PARA = [Detailed explanation]
-#CHECK = Step 4: [Fourth stage]
-#PARA = [Detailed explanation]
-
-#H2 = Key Benefits
-#LIST_START
-[Benefit 1 with specific detail]
-[Benefit 2 with specific detail]
-[Benefit 3 with specific detail]
-[Benefit 4 with specific detail]
-[Benefit 5 with specific detail]
-#LIST_END
-
-#IMAGE_2 = ${topic} results
-
-#H2 = Results & Timeline
-#TABLE_START
-| Stage | Timeframe | What Happens |
-| --- | --- | --- |
-| During session | [Time] | [Description] |
-| Week 1 | [Time] | [Description] |
-| Month 1 | [Time] | [Description] |
-| Final results | [Time] | [Description] |
-#TABLE_END
-
-#FAQ_START
-Q: How long does ${topic} take?
-A: [Clear answer]
-Q: Is ${topic} safe?
-A: [Reassuring answer]
-Q: How much does ${topic} cost${location?' in '+location:''}?
-A: [Honest range]
-Q: How many sessions are needed?
-A: [Specific answer]
-Q: Is there any downtime?
-A: [Practical answer]
-#FAQ_END
-${footer}`,
-
-    listicle: `${base}
-
-#INTRO
-[2-3 paragraphs. Open with a surprising fact about ${topic}. Tell readers exactly what they'll learn from this list.]
-
-#H2 = [Number] Key Things to Know About ${topic}
-#PARA = [Brief overview]
-
-#CHECK = 1. [First key tip or fact about ${topic}]
-#PARA = [2-3 sentences with specific details]
-
-#CHECK = 2. [Second tip]
-#PARA = [2-3 sentences]
-
-#CHECK = 3. [Third tip]
-#PARA = [2-3 sentences]
-
-#IMAGE_1 = ${topic}
-
-#CHECK = 4. [Fourth tip]
-#PARA = [2-3 sentences]
-
-#CHECK = 5. [Fifth tip]
-#PARA = [2-3 sentences]
-
-#CHECK = 6. [Sixth tip]
-#PARA = [2-3 sentences]
-
-#IMAGE_2 = ${topic} clinic
-
-#CHECK = 7. [Seventh tip]
-#PARA = [2-3 sentences]
-
-#H2 = Quick Reference: ${topic} at a Glance
-#TABLE_START
-| Factor | Details |
-| --- | --- |
-| Duration | [Value] |
-| Results | [Value] |
-| Sessions | [Value] |
-| Cost range | [Value] |
-| Downtime | [Value] |
-| Best for | [Value] |
-#TABLE_END
-
-#H2 = Common Mistakes to Avoid
-#LIST_START
-[Mistake 1 with why it matters]
-[Mistake 2 with advice]
-[Mistake 3 with advice]
-[Mistake 4 with advice]
-#LIST_END
-
-#FAQ_START
-Q: [Most common question about ${topic}]
-A: [Answer]
-Q: [Second common question]
-A: [Answer]
-Q: [Third question]
-A: [Answer]
-Q: [Fourth question]
-A: [Answer]
-Q: [Fifth question]
-A: [Answer]
-#FAQ_END
-${footer}`,
-
-    comparison: `${base}
-
-#INTRO
-[2-3 paragraphs introducing the comparison. What's the confusion people face about ${topic}? Why does this comparison matter?]
-
-#H2 = Understanding ${topic} — The Basics
-#PARA = [What it is, background]
-
-#H2 = ${topic} vs [Main Alternative]: Key Differences
-#TABLE_START
-| Feature | ${topic} | [Alternative] |
-| --- | --- | --- |
-| How it works | [Description] | [Description] |
-| Results | [Description] | [Description] |
-| Duration | [Description] | [Description] |
-| Cost | [Description] | [Description] |
-| Downtime | [Description] | [Description] |
-| Best for | [Description] | [Description] |
-| Sessions needed | [Description] | [Description] |
-#TABLE_END
-
-#IMAGE_1 = ${topic} comparison
-
-#H2 = Pros and Cons of ${topic}
-#H3 = Advantages
-#LIST_START
-[Advantage 1]
-[Advantage 2]
-[Advantage 3]
-[Advantage 4]
-#LIST_END
-#H3 = Limitations
-#LIST_START
-[Limitation 1]
-[Limitation 2]
-[Limitation 3]
-#LIST_END
-
-#H2 = Who Should Choose ${topic}?
-#CHECK = Ideal if: [Condition 1]
-#PARA = [Explanation]
-#CHECK = Ideal if: [Condition 2]
-#PARA = [Explanation]
-#CHECK = Skip if: [Condition]
-#PARA = [Explanation]
-
-#IMAGE_2 = ${topic} results
-
-#H2 = Our Verdict
-#PARA = [Clear recommendation — when to choose ${topic} vs alternative]
-
-#FAQ_START
-Q: Which is better — ${topic} or [alternative]?
-A: [Nuanced answer]
-Q: Can I combine ${topic} with other treatments?
-A: [Answer]
-Q: How do I know which is right for me?
-A: [Practical guidance]
-Q: What is the cost difference?
-A: [Honest comparison]
-Q: How long do results last?
-A: [Specific timeframe]
-#FAQ_END
-${footer}`,
-
-    local: `${base}
-
-#INTRO
-[2-3 paragraphs about ${topic}${location?' in '+location:''}. Mention local context — why people here seek this. Include "${focusKw}" naturally in first paragraph.]
-
-#H2 = Why ${location||'People'} Are Choosing ${topic}
-#PARA = [Local demand, lifestyle factors, climate if relevant]
-#LIST_START
-[Local reason 1]
-[Local reason 2]
-[Local reason 3]
-[Local reason 4]
-#LIST_END
-
-#IMAGE_1 = ${topic} ${location||'clinic'}
-
-#H2 = What to Expect from ${topic}${location?' in '+location:''}
-#CHECK = Step 1: Free Consultation
-#PARA = [What the consultation involves]
-#CHECK = Step 2: Personalised Treatment Plan
-#PARA = [How the plan is made]
-#CHECK = Step 3: The Treatment Session
-#PARA = [What the procedure involves]
-#CHECK = Step 4: Aftercare & Results
-#PARA = [Recovery and timeline]
-
-#H2 = How Much Does ${topic} Cost${location?' in '+location:''}?
-#TABLE_START
-| Package | Price Range | Sessions | Includes |
-| --- | --- | --- | --- |
-| Basic | ₹[Range] | [N] | [Details] |
-| Standard | ₹[Range] | [N] | [Details] |
-| Premium | ₹[Range] | [N] | [Details] |
-#TABLE_END
-#PARA = [Note on what affects pricing, EMI options if any]
-
-#IMAGE_2 = ${biz} ${location||''}
-
-#H2 = Why Choose ${biz}
-#LIST_START
-[USP 1 — specific and credible]
-[USP 2]
-[USP 3]
-[USP 4]
-[USP 5]
-#LIST_END
-
-#H2 = What to Look for in Any ${topic} Clinic
-#PARA = [Buyer's guide — credentials, equipment, hygiene, consultation quality]
-
-#FAQ_START
-Q: Which is the best clinic for ${topic}${location?' in '+location:''}?
-A: [Mention ${biz} with specific reasons]
-Q: Is ${topic} painful?
-A: [Honest, reassuring answer]
-Q: How many sessions will I need?
-A: [Specific to treatment]
-Q: When will I see results?
-A: [Realistic expectation]
-Q: Do you offer a free consultation?
-A: [Clinic-specific answer]
-#FAQ_END
-${footer}`
-  };
-
-  return structures[structure] || structures.educational;
 }
 
 // no-ops for any legacy calls
