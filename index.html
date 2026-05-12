@@ -299,6 +299,40 @@ input.inp::placeholder,textarea.inp::placeholder{color:var(--ink3)}
 .ap-cal-status.done     { background:#F0FDF4; color:#16A34A; border:1px solid #BBF7D0; }
 .ap-cal-status.running  { background:var(--teal-l); color:var(--teal); border:1px solid var(--teal-b); }
 .ap-cal-actions { display:flex; gap:6px; margin-top:8px; }
+
+/* Blog Structure Cards */
+.blog-struct-card {
+  border: 1.5px solid var(--bdr);
+  border-radius: 8px;
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: all .15s;
+  background: var(--surf);
+  position: relative;
+}
+.blog-struct-card:hover {
+  border-color: var(--teal-b);
+  background: var(--teal-l);
+}
+.blog-struct-card.selected {
+  border-color: var(--teal);
+  background: var(--teal-l);
+  box-shadow: 0 0 0 2px var(--teal-b);
+}
+.blog-struct-card.selected::after {
+  content: '✓';
+  position: absolute;
+  top: 7px; right: 9px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--teal);
+}
+.bsc-icon { font-size: 18px; margin-bottom: 4px; }
+.bsc-name { font-size: 12px; font-weight: 700; color: var(--ink); margin-bottom: 3px; }
+.bsc-desc { font-size: 10px; color: var(--ink3); line-height: 1.5; margin-bottom: 6px; }
+.bsc-tags { display: flex; gap: 4px; flex-wrap: wrap; }
+.bsc-tags span { font-size: 9px; font-weight: 600; padding: 2px 6px; border-radius: 10px; background: var(--surf2); color: var(--ink3); border: 1px solid var(--bdr); }
+.blog-struct-card.selected .bsc-tags span { background: rgba(255,255,255,.6); color: var(--teal); border-color: var(--teal-b); }
 </style>
 </head>
 <body>
@@ -658,10 +692,51 @@ Why choose us over competitors
 MBBS certified doctor" style="font-size:12px;line-height:1.6"></textarea>
         </div>
 
-        <div style="display:flex;gap:8px;align-items:center">
-          <button class="btn btn-navy" onclick="generateBlogAuto()" id="ai-gen-btn" style="flex:1">
+        <!-- BLOG STRUCTURE SELECTOR -->
+        <div class="fg" style="margin-bottom:4px">
+          <label class="lbl">Blog Structure</label>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px" id="blog-structure-grid">
+
+          <div class="blog-struct-card selected" onclick="selectBlogStructure('educational',this)" id="struct-educational">
+            <div class="bsc-icon">📚</div>
+            <div class="bsc-name">Educational Guide</div>
+            <div class="bsc-desc">Intro → What/Why → How it works → Benefits → FAQ → CTA</div>
+            <div class="bsc-tags"><span>Info</span><span>SEO</span><span>FAQ</span></div>
+          </div>
+
+          <div class="blog-struct-card" onclick="selectBlogStructure('listicle',this)" id="struct-listicle">
+            <div class="bsc-icon">📋</div>
+            <div class="bsc-name">Listicle / Top Tips</div>
+            <div class="bsc-desc">Hook → Numbered tips with detail → Summary → FAQ → CTA</div>
+            <div class="bsc-tags"><span>Tips</span><span>List</span><span>Quick</span></div>
+          </div>
+
+          <div class="blog-struct-card" onclick="selectBlogStructure('comparison',this)" id="struct-comparison">
+            <div class="bsc-icon">⚖️</div>
+            <div class="bsc-name">Comparison / Review</div>
+            <div class="bsc-desc">Overview → Side-by-side table → Pros/Cons → Verdict → CTA</div>
+            <div class="bsc-tags"><span>Table</span><span>Compare</span><span>Review</span></div>
+          </div>
+
+          <div class="blog-struct-card" onclick="selectBlogStructure('local',this)" id="struct-local">
+            <div class="bsc-icon">📍</div>
+            <div class="bsc-name">Local SEO Blog</div>
+            <div class="bsc-desc">City intro → Why local → What to expect → Cost → Clinic → FAQ</div>
+            <div class="bsc-tags"><span>Local</span><span>Maps</span><span>Reviews</span></div>
+          </div>
+
+        </div>
+        <input type="hidden" id="ai-blog-structure" value="educational">
+
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <button class="btn btn-navy" onclick="generateBlogAuto(false)" id="ai-gen-btn" style="flex:1">
             <div class="spin"></div>
-            <span class="lbl">🚀 Auto-Generate Complete Blog</span>
+            <span class="lbl">🚀 Generate Blog</span>
+          </button>
+          <button class="btn btn-primary" onclick="generateBlogAuto(true)" id="ai-gen-publish-btn" style="flex:1">
+            <div class="spin"></div>
+            <span class="lbl">⚡ Generate & Publish</span>
           </button>
           <button class="btn btn-ghost" onclick="clearAIForm()" style="font-size:11px;padding:8px 14px">Clear</button>
         </div>
@@ -2181,193 +2256,177 @@ function selImg(slot,url,dl,el){
 // THE CONVERTER — markers → BSP HTML
 // ═══════════════════════════════════════
 const BSP_CSS=`<style>
-/* ARTICLE BASE */
-.bsp-article{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:#1a1a2e;line-height:1.8;max-width:820px;margin:0 auto}
+/* ── OLIVA-STYLE CLEAN BLOG ── */
+/* BASE */
+.bsp-article{font-family:var(--bsp-font-body,'Inter',system-ui,sans-serif);color:#2d2d2d;line-height:1.85;max-width:820px;margin:0 auto;font-size:16px}
+
 /* HERO */
-.bsp-hero{margin-bottom:32px}
-.bsp-hero-img-wrap{border-radius:14px;overflow:hidden;margin-bottom:20px;box-shadow:0 8px 32px rgba(0,0,0,.12);position:relative}
-.bsp-hero-img-wrap img{width:100%;height:auto;aspect-ratio:1/1;object-fit:cover;display:block}
-.bsp-hero-img-caption{position:absolute;bottom:10px;right:12px;font-size:11px;color:rgba(255,255,255,.85);font-weight:500;text-shadow:0 1px 3px rgba(0,0,0,.5);background:rgba(0,0,0,.3);padding:4px 10px;border-radius:4px}
-.bsp-hero-tag{display:inline-block;background:var(--bsp-primary,#0A6B5E);color:#fff;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:4px 12px;border-radius:20px;margin-bottom:12px}
-.bsp-hero h1{font-size:clamp(24px,4vw,40px);font-weight:800;color:#1a1a2e;line-height:1.2;margin:0 0 14px;letter-spacing:-0.5px;font-family:var(--bsp-font-heading,inherit)}
-.bsp-hero-meta{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding-bottom:16px;border-bottom:2px solid #f0f0f0}
-.bsp-hero-meta span{color:#666;font-size:13px;display:flex;align-items:center;gap:5px}
-.bsp-hero-meta strong{color:#1a1a2e;font-weight:600}
-/* TOC — collapsible dropdown like FAQ */
-.bsp-toc{margin:0 0 36px;border-radius:10px;overflow:hidden;border:1px solid #c8e0f4;border-left:4px solid #0a6b8a}
-.bsp-toc summary{list-style:none;padding:14px 18px;background:#f0f8ff;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px;user-select:none;-webkit-user-select:none}
-.bsp-toc summary::-webkit-details-marker{display:none}
-.bsp-toc summary::marker{display:none}
-.bsp-toc summary:hover{background:#e4f2fb}
-.bsp-toc[open] summary{background:#e0eefa;border-bottom:1px solid #c8e0f4}
-.bsp-toc-title{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#0a6b8a;display:flex;align-items:center;gap:7px}
-.bsp-toc-icon{font-size:16px;color:#0a6b8a;flex-shrink:0;transition:transform .25s}
+.bsp-hero{margin-bottom:36px}
+.bsp-hero-img-wrap{border-radius:12px;overflow:hidden;margin-bottom:24px;box-shadow:0 4px 20px rgba(0,0,0,.08)}
+.bsp-hero-img-wrap img{width:100%;height:420px;object-fit:cover;display:block}
+.bsp-hero-tag{display:inline-block;background:var(--bsp-primary,#0A6B5E);color:#fff;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:4px 12px;border-radius:4px;margin-bottom:14px}
+.bsp-hero h1{font-size:clamp(22px,3.5vw,38px);font-weight:800;color:#1a1a1a;line-height:1.2;margin:0 0 16px;letter-spacing:-0.5px;font-family:var(--bsp-font-heading,inherit)}
+.bsp-hero-meta{display:flex;align-items:center;gap:20px;flex-wrap:wrap;padding:14px 0;border-top:1px solid #eee;border-bottom:1px solid #eee;margin-bottom:28px}
+.bsp-hero-meta span{color:#777;font-size:13px;display:flex;align-items:center;gap:5px}
+.bsp-hero-meta strong{color:#333;font-weight:600}
+
+/* TOC */
+.bsp-toc{margin:0 0 32px;border:1px solid #e8e8e8;border-radius:8px;overflow:hidden;background:#fafafa}
+.bsp-toc summary{list-style:none;padding:14px 18px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;background:#f5f5f5;user-select:none}
+.bsp-toc summary::-webkit-details-marker,.bsp-toc summary::marker{display:none}
+.bsp-toc-title{font-size:13px;font-weight:700;color:#333;text-transform:uppercase;letter-spacing:.8px;display:flex;align-items:center;gap:8px}
+.bsp-toc-icon{font-size:14px;transition:transform .2s}
 .bsp-toc[open] .bsp-toc-icon{transform:rotate(180deg)}
-.bsp-toc-body{padding:16px 20px;background:#f7fbff}
-.bsp-toc-body ol{margin:0;padding-left:20px}
-.bsp-toc-body li{margin-bottom:6px;font-size:14px;line-height:1.5}
-.bsp-toc-body a{color:#1a5276;text-decoration:none;font-weight:500}
-.bsp-toc-body a:hover{text-decoration:underline;color:#0a6b8a}
-/* CHECK BADGE — tight alignment, number vertically centered with heading */
-.bsp-check-header{display:flex;align-items:center;gap:16px;background:linear-gradient(135deg,#f0f9ff 0%,#e8f8f4 100%);border:1px solid #c8e8f0;border-radius:12px;padding:18px 22px;margin:32px 0 14px}
-.bsp-check-num{width:44px;height:44px;min-width:44px;border-radius:10px;background:linear-gradient(135deg,#0a6b8a,#0e9977);color:#fff;font-size:20px;font-weight:800;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 10px rgba(10,107,138,.3);flex-shrink:0;line-height:1}
-.bsp-check-info{flex:1;min-width:0;display:flex;align-items:center}
-.bsp-check-info h2{font-size:clamp(16px,2vw,20px);font-weight:700;color:#0a2540;margin:0;border:none;padding:0;line-height:1.3}
+.bsp-toc-body{padding:16px 20px}
+.bsp-toc-body ol{margin:0;padding-left:18px}
+.bsp-toc-body li{margin-bottom:8px;font-size:14px}
+.bsp-toc-body a{color:var(--bsp-primary,#0A6B5E);text-decoration:none;font-weight:500}
+.bsp-toc-body a:hover{text-decoration:underline}
+
 /* BODY TEXT */
-.bsp-article p{font-size:16px;color:#2c2c3e;margin:0 0 20px;line-height:1.85}
-.bsp-article strong{color:#1a1a2e;font-weight:600}
+.bsp-article p{font-size:16px;color:#3d3d3d;margin:0 0 20px;line-height:1.85}
+.bsp-article strong{color:#1a1a1a;font-weight:600}
+.bsp-article a{color:var(--bsp-primary,#0A6B5E);text-decoration:underline}
+
 /* HEADINGS */
-.bsp-article h2{font-size:clamp(20px,2.5vw,26px);font-weight:700;color:#0a2540;margin:44px 0 16px;padding-bottom:10px;border-bottom:2px solid #e8f4f8;letter-spacing:-0.3px;line-height:1.3}
-.bsp-article h3{font-size:18px;font-weight:600;color:#0a3d62;margin:28px 0 10px}
-/* CALLOUTS */
-.bsp-callout{border-radius:10px;padding:18px 22px;margin:24px 0;display:flex;gap:14px;align-items:flex-start}
-.bsp-callout.info{background:#e8f4fd;border:1px solid #aed6f1}
-.bsp-callout.tip{background:#eafaf1;border:1px solid #a9dfbf}
-.bsp-callout.warning{background:#fef9e7;border:1px solid #f9e79f}
-.bsp-callout-icon{font-size:20px;flex-shrink:0;margin-top:1px}
-.bsp-callout-text{font-size:14px;color:#2c3e50;line-height:1.7;margin:0}
-.bsp-callout-text strong{display:block;margin-bottom:4px;font-size:14px}
+.bsp-article h2{font-size:clamp(18px,2.5vw,24px);font-weight:700;color:#1a1a1a;margin:40px 0 14px;padding:0;border:none;border-bottom:2px solid #eee;padding-bottom:10px;line-height:1.3;font-family:var(--bsp-font-heading,inherit)}
+.bsp-article h3{font-size:17px;font-weight:600;color:#2d2d2d;margin:24px 0 10px;font-family:var(--bsp-font-heading,inherit)}
+
+/* CHECK ITEMS — clean numbered list like Oliva */
+.bsp-check-header{display:flex;align-items:flex-start;gap:14px;padding:16px 0;border-bottom:1px solid #f0f0f0;margin:0}
+.bsp-check-header:first-of-type{border-top:1px solid #f0f0f0}
+.bsp-check-num{width:28px;height:28px;min-width:28px;border-radius:50%;background:var(--bsp-primary,#0A6B5E);color:#fff;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.bsp-check-info{flex:1}
+.bsp-check-info h2{font-size:16px;font-weight:600;color:#1a1a1a;margin:0 0 4px;border:none;padding:0;line-height:1.4}
+.bsp-check-info h2+p{font-size:14px;color:#666;margin:0;line-height:1.6}
+
 /* BULLET LIST */
 .bsp-list{list-style:none;padding:0;margin:0 0 20px}
-.bsp-list li{padding:8px 0 8px 28px;position:relative;font-size:15px;color:#2c2c3e;border-bottom:1px solid #f0f0f0;line-height:1.7}
+.bsp-list li{padding:8px 0 8px 24px;position:relative;font-size:15px;color:#3d3d3d;border-bottom:1px solid #f5f5f5;line-height:1.7}
 .bsp-list li:last-child{border-bottom:none}
-.bsp-list li::before{content:'✓';position:absolute;left:0;color:#0e9977;font-weight:700;font-size:14px}
-/* ASK QUESTIONS BOX */
-.bsp-questions{background:#1a2942;border-radius:12px;padding:22px 26px;margin:24px 0}
-.bsp-questions-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#00ddb4;margin:0 0 14px}
-.bsp-questions ul{margin:0;padding-left:18px}
-.bsp-questions li{color:#e8ecf0;font-size:14px;margin-bottom:8px;line-height:1.6}
-.bsp-questions li:last-child{margin-bottom:0}
+.bsp-list li::before{content:'✓';position:absolute;left:0;color:var(--bsp-primary,#0A6B5E);font-weight:700;font-size:13px;top:10px}
+
+/* CALLOUTS */
+.bsp-callout{border-radius:6px;padding:14px 18px;margin:20px 0;display:flex;gap:12px;align-items:flex-start}
+.bsp-callout.info{background:#f0f7ff;border-left:3px solid #3b82f6}
+.bsp-callout.tip{background:#f0fdf4;border-left:3px solid #22c55e}
+.bsp-callout.warning{background:#fffbeb;border-left:3px solid #f59e0b}
+.bsp-callout-icon{font-size:18px;flex-shrink:0}
+.bsp-callout-text{font-size:14px;color:#374151;line-height:1.7;margin:0}
+.bsp-callout-text strong{display:block;margin-bottom:3px;color:#111}
+
 /* IMAGES */
-.bsp-img-block{margin:36px 0}
-.bsp-img-wrap{border-radius:14px;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,.1);position:relative}
-.bsp-img-wrap img{width:100%;height:auto;aspect-ratio:1/1;object-fit:cover;display:block}
-.bsp-img-caption{position:absolute;bottom:10px;right:12px;font-size:11px;color:rgba(255,255,255,.85);font-weight:500;text-shadow:0 1px 3px rgba(0,0,0,.5);background:rgba(0,0,0,.3);padding:4px 10px;border-radius:4px}
-/* COMPARISON TABLE — always visible, not accordion */
-.bsp-table-wrap{overflow-x:auto;margin:32px 0;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,.08);-webkit-overflow-scrolling:touch}
-.bsp-table{width:100%;border-collapse:collapse;font-size:13px;min-width:100%;table-layout:auto}
+.bsp-img-block{margin:28px 0}
+.bsp-img-wrap{border-radius:10px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.08)}
+.bsp-img-wrap img{width:100%;height:auto;display:block;aspect-ratio:16/9;object-fit:cover}
+.bsp-img-caption{text-align:center;font-size:12px;color:#888;margin-top:8px;font-style:italic}
+
+/* TABLE */
+.bsp-table-wrap{overflow-x:auto;margin:28px 0;border-radius:8px;border:1px solid #e5e7eb}
+.bsp-table{width:100%;border-collapse:collapse;font-size:14px}
 .bsp-table th{white-space:nowrap}
-.bsp-table td{word-wrap:break-word;overflow-wrap:break-word;max-width:200px}
-.bsp-table thead tr{background:linear-gradient(135deg,#0a2540,#0a6b8a)}
-.bsp-table thead th{padding:14px 18px;text-align:left;color:#fff;font-weight:600;font-size:13px;letter-spacing:.3px}
-.bsp-table thead th:first-child{border-radius:12px 0 0 0}
-.bsp-table thead th:last-child{border-radius:0 12px 0 0}
-.bsp-table tbody tr:nth-child(even){background:#f8fbfd}
-.bsp-table tbody tr:nth-child(odd){background:#ffffff}
-.bsp-table tbody tr:hover{background:#e8f4f8}
-.bsp-table td{padding:13px 18px;color:#2c2c3e;border-bottom:1px solid #e8ecf0;vertical-align:middle;line-height:1.5}
-.bsp-table td:first-child{font-weight:600;color:#0a3d62}
+.bsp-table td{word-wrap:break-word;overflow-wrap:break-word}
+.bsp-table thead tr{background:#f9fafb}
+.bsp-table thead th{padding:12px 16px;text-align:left;color:#374151;font-weight:600;font-size:13px;border-bottom:2px solid #e5e7eb}
+.bsp-table tbody tr:nth-child(even){background:#fafafa}
+.bsp-table tbody tr{transition:background .1s}
+.bsp-table tbody tr:hover{background:#f0f9f6}
+.bsp-table td{padding:11px 16px;color:#374151;border-bottom:1px solid #e5e7eb;vertical-align:middle;line-height:1.5}
+.bsp-table td:first-child{font-weight:500;color:#111}
 .bsp-table tbody tr:last-child td{border-bottom:none}
-.bsp-tick{color:#0e9977;font-weight:700;font-size:15px}
-/* CONTENT ACCORDION (for #ACCORDION_START blocks) */
-.bsp-accordion{border:1px solid #e8f0f8;border-radius:10px;margin:16px 0;overflow:hidden}
-.bsp-accordion summary{list-style:none;padding:14px 18px;font-size:14px;font-weight:600;color:#0a2540;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;background:#f8fbff;line-height:1.4;user-select:none;-webkit-user-select:none}
-.bsp-accordion summary::-webkit-details-marker{display:none}
-.bsp-accordion summary::marker{display:none}
-.bsp-accordion summary:hover{background:#eef6fb}
-.bsp-accordion[open] summary{background:#e4f0fa}
-.bsp-accordion-icon{font-size:16px;color:#0a6b8a;flex-shrink:0;transition:transform .25s}
+.bsp-tick{color:var(--bsp-primary,#0A6B5E);font-weight:700}
+
+/* ACCORDION */
+.bsp-accordion{border:1px solid #e5e7eb;border-radius:8px;margin:12px 0;overflow:hidden}
+.bsp-accordion summary{list-style:none;padding:14px 18px;font-size:14px;font-weight:600;color:#1a1a1a;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;background:#fafafa;line-height:1.4;user-select:none}
+.bsp-accordion summary::-webkit-details-marker,.bsp-accordion summary::marker{display:none}
+.bsp-accordion summary:hover{background:#f0f0f0}
+.bsp-accordion[open] summary{background:#f5f5f5;border-bottom:1px solid #e5e7eb}
+.bsp-accordion-icon{font-size:14px;color:#888;flex-shrink:0;transition:transform .2s}
 .bsp-accordion[open] .bsp-accordion-icon{transform:rotate(180deg)}
-.bsp-accordion-body{padding:14px 18px;background:#fff;border-top:1px solid #e8f0f8}
-.bsp-accordion-body ul{list-style:none;padding:0;margin:0}
-.bsp-accordion-body ul li{padding:7px 0 7px 24px;position:relative;font-size:14px;color:#2c2c3e;border-bottom:1px solid #f5f5f5;line-height:1.65}
-.bsp-accordion-body ul li:last-child{border-bottom:none}
-.bsp-accordion-body ul li::before{content:'✓';position:absolute;left:0;color:#0e9977;font-weight:700;font-size:12px}
-/* FAQ — CSS details/summary, no JavaScript */
+.bsp-accordion-body{padding:14px 18px;background:#fff;font-size:14px;color:#3d3d3d;line-height:1.75}
+
+/* FAQ */
 .bsp-faq{margin:32px 0}
-.bsp-faq-title{font-size:22px;font-weight:700;color:#0a2540;margin:0 0 20px;padding-bottom:10px;border-bottom:2px solid #e8f4f8}
-.bsp-faq-item{border:1px solid #e0ecf4;border-radius:10px;margin-bottom:10px;overflow:hidden;transition:box-shadow .2s}
-.bsp-faq-item:hover{box-shadow:0 4px 16px rgba(10,107,138,.1)}
-.bsp-faq-item summary{list-style:none;padding:16px 20px;font-size:15px;font-weight:600;color:#0a2540;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;background:#f5fbff;line-height:1.4;transition:background .15s;user-select:none;-webkit-user-select:none}
-.bsp-faq-item summary::-webkit-details-marker{display:none}
-.bsp-faq-item summary::marker{display:none}
-.bsp-faq-item summary:hover{background:#e8f4fb}
-.bsp-faq-item[open] summary{background:#e0f0fa}
-.bsp-faq-icon{font-size:20px;color:#0a6b8a;flex-shrink:0;transition:transform .25s ease;font-style:normal;line-height:1}
+.bsp-faq-title{font-size:20px;font-weight:700;color:#1a1a1a;margin:0 0 16px;padding-bottom:10px;border-bottom:2px solid #eee}
+.bsp-faq-item{border-bottom:1px solid #eee;margin:0}
+.bsp-faq-item:last-child{border-bottom:none}
+.bsp-faq-item summary{list-style:none;padding:16px 0;font-size:15px;font-weight:600;color:#1a1a1a;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;line-height:1.4;user-select:none;background:transparent}
+.bsp-faq-item summary::-webkit-details-marker,.bsp-faq-item summary::marker{display:none}
+.bsp-faq-icon{font-size:20px;color:var(--bsp-primary,#0A6B5E);flex-shrink:0;transition:transform .2s;font-style:normal}
 .bsp-faq-item[open] .bsp-faq-icon{transform:rotate(45deg)}
-.bsp-faq-a{padding:16px 20px;background:#fff;font-size:14px;color:#2c2c3e;line-height:1.75;border-top:1px solid #e0ecf4}
+.bsp-faq-a{padding:0 0 16px;font-size:14px;color:#555;line-height:1.75}
+
+/* ASK QUESTIONS BOX */
+.bsp-questions{background:#f8faff;border:1px solid #e0e8ff;border-radius:8px;padding:20px 24px;margin:24px 0}
+.bsp-questions-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--bsp-primary,#0A6B5E);margin:0 0 12px}
+.bsp-questions ul{margin:0;padding-left:16px}
+.bsp-questions li{color:#444;font-size:14px;margin-bottom:7px;line-height:1.6}
+
 /* CTA */
-.bsp-cta{background:linear-gradient(135deg,#0a2540 0%,#0a6b8a 60%,#0e9977 100%);border-radius:16px;padding:40px 44px;text-align:center;margin:44px 0;position:relative;overflow:hidden}
-.bsp-cta::before{content:'';position:absolute;top:-40px;right:-40px;width:160px;height:160px;border-radius:50%;background:rgba(255,255,255,.05)}
-.bsp-cta::after{content:'';position:absolute;bottom:-60px;left:-30px;width:200px;height:200px;border-radius:50%;background:rgba(0,221,180,.07)}
-.bsp-cta-eyebrow{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:#00ddb4;margin:0 0 12px}
-.bsp-cta h2{font-size:clamp(20px,2.5vw,28px);font-weight:700;color:#fff;margin:0 0 12px;border:none;padding:0;letter-spacing:-0.3px}
-.bsp-cta p{color:rgba(255,255,255,.8);font-size:15px;max-width:520px;margin:0 auto 28px}
-.bsp-cta-btn{display:inline-block;background:#00ddb4;color:#0a2540;font-size:15px;font-weight:700;padding:14px 36px;border-radius:50px;text-decoration:none;transition:all .2s;box-shadow:0 6px 20px rgba(0,221,180,.35);position:relative;z-index:1}
-.bsp-cta-btn:hover{background:#00c9a4;transform:translateY(-2px);box-shadow:0 10px 28px rgba(0,221,180,.45)}
-/* REVIEWS CAROUSEL */
-.bsp-reviews{margin:40px 0;padding:0}
-.bsp-reviews-title{font-size:22px;font-weight:700;color:#0a2540;margin:0 0 28px;text-align:center;padding-bottom:12px;border-bottom:2px solid #e8f4f8}
-.bsp-reviews-carousel{position:relative;overflow:hidden;padding:0 44px}
-.bsp-reviews-track{display:flex;gap:16px;transition:transform .4s ease;scroll-behavior:smooth}
-.bsp-review-card{min-width:calc(33.333% - 11px);flex:0 0 calc(33.333% - 11px);background:#fff;border:1px solid #e0ecf4;border-radius:12px;padding:24px;box-shadow:0 2px 8px rgba(10,107,138,.06);transition:all .2s}
-.bsp-review-card:hover{box-shadow:0 6px 20px rgba(10,107,138,.12);transform:translateY(-2px)}
-.bsp-review-stars{color:#ffc107;font-size:16px;margin-bottom:12px;letter-spacing:2px}
-.bsp-review-text{font-size:14px;line-height:1.7;color:#2c2c3e;margin:0 0 16px;font-style:italic}
-.bsp-review-author{font-size:13px;font-weight:600;color:#0a6b8a;margin:0}
-.bsp-review-location{font-size:12px;color:#78909c;margin:4px 0 0}
-.bsp-carousel-btn{position:absolute;top:50%;transform:translateY(-50%);width:40px;height:40px;border-radius:50%;background:#fff;border:2px solid #e0ecf4;color:#0a6b8a;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;z-index:2;user-select:none}
-.bsp-carousel-btn:hover{background:#e8f4fb;border-color:#0a6b8a;transform:translateY(-50%) scale(1.1)}
+.bsp-cta{background:var(--bsp-primary,#0A6B5E);border-radius:12px;padding:36px 40px;text-align:center;margin:44px 0}
+.bsp-cta-eyebrow{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,.7);margin:0 0 10px}
+.bsp-cta h2{font-size:clamp(18px,2.5vw,24px);font-weight:700;color:#fff;margin:0 0 10px;border:none;padding:0}
+.bsp-cta p{color:rgba(255,255,255,.85);font-size:15px;max-width:500px;margin:0 auto 24px}
+.bsp-cta-btn{display:inline-block;background:#fff;color:var(--bsp-primary,#0A6B5E);font-size:14px;font-weight:700;padding:12px 30px;border-radius:6px;text-decoration:none;transition:all .2s}
+.bsp-cta-btn:hover{opacity:.92;transform:translateY(-1px)}
+
+/* REVIEWS */
+.bsp-reviews{margin:36px 0}
+.bsp-reviews-title{font-size:20px;font-weight:700;color:#1a1a1a;margin:0 0 20px;padding-bottom:10px;border-bottom:2px solid #eee}
+.bsp-reviews-carousel{position:relative;overflow:hidden;padding:0 36px}
+.bsp-reviews-track{display:flex;gap:14px;transition:transform .35s ease}
+.bsp-review-card{min-width:calc(33.333% - 10px);flex:0 0 calc(33.333% - 10px);background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:20px;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.bsp-review-stars{color:#f59e0b;font-size:14px;margin-bottom:10px;letter-spacing:1px}
+.bsp-review-text{font-size:13px;line-height:1.7;color:#444;margin:0 0 14px;font-style:italic}
+.bsp-review-author{font-size:13px;font-weight:600;color:#111;margin:0}
+.bsp-review-location{font-size:12px;color:#888;margin:3px 0 0}
+.bsp-carousel-btn{position:absolute;top:50%;transform:translateY(-50%);width:32px;height:32px;border-radius:50%;background:#fff;border:1px solid #e5e7eb;color:#555;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;z-index:2}
+.bsp-carousel-btn:hover{border-color:var(--bsp-primary,#0A6B5E);color:var(--bsp-primary,#0A6B5E)}
 .bsp-carousel-btn.prev{left:0}
 .bsp-carousel-btn.next{right:0}
-.bsp-carousel-dots{display:flex;gap:8px;justify-content:center;margin-top:24px}
-.bsp-carousel-dot{width:8px;height:8px;border-radius:50%;background:#ddd;cursor:pointer;transition:all .2s}
-.bsp-carousel-dot.active{background:#0a6b8a;width:24px;border-radius:4px}
+.bsp-carousel-dots{display:flex;gap:6px;justify-content:center;margin-top:16px}
+.bsp-carousel-dot{width:6px;height:6px;border-radius:50%;background:#ddd;cursor:pointer;transition:all .2s}
+.bsp-carousel-dot.active{background:var(--bsp-primary,#0A6B5E);width:20px;border-radius:3px}
+
+/* AUTHOR */
+.bsp-author{display:flex;gap:16px;align-items:flex-start;background:#f9f9f9;border:1px solid #e5e7eb;border-radius:10px;padding:20px 24px;margin:40px 0}
+.bsp-author-avatar{width:56px;height:56px;min-width:56px;border-radius:50%;background:var(--bsp-primary,#0A6B5E);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden}
+.bsp-author-avatar img{width:100%;height:100%;object-fit:cover}
+.bsp-author-name{font-size:15px;font-weight:700;color:#1a1a1a;margin:0 0 2px}
+.bsp-author-role{font-size:12px;color:var(--bsp-primary,#0A6B5E);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin:0 0 8px}
+.bsp-author-bio{font-size:13px;color:#555;margin:0;line-height:1.65}
+
 @media(max-width:900px){
-.bsp-review-card{min-width:calc(50% - 8px);flex:0 0 calc(50% - 8px)}
-.bsp-reviews-carousel{padding:0 40px}
+  .bsp-review-card{min-width:calc(50% - 7px);flex:0 0 calc(50% - 7px)}
 }
-/* RESPONSIVE — MOBILE FIRST */
 @media(max-width:640px){
-  /* Hero */
-  .bsp-hero-img-wrap img{height:220px!important;aspect-ratio:16/9}
-  .bsp-hero-overlay{padding:20px 16px}
-  .bsp-hero h1{font-size:20px!important;line-height:1.25;letter-spacing:-0.3px;margin-bottom:10px}
-  .bsp-hero-tag{font-size:9px;padding:3px 10px}
-  .bsp-hero-meta{gap:10px;font-size:12px}
-  /* Body */
-  .bsp-article{padding:0 4px}
-  .bsp-article h2{font-size:17px!important;margin:24px 0 10px!important;padding-bottom:8px;line-height:1.3}
-  .bsp-article h3{font-size:15px!important;margin:18px 0 8px!important}
-  .bsp-article p{font-size:15px!important;line-height:1.75!important;margin-bottom:16px!important}
-  .bsp-article li{font-size:14px!important;margin-bottom:6px}
-  .bsp-article ul,.bsp-article ol{padding-left:20px}
-  /* Table — make scrollable */
-  .bsp-table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:8px}
-  .bsp-table{min-width:480px;font-size:12px}
-  .bsp-table th,.bsp-table td{padding:8px 10px}
-  /* Numbered steps */
-  .bsp-step-num{width:32px!important;height:32px!important;font-size:14px!important;min-width:32px!important}
-  .bsp-step{gap:10px!important;padding:14px!important}
-  /* Images */
-  .bsp-img-wrap img{aspect-ratio:4/3;height:auto!important}
-  .bsp-inline-img img{height:200px!important}
-  /* CTA */
-  .bsp-cta{padding:24px 16px!important;border-radius:12px}
-  .bsp-cta h3{font-size:18px!important}
+  .bsp-hero-img-wrap img{height:220px}
+  .bsp-hero h1{font-size:20px!important;margin-bottom:12px}
+  .bsp-hero-meta{gap:12px}
+  .bsp-article h2{font-size:17px!important;margin:28px 0 12px!important}
+  .bsp-article h3{font-size:15px!important}
+  .bsp-article p{font-size:15px!important;margin-bottom:16px!important}
+  .bsp-article li{font-size:14px!important}
+  .bsp-check-header{padding:12px 0}
+  .bsp-check-num{width:24px;height:24px;min-width:24px;font-size:12px}
+  .bsp-check-info h2{font-size:15px!important}
+  .bsp-cta{padding:24px 20px!important}
+  .bsp-cta h2{font-size:18px!important}
   .bsp-cta p{font-size:14px!important}
-  .bsp-cta a{padding:10px 20px!important;font-size:14px!important}
-  /* Author */
-  .bsp-author{flex-direction:column!important;gap:12px!important;padding:16px!important}
-  .bsp-author-avatar,.bsp-author-initials{width:52px!important;height:52px!important;min-width:52px!important;font-size:18px!important}
-  .bsp-author-name{font-size:15px!important}
-  .bsp-author-bio{font-size:13px!important}
-  /* FAQ */
-  .bsp-faq-item summary{font-size:13px;padding:12px 14px}
-  .bsp-faq-a{font-size:13px;padding:12px 14px}
-  /* Reviews */
-  .bsp-review-card{min-width:100%!important;flex:0 0 100%!important}
+  .bsp-cta-btn{padding:11px 24px;font-size:14px}
+  .bsp-author{flex-direction:column;gap:12px;padding:16px}
+  .bsp-author-avatar{width:48px;height:48px;min-width:48px;font-size:18px}
+  .bsp-review-card{min-width:100%;flex:0 0 100%}
   .bsp-reviews-carousel{padding:0 28px}
-  .bsp-carousel-btn{width:32px!important;height:32px!important;font-size:16px!important}
-  /* Check list */
-  .bsp-check-header{flex-direction:row}
-  .bsp-list li{font-size:13px}
-  /* Tables in header */
-  .bsp-table thead th:first-child,.bsp-table thead th:last-child{border-radius:0}
+  .bsp-faq-item summary{font-size:14px;padding:14px 0}
+  .bsp-table-wrap{border-radius:6px}
+  .bsp-table{font-size:12px;min-width:440px}
+  .bsp-table th,.bsp-table td{padding:9px 12px}
 }
 @media(max-width:400px){
   .bsp-hero h1{font-size:18px!important}
-  .bsp-article h2{font-size:16px!important}
+  .bsp-article h2{font-size:15px!important}
   .bsp-article p{font-size:14px!important}
 }
 </style>`;
@@ -5839,7 +5898,7 @@ function clearAIForm(){
   document.getElementById('ai-keypoints').value = '';
 }
 
-async function generateBlogAuto(){
+async function generateBlogAuto(autoPublish=false){
   const topic = document.getElementById('ai-topic').value.trim();
   const apiKey = localStorage.getItem('claude_api_key');
   const model = localStorage.getItem('claude_model') || 'claude-sonnet-4-20250514';
@@ -5855,9 +5914,10 @@ async function generateBlogAuto(){
     return;
   }
   
-  const btn = document.getElementById('ai-gen-btn');
-  btn.classList.add('loading');
-  btn.disabled = true;
+  const btn    = document.getElementById('ai-gen-btn');
+  const btnPub = document.getElementById('ai-gen-publish-btn');
+  btn.classList.add('loading');    btn.disabled    = true;
+  btnPub.classList.add('loading'); btnPub.disabled = true;
   
   try {
     // Build auto-prompt from profile + topic
@@ -5974,10 +6034,20 @@ async function generateBlogAuto(){
     // Track usage
     trackTokenUsage(data.usage.input_tokens, data.usage.output_tokens, model);
     
-    // Scroll to blog content
+    // AUTO-CONVERT immediately after generation
+    convertToHTML();
+    
+    // Scroll to publish panel
+    switchTab('seo', document.querySelector('#mode-blog .rtab'));
     document.getElementById('blog-input').scrollIntoView({behavior: 'smooth', block: 'start'});
     
-    toast('Complete blog generated!','ok','Review → Add images → Publish');
+    if(autoPublish){
+      toast('✅ Blog generated! Publishing now...','ok','');
+      // Small delay to let convert finish rendering
+      setTimeout(()=>{ publishPost(); }, 800);
+    } else {
+      toast('✅ Blog generated & converted!','ok','Review SEO fields → Click Publish when ready');
+    }
     
   } catch(err) {
     let errorMsg = err.message;
@@ -5991,135 +6061,48 @@ async function generateBlogAuto(){
     toast(errorMsg, 'err', errorDetail);
     console.error('AI Generation Error:', err);
   } finally {
-    btn.classList.remove('loading');
-    btn.disabled = false;
+    btn.classList.remove('loading');    btn.disabled    = false;
+    btnPub.classList.remove('loading'); btnPub.disabled = false;
   }
 }
 
 function buildAutoPrompt(topic){
-  const profile = clientProfiles[activeProfileIdx];
+  const profile  = clientProfiles[activeProfileIdx];
   const location = document.getElementById('ai-location').value.trim() || (profile?.city || '');
   const audience = document.getElementById('ai-audience').value.trim() || '';
   const keypoints = document.getElementById('ai-keypoints').value.trim();
-  
-  // Auto-generate focus keyword
-  const focusKw = topic.toLowerCase() + (location ? ' ' + location.toLowerCase() : '');
-  
-  let profileContext = '';
-  if(profile){
-    profileContext = `
-BUSINESS INFO (auto-filled from profile):
-- Name: ${profile.name}
-- Industry: ${profile.industry || 'Not specified'}
-- Location: ${profile.city || ''}${profile.state ? ', ' + profile.state : ''}
-- Website: ${profile.url || ''}
-- Tone: ${profile.tone || 'Professional & Technical'}
-- Author: ${profile.authorName || ''}${profile.authorRole ? ' (' + profile.authorRole + ')' : ''}
-- CTA: ${profile.ctaBtn || 'Book Consultation'} → ${profile.ctaUrl || ''}
-`;
-  }
-  
-  return `You are a professional SEO blog writer. Generate a COMPLETE, READY-TO-PUBLISH blog post.
+  const structure = document.getElementById('ai-blog-structure')?.value || 'educational';
+  const focusKw  = topic.toLowerCase() + (location ? ' ' + location.toLowerCase() : '');
 
-${profileContext}
+  // Get structure-specific prompt
+  const structurePrompt = getBlogStructurePrompt(structure, topic, focusKw, profile, location, audience, keypoints);
 
-TOPIC: ${topic}${location ? ' in ' + location : ''}
-${audience ? 'TARGET AUDIENCE: ' + audience : ''}
-${keypoints ? '\nKEY POINTS TO COVER:\n' + keypoints.split('\n').map(p => '- ' + p.trim()).join('\n') : ''}
+  const keypointsSection = keypoints ? `\nKEY POINTS TO COVER:\n${keypoints.split('\n').map(p=>'- '+p.trim()).join('\n')}` : '';
+  const audienceSection  = audience  ? `\nTARGET AUDIENCE: ${audience}` : '';
 
-FOCUS KEYWORD: ${focusKw}
+  return `You are a professional SEO blog writer for ${profile?.name||'a clinic'}.
+${profile ? `Business: ${profile.name} | Industry: ${profile.industry||''} | Location: ${profile.city||''}${profile.state?', '+profile.state:''} | Tone: ${profile.tone||'Professional'}` : ''}
+${audienceSection}${keypointsSection}
 
-OUTPUT FORMAT — Use these EXACT markers (no explanations, just the content):
+Write a COMPLETE, PUBLISH-READY blog using EXACTLY this marker structure below. No explanations — only the marker-formatted content.
 
-#HERO_TAG = ${profile?.industry || 'Guide'} · ${topic}
-#TITLE = [Compelling title with focus keyword — 50-60 chars]
-#AUTHOR = ${profile?.authorName || 'Author'}
-#AUTHOR_URL = ${profile?.authorUrl || ''}
-#READ_TIME = 12
-#META_TITLE = [SEO title 50-60 chars with "${focusKw}"]
-#META_DESC = [Meta description 130-160 chars with "${focusKw}"]
-#FOCUS_KW = ${focusKw}
-#SECONDARY_KW = [5-8 related keywords, comma-separated]
-
-#INTRO
-[2-3 engaging paragraphs introducing ${topic}. Include focus keyword naturally in first paragraph.]
-
-#H2 = [First Major Heading]
-#PARA = [Detailed content for this section]
-
-#H3 = [Subheading if needed]
-#PARA = [Content]
-
-#CHECK = Check #1: [First key point]
-#PARA = [Explanation]
-
-#CHECK = Check #2: [Second key point]
-#PARA = [Explanation]
-
-#CHECK = Check #3: [Third key point]
-#PARA = [Explanation]
-
-#H2 = [Another Section Heading]
-#PARA = [Content]
-
-#TABLE_START
-| Feature | Details |
-| --- | --- |
-| [Item] | [Description] |
-| [Item] | [Description] |
-#TABLE_END
-
-#FAQ_START
-Q: [Natural question people ask about ${topic}]
-A: [Clear, helpful answer]
-
-Q: [Second question]
-A: [Answer]
-
-Q: [Third question]
-A: [Answer]
-
-Q: [Fourth question]
-A: [Answer]
-
-Q: [Fifth question]
-A: [Answer]
-#FAQ_END
-
-#REVIEWS_START
-[Authentic review text mentioning specific benefit] | [Indian name] | [Location] | 5
-[Another review focusing on service quality] | [Indian name] | [Nearby area] | 5
-[Review highlighting results/outcome] | [Indian name] | [Location] | 5
-[Review about staff/experience] | [Indian name] | [Area] | 5
-[Review about value/recommendation] | [Indian name] | [Location] | 5
-#REVIEWS_END
-
-#CTA_TITLE = ${profile?.ctaBtn || 'Ready to Get Started?'}
-#CTA_BODY = [One compelling line motivating action]
-
-REQUIREMENTS:
-1. Output ONLY marker-formatted content — no preamble
-2. Make it 1500+ words
+OUTPUT REQUIREMENTS:
+1. Use ONLY the markers shown — no extra text outside markers
+2. 1500+ words minimum
 3. Use "${focusKw}" naturally 5-8 times
-4. Include all secondary keywords naturally
-5. Write in ${profile?.tone || 'professional but approachable'} tone
-6. Target Indian audience, use ₹ for pricing
-7. Make FAQ sound natural (real questions)
-8. REVIEWS MUST BE NATURAL & SEO-OPTIMIZED:
-   - Write like real Indian customers (casual, specific, emotional)
-   - Mention exact treatment names ("PRP therapy", "cryolipolysis", etc.)
-   - Include location naturally ("best hair treatment in Hennur", "visited from Whitefield")
-   - Use conversational language ("finally found", "highly recommend", "worth every rupee")
-   - Mention specific results ("lost 2 inches", "hair fall reduced 80%", "visible in 3 weeks")
-   - Use doctor/staff names if available
-   - Include time frames ("after 4 sessions", "within 2 months")
-   - Each review 12-20 words maximum
-   - NO generic phrases like "professional staff" — be SPECIFIC
-9. DO NOT include #IMAGE_1 or #IMAGE_2 markers in your output (tool will auto-insert them)
-10. Each review 15-25 words, natural language, specific details
+4. Write in ${profile?.tone||'professional but approachable'} tone
+5. Target Indian audience, use ₹ for pricing
+6. Make FAQ questions sound like real search queries
+7. Reviews: casual Indian language, specific results, 15-20 words max each
+8. Do NOT add #IMAGE_1 or #IMAGE_2 — tool auto-inserts them
 
-Start with #HERO_TAG:`;
+--- START MARKER OUTPUT ---
+
+${structurePrompt}
+
+--- END MARKER OUTPUT ---`;
 }
+
 
 function clearBrief(){
   clearAIForm();
@@ -7125,6 +7108,304 @@ function blogGscInit(mode){
 }
 
 
+
+// ── BLOG STRUCTURE SELECTOR ──
+function selectBlogStructure(id, el){
+  document.querySelectorAll('.blog-struct-card').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('ai-blog-structure').value = id;
+}
+
+function getBlogStructurePrompt(structure, topic, focusKw, profile, location, audience, keypoints){
+  const biz    = profile?.name || 'our clinic';
+  const author = profile?.authorName || 'Author';
+  const cta    = profile?.ctaBtn || 'Book a Consultation';
+
+  const base = `#HERO_TAG = ${profile?.industry||'Guide'} · ${topic}
+#TITLE = [Compelling SEO title with "${focusKw}" — 50-60 chars]
+#AUTHOR = ${author}
+#AUTHOR_URL = ${profile?.authorUrl||''}
+#READ_TIME = 10
+#META_TITLE = [SEO title 50-60 chars with "${focusKw}"]
+#META_DESC = [Meta description 130-160 chars with "${focusKw}"]
+#FOCUS_KW = ${focusKw}
+#SECONDARY_KW = [5-8 related keywords comma-separated]`;
+
+  const footer = `#REVIEWS_START
+[Specific review mentioning treatment result] | [Indian name] | [Location] | 5
+[Review about doctor experience] | [Indian name] | [Nearby area] | 5
+[Review mentioning specific outcome] | [Indian name] | [Location] | 5
+[Review about value] | [Indian name] | [Area] | 5
+[Review with timeframe and results] | [Indian name] | [Location] | 5
+#REVIEWS_END
+
+#CTA_TITLE = ${cta}
+#CTA_BODY = [One compelling sentence motivating action for ${topic}]`;
+
+  const structures = {
+    educational: `${base}
+
+#INTRO
+[2-3 engaging paragraphs about ${topic}. Include "${focusKw}" in first 100 words. Hook with a relatable problem.]
+
+#H2 = What Is ${topic}?
+#PARA = [Clear explanation, who it's for]
+
+#H2 = Why ${topic} Matters${location?' in '+location:''}
+#PARA = [Why this matters for the audience]
+#LIST_START
+[Problem it solves 1]
+[Problem it solves 2]
+[Problem it solves 3]
+[Problem it solves 4]
+#LIST_END
+
+#IMAGE_1 = ${topic} treatment
+
+#H2 = How ${topic} Works — Step by Step
+#CHECK = Step 1: [First stage]
+#PARA = [Detailed explanation]
+#CHECK = Step 2: [Second stage]
+#PARA = [Detailed explanation]
+#CHECK = Step 3: [Third stage]
+#PARA = [Detailed explanation]
+#CHECK = Step 4: [Fourth stage]
+#PARA = [Detailed explanation]
+
+#H2 = Key Benefits
+#LIST_START
+[Benefit 1 with specific detail]
+[Benefit 2 with specific detail]
+[Benefit 3 with specific detail]
+[Benefit 4 with specific detail]
+[Benefit 5 with specific detail]
+#LIST_END
+
+#IMAGE_2 = ${topic} results
+
+#H2 = Results & Timeline
+#TABLE_START
+| Stage | Timeframe | What Happens |
+| --- | --- | --- |
+| During session | [Time] | [Description] |
+| Week 1 | [Time] | [Description] |
+| Month 1 | [Time] | [Description] |
+| Final results | [Time] | [Description] |
+#TABLE_END
+
+#FAQ_START
+Q: How long does ${topic} take?
+A: [Clear answer]
+Q: Is ${topic} safe?
+A: [Reassuring answer]
+Q: How much does ${topic} cost${location?' in '+location:''}?
+A: [Honest range]
+Q: How many sessions are needed?
+A: [Specific answer]
+Q: Is there any downtime?
+A: [Practical answer]
+#FAQ_END
+${footer}`,
+
+    listicle: `${base}
+
+#INTRO
+[2-3 paragraphs. Open with a surprising fact about ${topic}. Tell readers exactly what they'll learn from this list.]
+
+#H2 = [Number] Key Things to Know About ${topic}
+#PARA = [Brief overview]
+
+#CHECK = 1. [First key tip or fact about ${topic}]
+#PARA = [2-3 sentences with specific details]
+
+#CHECK = 2. [Second tip]
+#PARA = [2-3 sentences]
+
+#CHECK = 3. [Third tip]
+#PARA = [2-3 sentences]
+
+#IMAGE_1 = ${topic}
+
+#CHECK = 4. [Fourth tip]
+#PARA = [2-3 sentences]
+
+#CHECK = 5. [Fifth tip]
+#PARA = [2-3 sentences]
+
+#CHECK = 6. [Sixth tip]
+#PARA = [2-3 sentences]
+
+#IMAGE_2 = ${topic} clinic
+
+#CHECK = 7. [Seventh tip]
+#PARA = [2-3 sentences]
+
+#H2 = Quick Reference: ${topic} at a Glance
+#TABLE_START
+| Factor | Details |
+| --- | --- |
+| Duration | [Value] |
+| Results | [Value] |
+| Sessions | [Value] |
+| Cost range | [Value] |
+| Downtime | [Value] |
+| Best for | [Value] |
+#TABLE_END
+
+#H2 = Common Mistakes to Avoid
+#LIST_START
+[Mistake 1 with why it matters]
+[Mistake 2 with advice]
+[Mistake 3 with advice]
+[Mistake 4 with advice]
+#LIST_END
+
+#FAQ_START
+Q: [Most common question about ${topic}]
+A: [Answer]
+Q: [Second common question]
+A: [Answer]
+Q: [Third question]
+A: [Answer]
+Q: [Fourth question]
+A: [Answer]
+Q: [Fifth question]
+A: [Answer]
+#FAQ_END
+${footer}`,
+
+    comparison: `${base}
+
+#INTRO
+[2-3 paragraphs introducing the comparison. What's the confusion people face about ${topic}? Why does this comparison matter?]
+
+#H2 = Understanding ${topic} — The Basics
+#PARA = [What it is, background]
+
+#H2 = ${topic} vs [Main Alternative]: Key Differences
+#TABLE_START
+| Feature | ${topic} | [Alternative] |
+| --- | --- | --- |
+| How it works | [Description] | [Description] |
+| Results | [Description] | [Description] |
+| Duration | [Description] | [Description] |
+| Cost | [Description] | [Description] |
+| Downtime | [Description] | [Description] |
+| Best for | [Description] | [Description] |
+| Sessions needed | [Description] | [Description] |
+#TABLE_END
+
+#IMAGE_1 = ${topic} comparison
+
+#H2 = Pros and Cons of ${topic}
+#H3 = Advantages
+#LIST_START
+[Advantage 1]
+[Advantage 2]
+[Advantage 3]
+[Advantage 4]
+#LIST_END
+#H3 = Limitations
+#LIST_START
+[Limitation 1]
+[Limitation 2]
+[Limitation 3]
+#LIST_END
+
+#H2 = Who Should Choose ${topic}?
+#CHECK = Ideal if: [Condition 1]
+#PARA = [Explanation]
+#CHECK = Ideal if: [Condition 2]
+#PARA = [Explanation]
+#CHECK = Skip if: [Condition]
+#PARA = [Explanation]
+
+#IMAGE_2 = ${topic} results
+
+#H2 = Our Verdict
+#PARA = [Clear recommendation — when to choose ${topic} vs alternative]
+
+#FAQ_START
+Q: Which is better — ${topic} or [alternative]?
+A: [Nuanced answer]
+Q: Can I combine ${topic} with other treatments?
+A: [Answer]
+Q: How do I know which is right for me?
+A: [Practical guidance]
+Q: What is the cost difference?
+A: [Honest comparison]
+Q: How long do results last?
+A: [Specific timeframe]
+#FAQ_END
+${footer}`,
+
+    local: `${base}
+
+#INTRO
+[2-3 paragraphs about ${topic}${location?' in '+location:''}. Mention local context — why people here seek this. Include "${focusKw}" naturally in first paragraph.]
+
+#H2 = Why ${location||'People'} Are Choosing ${topic}
+#PARA = [Local demand, lifestyle factors, climate if relevant]
+#LIST_START
+[Local reason 1]
+[Local reason 2]
+[Local reason 3]
+[Local reason 4]
+#LIST_END
+
+#IMAGE_1 = ${topic} ${location||'clinic'}
+
+#H2 = What to Expect from ${topic}${location?' in '+location:''}
+#CHECK = Step 1: Free Consultation
+#PARA = [What the consultation involves]
+#CHECK = Step 2: Personalised Treatment Plan
+#PARA = [How the plan is made]
+#CHECK = Step 3: The Treatment Session
+#PARA = [What the procedure involves]
+#CHECK = Step 4: Aftercare & Results
+#PARA = [Recovery and timeline]
+
+#H2 = How Much Does ${topic} Cost${location?' in '+location:''}?
+#TABLE_START
+| Package | Price Range | Sessions | Includes |
+| --- | --- | --- | --- |
+| Basic | ₹[Range] | [N] | [Details] |
+| Standard | ₹[Range] | [N] | [Details] |
+| Premium | ₹[Range] | [N] | [Details] |
+#TABLE_END
+#PARA = [Note on what affects pricing, EMI options if any]
+
+#IMAGE_2 = ${biz} ${location||''}
+
+#H2 = Why Choose ${biz}
+#LIST_START
+[USP 1 — specific and credible]
+[USP 2]
+[USP 3]
+[USP 4]
+[USP 5]
+#LIST_END
+
+#H2 = What to Look for in Any ${topic} Clinic
+#PARA = [Buyer's guide — credentials, equipment, hygiene, consultation quality]
+
+#FAQ_START
+Q: Which is the best clinic for ${topic}${location?' in '+location:''}?
+A: [Mention ${biz} with specific reasons]
+Q: Is ${topic} painful?
+A: [Honest, reassuring answer]
+Q: How many sessions will I need?
+A: [Specific to treatment]
+Q: When will I see results?
+A: [Realistic expectation]
+Q: Do you offer a free consultation?
+A: [Clinic-specific answer]
+#FAQ_END
+${footer}`
+  };
+
+  return structures[structure] || structures.educational;
+}
 
 // no-ops for any legacy calls
 function wrapEditSelection() {}
