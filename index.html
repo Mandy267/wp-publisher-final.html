@@ -2517,7 +2517,7 @@ function convertToHTML(raw){
   if(!authorRole) authorRole = 'Author';
   if(!authorBio) authorBio = 'Professional author and expert in this field.';
   
-  authorName = ((raw.match(/^#AUTHOR_NAME\s*=\s*(.+)/im)||['',''])[1].trim()) || ((raw.match(/^#AUTHOR\s*=\s*(.+)/im)||['',''])[1].trim()) || activeProf.authorName || authorSlug.split('-').map(w=>w.charAt(0).toUpperCase()+w.slice(1)).join(' ');
+  authorName = ((raw.match(/^#AUTHOR_NAME\s*=\s*(.+)/im)||['',''])[1].trim()) || ((raw.match(/^#AUTHOR\s*=\s*(.+)/im)||['',''])[1].trim()) || activeProf.authorName || '';
   const authorInitials = authorName.split(' ').map(w=>w[0]).join('').substring(0,2);
   
   const heroTag    = (raw.match(/^#HERO_TAG\s*=\s*(.+)/im)||['','Research Guide'])[1].trim();
@@ -2525,13 +2525,11 @@ function convertToHTML(raw){
   const fallback   = 'https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?w=1200&q=80';
 
   // ── HERO ──
-  const heroCaption = imgAlts.hero || title;
   const hero=`<div class="bsp-hero">
   <div class="bsp-hero-img-wrap">
     <img src="${imgs.hero||fallback}" alt="${fmt(imgAlts.hero||title)}" loading="eager"/>
   </div>
   <span class="bsp-hero-tag">${fmt(heroTag)}</span>
-  <h1>${fmt(title)}</h1>
   <div class="bsp-hero-meta">
     <span>✍ By <strong>${fmt(authorName)}</strong></span>
     <span>⏱ ${readTime} min read</span>
@@ -2664,7 +2662,7 @@ ${reviewItems.map(r=>`      <div class="bsp-review-card">
     inReviews=false;reviewItems=[];
   };
 
-  let inTabs=false,tabLabels=[],tabContents=[],currentTab=0;
+  let inTabs=false,tabLabels=[],tabContents=[],currentTab=0,tabCheckNum=0;
   const closeTabs=()=>{
     if(!inTabs||!tabLabels.length)return;
     const tabId='tab-'+Math.random().toString(36).substr(2,6);
@@ -2749,7 +2747,7 @@ function bspTab(id,idx){
     if(/^#TAB_END/i.test(line)){closeTabs();continue}
     if(inTabs){
       const nextTabMatch=line.match(/^#TAB\s*=\s*(.+)/i);
-      if(nextTabMatch){currentTab++;continue}
+      if(nextTabMatch){currentTab++;tabCheckNum=0;continue}
       if(currentTab<tabContents.length){
         // Process line as HTML inside tab
         const tl=line;
@@ -2764,7 +2762,7 @@ function bspTab(id,idx){
           while(pi<lines.length&&!/^#LIST_END/i.test(lines[pi].trim())){if(lines[pi].trim())litems.push(lines[pi].trim().replace(/^[-*•]\s*/,''));pi++;}
           tabContents[currentTab]+=`<ul class="bsp-list">${litems.map(it=>`<li>${fmt(it)}</li>`).join('')}</ul>\n`;i=pi+1;
         }
-        else if(/^#CHECK\s*=/i.test(tl)){tabContents[currentTab]+=`<div class="bsp-check-header"><div class="bsp-check-num">${++checkNum}</div><div class="bsp-check-info"><h3>${fmt(tl.replace(/^#CHECK\s*=\s*/i,''))}</h3></div></div>\n`;}
+        else if(/^#CHECK\s*=/i.test(tl)){var _tn=tl.replace(/^#CHECK\s*=\s*/i,'').trim();tabContents[currentTab]+="<div class=\"bsp-check-header\"><div class=\"bsp-check-num\">"+(++tabCheckNum)+"</div><div class=\"bsp-check-info\"><div class=\"bsp-check-title\">"+fmt(_tn)+"</div></div></div>\n";}
         else if(tl&&!tl.startsWith('#')){tabContents[currentTab]+=`<p>${fmt(tl)}</p>\n`;}
       }
       continue;
@@ -6164,7 +6162,7 @@ function buildAutoPrompt(topic){
   var keypoints = document.getElementById('ai-keypoints').value.trim();
   var focusKw   = topic.toLowerCase() + (location ? ' ' + location.toLowerCase() : '');
   var biz       = profile.name || 'our clinic';
-  var author    = profile.authorName || 'Dr. Expert';
+  var author    = profile.authorName || '';
   var authorRole= profile.authorRole || 'Specialist';
   var authorBio = profile.authorBio  || 'Expert at ' + biz;
   var cta       = profile.ctaBtn     || 'Book a Free Consultation';
