@@ -405,6 +405,132 @@ input.inp::placeholder,textarea.inp::placeholder{color:var(--ink3)}
         </div>
       </div>
       <div style="margin-top:12px;border-top:1px solid var(--bdr);padding-top:12px">
+        <div style="font-size:11px;font-weight:600;color:var(--ink2);margin-bottom:8px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.5px">🎨 Blog Style Settings</div>
+        <div style="background:var(--teal-l);border:1px solid var(--teal-b);border-radius:6px;padding:7px 11px;font-size:11px;color:var(--teal);margin-bottom:10px">
+          These settings apply to every blog published from this profile — both manual and Auto-Pilot
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+
+          <!-- Font Sizes -->
+          <div class="fg">
+            <label class="lbl">H1 Size (desktop)</label>
+            <select class="inp" id="p-h1-size">
+              <option value="clamp(24px,4vw,36px)">Small (36px)</option>
+              <option value="clamp(26px,4vw,40px)" selected>Medium (40px)</option>
+              <option value="clamp(28px,5vw,48px)">Large (48px)</option>
+              <option value="clamp(32px,5vw,56px)">Extra Large (56px)</option>
+            </select>
+          </div>
+          <div class="fg">
+            <label class="lbl">H1 Size (mobile)</label>
+            <select class="inp" id="p-h1-mobile">
+              <option value="18px">Small (18px)</option>
+              <option value="20px" selected>Medium (20px)</option>
+              <option value="22px">Large (22px)</option>
+              <option value="24px">Extra Large (24px)</option>
+            </select>
+          </div>
+          <div class="fg">
+            <label class="lbl">H2 Size (desktop)</label>
+            <select class="inp" id="p-h2-size">
+              <option value="18px">Small (18px)</option>
+              <option value="22px">Medium (22px)</option>
+              <option value="clamp(20px,2.5vw,26px)" selected>Large (26px)</option>
+              <option value="clamp(22px,3vw,30px)">Extra Large (30px)</option>
+            </select>
+          </div>
+          <div class="fg">
+            <label class="lbl">H2 Size (mobile)</label>
+            <select class="inp" id="p-h2-mobile">
+              <option value="15px">Small (15px)</option>
+              <option value="17px" selected>Medium (17px)</option>
+              <option value="19px">Large (19px)</option>
+              <option value="21px">Extra Large (21px)</option>
+            </select>
+          </div>
+          <div class="fg">
+            <label class="lbl">H3 Size (desktop)</label>
+            <select class="inp" id="p-h3-size">
+              <option value="15px">Small (15px)</option>
+              <option value="17px">Medium (17px)</option>
+              <option value="18px" selected>Large (18px)</option>
+              <option value="20px">Extra Large (20px)</option>
+            </select>
+          </div>
+          <div class="fg">
+            <label class="lbl">H3 Size (mobile)</label>
+            <select class="inp" id="p-h3-mobile">
+              <option value="13px">Small (13px)</option>
+              <option value="15px" selected>Medium (15px)</option>
+              <option value="17px">Large (17px)</option>
+            </select>
+          </div>
+          <div class="fg">
+            <label class="lbl">Body Text (desktop)</label>
+            <select class="inp" id="p-body-size">
+              <option value="14px">Small (14px)</option>
+              <option value="15px">Medium (15px)</option>
+              <option value="16px" selected>Large (16px)</option>
+              <option value="17px">Extra Large (17px)</option>
+            </select>
+          </div>
+          <div class="fg">
+            <label class="lbl">Body Text (mobile)</label>
+            <select class="inp" id="p-body-mobile">
+              <option value="13px">Small (13px)</option>
+              <option value="14px">Medium (14px)</option>
+              <option value="15px" selected>Large (15px)</option>
+              <option value="16px">Extra Large (16px)</option>
+            </select>
+          </div>
+          <div class="fg">
+            <label class="lbl">Line Height</label>
+            <select class="inp" id="p-line-height">
+              <option value="1.6">Compact (1.6)</option>
+              <option value="1.75">Normal (1.75)</option>
+              <option value="1.85" selected>Relaxed (1.85)</option>
+              <option value="2">Spacious (2.0)</option>
+            </select>
+          </div>
+          <div class="fg">
+            <label class="lbl">Max Content Width</label>
+            <select class="inp" id="p-max-width">
+              <option value="680px">Narrow (680px)</option>
+              <option value="760px">Medium (760px)</option>
+              <option value="820px" selected>Wide (820px)</option>
+              <option value="900px">Extra Wide (900px)</option>
+            </select>
+          </div>
+          <div class="fg">
+            <label class="lbl">H2 Style</label>
+            <select class="inp" id="p-h2-style">
+              <option value="border-bottom:2px solid #e8f4f8">Underline (default)</option>
+              <option value="border-left:4px solid var(--bsp-primary);padding-left:12px;border-bottom:none">Left Border</option>
+              <option value="background:var(--bsp-primary);color:#fff;padding:8px 14px;border-radius:6px;border-bottom:none">Filled Badge</option>
+              <option value="border-bottom:none">Plain (no decoration)</option>
+            </select>
+          </div>
+          <div class="fg">
+            <label class="lbl">Hero Image Height</label>
+            <select class="inp" id="p-hero-height">
+              <option value="300px">Short (300px)</option>
+              <option value="380px">Medium (380px)</option>
+              <option value="440px" selected>Tall (440px)</option>
+              <option value="520px">Extra Tall (520px)</option>
+            </select>
+          </div>
+          <div class="fg" style="grid-column:1/-1">
+            <label class="lbl">Paragraph Spacing</label>
+            <select class="inp" id="p-para-spacing">
+              <option value="12px">Tight (12px)</option>
+              <option value="16px">Normal (16px)</option>
+              <option value="20px" selected>Relaxed (20px)</option>
+              <option value="28px">Spacious (28px)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:12px;border-top:1px solid var(--bdr);padding-top:12px">
         <div style="font-size:11px;font-weight:600;color:var(--ink2);margin-bottom:8px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.5px">Default CTA</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
           <div class="fg"><label class="lbl">CTA Button Text</label><input class="inp" id="p-cta-btn" placeholder="Book a Free Consultation"/></div>
@@ -891,10 +1017,14 @@ MBBS certified doctor" style="font-size:12px;line-height:1.6"></textarea>
         Reads blog markers → generates JSON-LD → paste into WordPress header
       </div>
 
+      <div style="background:#FFF1F1;border:1px solid #FECACA;border-radius:6px;padding:9px 12px;font-size:11px;color:#dc2626;margin-bottom:10px;line-height:1.6">
+        ⚠️ <strong>RankMath Duplicate Warning:</strong> If RankMath is active on this site, <strong>do not enable FAQPage</strong> below — it causes duplicate schema errors in Google Search Console. RankMath already handles FAQ schema. Only use Article, Person, Organization, and Breadcrumb here.
+      </div>
+
       <div style="font-size:10px;font-weight:600;color:var(--ink2);font-family:var(--mono);text-transform:uppercase;letter-spacing:.7px;margin-bottom:6px">Schema Types</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:10px">
         <label style="display:flex;align-items:center;gap:5px;font-size:11px;cursor:pointer;padding:5px 8px;background:var(--surf2);border-radius:5px;border:1px solid var(--bdr)"><input type="checkbox" id="schema-article" checked style="accent-color:var(--teal)"> Article</label>
-        <label style="display:flex;align-items:center;gap:5px;font-size:11px;cursor:pointer;padding:5px 8px;background:var(--surf2);border-radius:5px;border:1px solid var(--bdr)"><input type="checkbox" id="schema-faq" checked style="accent-color:var(--teal)"> FAQPage</label>
+        <label style="display:flex;align-items:center;gap:5px;font-size:11px;cursor:pointer;padding:5px 8px;background:var(--surf2);border-radius:5px;border:1px solid var(--bdr)"><input type="checkbox" id="schema-faq" style="accent-color:var(--teal)"> FAQPage</label>
         <label style="display:flex;align-items:center;gap:5px;font-size:11px;cursor:pointer;padding:5px 8px;background:var(--surf2);border-radius:5px;border:1px solid var(--bdr)"><input type="checkbox" id="schema-person" checked style="accent-color:var(--teal)"> Person</label>
         <label style="display:flex;align-items:center;gap:5px;font-size:11px;cursor:pointer;padding:5px 8px;background:var(--surf2);border-radius:5px;border:1px solid var(--bdr)"><input type="checkbox" id="schema-org" checked style="accent-color:var(--teal)"> Organization</label>
         <label style="display:flex;align-items:center;gap:5px;font-size:11px;cursor:pointer;padding:5px 8px;background:var(--surf2);border-radius:5px;border:1px solid var(--bdr)"><input type="checkbox" id="schema-breadcrumb" checked style="accent-color:var(--teal)"> Breadcrumb</label>
@@ -2187,36 +2317,58 @@ const BSP_CSS=`<style>
 .bsp-review-card{min-width:calc(50% - 8px);flex:0 0 calc(50% - 8px)}
 .bsp-reviews-carousel{padding:0 40px}
 }
-@media(max-width:600px){
-.bsp-review-card{min-width:100%;flex:0 0 100%}
-.bsp-reviews-carousel{padding:0 36px}
-.bsp-carousel-btn{width:36px;height:36px;font-size:18px}
-}
-/* AUTHOR */
-.bsp-author{display:flex;gap:20px;align-items:flex-start;background:#f8fbff;border:1px solid #d0e8f4;border-radius:14px;padding:24px 28px;margin:44px 0 20px}
-.bsp-author-avatar{width:68px;height:68px;min-width:68px;border-radius:50%;background:linear-gradient(135deg,#0a6b8a,#0e9977);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;color:#fff;box-shadow:0 4px 12px rgba(10,107,138,.25);flex-shrink:0}
-.bsp-author-body{}
-.bsp-author-name{font-size:16px;font-weight:700;color:#0a2540;margin:0 0 2px}
-.bsp-author-role{font-size:13px;color:#0a6b8a;font-weight:500;margin:0 0 10px}
-.bsp-author-bio{font-size:13px;color:#4a5568;line-height:1.7;margin:0 0 10px}
-.bsp-author-link{font-size:13px;color:#0a6b8a;text-decoration:none;font-weight:600}
-.bsp-author-link:hover{text-decoration:underline}
-/* RESPONSIVE */
+/* RESPONSIVE — MOBILE FIRST */
 @media(max-width:640px){
-  .bsp-hero-img-wrap img{aspect-ratio:1/1}
-  .bsp-hero-overlay{padding:24px}
-  .bsp-hero h1{font-size:20px}
-  .bsp-check-header{flex-direction:row}
-  .bsp-cta{padding:28px 24px}
-  .bsp-author{flex-direction:column;gap:14px}
-  .bsp-table thead th:first-child,.bsp-table thead th:last-child{border-radius:0}
-  .bsp-img-wrap img{aspect-ratio:1/1}
-  .bsp-article h2{font-size:18px;margin:28px 0 10px}
-  .bsp-article h3{font-size:15px}
-  .bsp-article p{font-size:14px}
-  .bsp-list li{font-size:13px}
+  /* Hero */
+  .bsp-hero-img-wrap img{height:220px!important;aspect-ratio:16/9}
+  .bsp-hero-overlay{padding:20px 16px}
+  .bsp-hero h1{font-size:20px!important;line-height:1.25;letter-spacing:-0.3px;margin-bottom:10px}
+  .bsp-hero-tag{font-size:9px;padding:3px 10px}
+  .bsp-hero-meta{gap:10px;font-size:12px}
+  /* Body */
+  .bsp-article{padding:0 4px}
+  .bsp-article h2{font-size:17px!important;margin:24px 0 10px!important;padding-bottom:8px;line-height:1.3}
+  .bsp-article h3{font-size:15px!important;margin:18px 0 8px!important}
+  .bsp-article p{font-size:15px!important;line-height:1.75!important;margin-bottom:16px!important}
+  .bsp-article li{font-size:14px!important;margin-bottom:6px}
+  .bsp-article ul,.bsp-article ol{padding-left:20px}
+  /* Table — make scrollable */
+  .bsp-table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:8px}
+  .bsp-table{min-width:480px;font-size:12px}
+  .bsp-table th,.bsp-table td{padding:8px 10px}
+  /* Numbered steps */
+  .bsp-step-num{width:32px!important;height:32px!important;font-size:14px!important;min-width:32px!important}
+  .bsp-step{gap:10px!important;padding:14px!important}
+  /* Images */
+  .bsp-img-wrap img{aspect-ratio:4/3;height:auto!important}
+  .bsp-inline-img img{height:200px!important}
+  /* CTA */
+  .bsp-cta{padding:24px 16px!important;border-radius:12px}
+  .bsp-cta h3{font-size:18px!important}
+  .bsp-cta p{font-size:14px!important}
+  .bsp-cta a{padding:10px 20px!important;font-size:14px!important}
+  /* Author */
+  .bsp-author{flex-direction:column!important;gap:12px!important;padding:16px!important}
+  .bsp-author-avatar,.bsp-author-initials{width:52px!important;height:52px!important;min-width:52px!important;font-size:18px!important}
+  .bsp-author-name{font-size:15px!important}
+  .bsp-author-bio{font-size:13px!important}
+  /* FAQ */
   .bsp-faq-item summary{font-size:13px;padding:12px 14px}
   .bsp-faq-a{font-size:13px;padding:12px 14px}
+  /* Reviews */
+  .bsp-review-card{min-width:100%!important;flex:0 0 100%!important}
+  .bsp-reviews-carousel{padding:0 28px}
+  .bsp-carousel-btn{width:32px!important;height:32px!important;font-size:16px!important}
+  /* Check list */
+  .bsp-check-header{flex-direction:row}
+  .bsp-list li{font-size:13px}
+  /* Tables in header */
+  .bsp-table thead th:first-child,.bsp-table thead th:last-child{border-radius:0}
+}
+@media(max-width:400px){
+  .bsp-hero h1{font-size:18px!important}
+  .bsp-article h2{font-size:16px!important}
+  .bsp-article p{font-size:14px!important}
 }
 </style>`;
 
@@ -2706,7 +2858,10 @@ ${reviewItems.map(r=>`      <div class="bsp-review-card">
       }
     }
   }
-  return themeOverride+BSP_CSS+'\n<div class="bsp-article">\n'+hero+'\n'+tocHtml+'\n'+body+'\n'+authorHtml+'\n</div>\n'+accordionScript;
+  // Style settings override
+  const tp2 = (typeof clientProfiles!=="undefined"&&clientProfiles[activeProfileIdx])||{};
+  themeOverride += `<style>.bsp-article{max-width:${tp2.styleMaxWidth||"820px"}!important;line-height:${tp2.styleLineHeight||"1.85"}!important}.bsp-hero h1{font-size:${tp2.styleH1Size||"clamp(26px,4vw,40px)"}!important}.bsp-article h2{font-size:${tp2.styleH2Size||"clamp(20px,2.5vw,26px)"}!important;${tp2.styleH2Style||"border-bottom:2px solid #e8f4f8"}}.bsp-article h3{font-size:${tp2.styleH3Size||"18px"}!important}.bsp-article p{font-size:${tp2.styleBodySize||"16px"}!important;margin-bottom:${tp2.styleParaSpace||"20px"}!important}.bsp-article li{font-size:${tp2.styleBodySize||"16px"}!important}.bsp-hero-img-wrap img{height:${tp2.styleHeroHeight||"440px"}!important}@media(max-width:640px){.bsp-hero h1{font-size:${tp2.styleH1Mobile||"20px"}!important}.bsp-article h2{font-size:${tp2.styleH2Mobile||"17px"}!important}.bsp-article h3{font-size:${tp2.styleH3Mobile||"15px"}!important}.bsp-article p,.bsp-article li{font-size:${tp2.styleBodyMobile||"15px"}!important}}</style>`;
+  return themeOverride+BSP_CSS+"\n<div class=\"bsp-article\">\n"+hero+"\n"+tocHtml+"\n"+body+"\n"+authorHtml+"\n</div>\n"+accordionScript;
 }
 
 // ═══════════════
@@ -4621,7 +4776,35 @@ function apWrapInTemplate({ title, content, kw, bizName, location, tone, images=
 .bsp-cta h3{font-size:22px;font-weight:700;margin:0 0 10px;color:#fff}
 .bsp-cta p{margin:0 0 20px;opacity:.9;font-size:15px}
 .bsp-cta a{display:inline-block;background:#fff;color:var(--bsp-primary,${primary});font-weight:700;padding:12px 28px;border-radius:8px;text-decoration:none;font-size:15px}
-@media(max-width:600px){.bsp-hero-img-wrap img{height:220px}.bsp-inline-img img{height:200px}.bsp-author{flex-direction:column}}
+@media(max-width:640px){
+  .bsp-hero-img-wrap img{height:220px!important;aspect-ratio:16/9}
+  .bsp-hero h1{font-size:20px!important;line-height:1.25!important;margin-bottom:10px!important}
+  .bsp-hero-tag{font-size:9px;padding:3px 10px}
+  .bsp-hero-meta{gap:10px;font-size:12px;flex-wrap:wrap}
+  .bsp-article{padding:0 4px}
+  .bsp-article h2{font-size:17px!important;margin:24px 0 10px!important;padding-bottom:8px!important;line-height:1.3!important}
+  .bsp-article h3{font-size:15px!important;margin:18px 0 8px!important}
+  .bsp-article p{font-size:15px!important;line-height:1.75!important;margin-bottom:16px!important}
+  .bsp-article li{font-size:14px!important}
+  .bsp-article ul,.bsp-article ol{padding-left:18px}
+  .bsp-inline-img img{height:200px!important;aspect-ratio:16/9}
+  .bsp-inline-img figcaption{font-size:11px;padding:6px 10px}
+  .bsp-cta{padding:24px 16px!important;border-radius:12px!important}
+  .bsp-cta h3{font-size:18px!important}
+  .bsp-cta p{font-size:14px!important}
+  .bsp-cta a{padding:10px 20px!important;font-size:14px!important;display:block;margin:0 auto;max-width:220px}
+  .bsp-author{flex-direction:column!important;gap:12px!important;padding:16px!important}
+  .bsp-author-avatar{width:52px!important;height:52px!important;font-size:18px!important}
+  .bsp-author-initials{width:52px!important;height:52px!important;font-size:18px!important}
+  .bsp-author-name{font-size:15px!important}
+  .bsp-author-role{font-size:11px!important}
+  .bsp-author-bio{font-size:13px!important;line-height:1.6!important}
+}
+@media(max-width:400px){
+  .bsp-hero h1{font-size:17px!important}
+  .bsp-article h2{font-size:15px!important}
+  .bsp-article p,.bsp-article li{font-size:14px!important}
+}
 </style>
 <div class="bsp-article">
   <div class="bsp-hero">
@@ -5137,6 +5320,21 @@ function openAddProfile(idx){
   document.getElementById('p-cta-btn').value           = p.ctaBtn||'';
   document.getElementById('p-cta-url').value           = p.ctaUrl||'';
   document.getElementById('p-category').value          = p.category||'';
+  // Blog Style Settings
+  const ss = (id,val)=>{ const el=document.getElementById(id); if(el) el.value=val; };
+  ss('p-h1-size',    p.styleH1Size    || 'clamp(26px,4vw,40px)');
+  ss('p-h1-mobile',  p.styleH1Mobile  || '20px');
+  ss('p-h2-size',    p.styleH2Size    || 'clamp(20px,2.5vw,26px)');
+  ss('p-h2-mobile',  p.styleH2Mobile  || '17px');
+  ss('p-h3-size',    p.styleH3Size    || '18px');
+  ss('p-h3-mobile',  p.styleH3Mobile  || '15px');
+  ss('p-body-size',  p.styleBodySize  || '16px');
+  ss('p-body-mobile',p.styleBodyMobile|| '15px');
+  ss('p-line-height',p.styleLineHeight|| '1.85');
+  ss('p-max-width',  p.styleMaxWidth  || '820px');
+  ss('p-h2-style',   p.styleH2Style   || 'border-bottom:2px solid #e8f4f8');
+  ss('p-hero-height',p.styleHeroHeight|| '440px');
+  ss('p-para-spacing',p.styleParaSpace|| '20px');
   // Author image preview
   const prevEl = document.getElementById('p-author-img-preview');
   if(p.authorImg){ prevEl.style.backgroundImage='url('+p.authorImg+')'; prevEl.dataset.src=p.authorImg; prevEl.style.display='block'; }
@@ -5178,6 +5376,20 @@ function saveProfile(){
     ctaBtn:         document.getElementById('p-cta-btn').value.trim(),
     ctaUrl:         document.getElementById('p-cta-url').value.trim(),
     category:       document.getElementById('p-category').value.trim(),
+    // Blog Style Settings
+    styleH1Size:    document.getElementById('p-h1-size')?.value || 'clamp(26px,4vw,40px)',
+    styleH1Mobile:  document.getElementById('p-h1-mobile')?.value || '20px',
+    styleH2Size:    document.getElementById('p-h2-size')?.value || 'clamp(20px,2.5vw,26px)',
+    styleH2Mobile:  document.getElementById('p-h2-mobile')?.value || '17px',
+    styleH3Size:    document.getElementById('p-h3-size')?.value || '18px',
+    styleH3Mobile:  document.getElementById('p-h3-mobile')?.value || '15px',
+    styleBodySize:  document.getElementById('p-body-size')?.value || '16px',
+    styleBodyMobile:document.getElementById('p-body-mobile')?.value || '15px',
+    styleLineHeight:document.getElementById('p-line-height')?.value || '1.85',
+    styleMaxWidth:  document.getElementById('p-max-width')?.value || '820px',
+    styleH2Style:   document.getElementById('p-h2-style')?.value || 'border-bottom:2px solid #e8f4f8',
+    styleHeroHeight:document.getElementById('p-hero-height')?.value || '440px',
+    styleParaSpace: document.getElementById('p-para-spacing')?.value || '20px',
   };
   const editIdx = document.getElementById('modal-profile').dataset.editIdx;
   if(editIdx !== ''){
